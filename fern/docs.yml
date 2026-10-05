@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=https://schema.buildwithfern.dev/docs-yml.json
 instances:
-  - url: https://docs.supay.dev
+  - url: supay.docs.buildwithfern.com
+    custom-domain: docs.supay.dev
 
 title: Supay
 
