@@ -1,0 +1,77 @@
+# 12 · Comercialización de Hidrocarburos
+
+Estaciones y distribuidoras, con crédito fiscal. La cabecera lleva
+**autorización, vehículo y envase**; sin detalle sectorial.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `codigo_autorizacion_sc` | string | Ver perfil | Autorización SC de la estación |
+| `codigo_pais` | string | Ver perfil | País de la operación |
+| `observacion` | string | No | Observación libre |
+| `placa_vehiculo` | string | Ver perfil | Placa del vehículo abastecido |
+| `tipo_envase` | string | Ver perfil | Tipo de envase |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Transporte SRL",
+      },
+      items: [
+        {
+          sku: "GASOLINA",
+          description: "Gasolina especial",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 200,
+          price: 3.74,
+        },
+      ],
+      sector: "12",
+      data: {
+        placa_vehiculo: "ABC-123",
+        tipo_envase: "Tanque",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Transporte SRL"
+        },
+        "items": [
+          {
+            "sku": "GASOLINA",
+            "description": "Gasolina especial",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 200,
+            "price": 3.74
+          }
+        ],
+        "sector": "12",
+        "data": {
+          "placa_vehiculo": "ABC-123"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

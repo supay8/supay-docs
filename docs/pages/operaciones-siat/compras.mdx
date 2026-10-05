@@ -1,0 +1,50 @@
+# Enviar compras
+
+Informa tus compras al SIAT por lote comprimido (recepción de compras). Es el
+flujo inverso a emitir: aquí reportas lo que **compraste**.
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `descripcion` | string | Ver perfil | Descripción del lote |
+| `tipoCompra` | int | Ver perfil | Tipo de compra SIAT |
+| `archivo` | string | Ver perfil | Lote comprimido (base64) |
+| `hashArchivo` | string | Ver perfil | SHA del archivo |
+| `cantidadFacturas` | int | Ver perfil | Facturas del lote |
+| `gestion` / `periodo` | int | Ver perfil | Gestión y periodo |
+| `fechaEnvio` | fecha | Ver perfil | Fecha de envío (ISO 8601) |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const res = await supay.siat.sendPurchases({
+      pointOfSaleId: pos.id,
+      descripcion: "Compras octubre",
+      tipoCompra: 1,
+      archivo: "<lote-comprimido-base64>",
+      hashArchivo: "<sha256>",
+      cantidadFacturas: 25,
+      gestion: 2026,
+      periodo: 10,
+      fechaEnvio: "2026-10-05T00:00:00Z",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/siat/compras/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "descripcion": "Compras octubre",
+        "tipoCompra": 1,
+        "archivo": "<lote-comprimido-base64>",
+        "hashArchivo": "<sha256>",
+        "cantidadFacturas": 25,
+        "gestion": 2026,
+        "periodo": 10
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+Siguiente: [Firmar XML](./firma.mdx) · [Sincronización](./sincronizacion-catalogos.mdx).

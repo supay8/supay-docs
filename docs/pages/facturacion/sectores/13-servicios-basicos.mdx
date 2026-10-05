@@ -1,0 +1,103 @@
+# 13 · Servicios Básicos
+
+Luz, agua y servicios regulados con crédito fiscal. Van por **fachada propia**
+de servicio básico. La cabecera lleva el **suministro y el periodo** (medidor,
+domicilio, consumo) más **ajustes y beneficios**.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `numero_medidor` | string | Ver perfil | Medidor del suministro |
+| `domicilio_cliente` | string | Ver perfil | Domicilio del suministro |
+| `ciudad` / `zona` | string | Ver perfil | Ciudad y zona |
+| `mes` / `gestion` | string | Ver perfil | Periodo del consumo |
+| `consumo_periodo` | number | Ver perfil | Consumo del periodo |
+
+<AccordionGroup>
+  <Accordion title="Ver el resto de campos (beneficios, ajustes, tasas)">
+    | Campo | Tipo | Obligatorio | Qué significa |
+    |---|---|---|---|
+    | `beneficiario_ley_1886` | string | Ver perfil | Beneficiario Ley 1886 |
+    | `monto_descuento_ley_1886` | number | Ver perfil | Descuento Ley 1886 |
+    | `monto_descuento_tarifa_dignidad` | number | Ver perfil | Descuento tarifa dignidad |
+    | `ajuste_sujeto_iva` / `ajuste_no_sujeto_iva` | number | Ver perfil | Ajustes con/sin IVA |
+    | `detalle_ajuste_sujeto_iva` / `detalle_ajuste_no_sujeto_iva` | string | Ver perfil | Detalle de los ajustes |
+    | `tasa_alumbrado` / `tasa_aseo` / `otras_tasas` | number | Ver perfil | Tasas municipales |
+    | `otros_pagos_no_sujeto_iva` | number | Ver perfil | Otros pagos sin IVA (+ su `detalle_...`) |
+  </Accordion>
+</AccordionGroup>
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales: la línea describe el servicio y periodo.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "1122334",
+        name: "Abonado Ejemplo",
+      },
+      items: [
+        {
+          sku: "LUZ-SEP",
+          description: "Energía eléctrica septiembre 2026",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 180,
+        },
+      ],
+      sector: "13",
+
+      // Suministro + periodo + consumo + tasas
+      data: {
+        numero_medidor: "M-88412",
+        domicilio_cliente: "Calle Falsa 123",
+        ciudad: "La Paz",
+        mes: "09",
+        gestion: "2026",
+        consumo_periodo: 220,
+        tasa_alumbrado: 12,
+        tasa_aseo: 8,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "1122334",
+          "name": "Abonado Ejemplo"
+        },
+        "items": [
+          {
+            "sku": "LUZ-SEP",
+            "description": "Energía eléctrica septiembre 2026",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 180
+          }
+        ],
+        "sector": "13",
+        "data": {
+          "numero_medidor": "M-88412",
+          "mes": "09",
+          "gestion": "2026",
+          "consumo_periodo": 220
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

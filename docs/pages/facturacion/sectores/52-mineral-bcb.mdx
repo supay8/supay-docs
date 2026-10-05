@@ -1,0 +1,97 @@
+# 52 · Venta de Minerales al BCB [Experimental]
+
+<Callout intent="warning">
+  Experimental y **solo modalidad electrónica**. Solo PILOTO, como feedback de
+  producto.
+</Callout>
+
+Venta de minerales al Banco Central, sin crédito fiscal. Trazabilidad minera
+completa como la [21 · Venta de Minerales](./21-venta-minerales.mdx).
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `concentrado_granel` | string | Ver perfil | Concentrado o granel |
+| `gastos_realizacion` | number | Ver perfil | Gastos de realización |
+| `humedad_porcentaje` / `humedad_valor` | number | Ver perfil | Humedad |
+| `iva` | number | Ver perfil | IVA de la operación |
+| `kilos_netos_humedos` / `kilos_netos_secos` | number | Ver perfil | Pesos |
+| `liquidacion_preliminar` | string | Ver perfil | Liquidación preliminar |
+| `merma_porcentaje` / `merma_valor` | number | Ver perfil | Merma |
+| `numero_lote` | string | Ver perfil | Lote |
+| `origen` | string | Ver perfil | Origen del mineral |
+| `otros_datos` | string | Ver perfil | Datos extra |
+| `sub_total` | number | Ver perfil | Subtotal operativo |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `codigo_nandina` | string | Ver perfil | Arancel del mineral |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Solo PILOTO + modalidad electrónica
+    const f = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "80013826",
+        name: "BCB",
+      },
+      items: [
+        {
+          sku: "ORO",
+          description: "Oro en bruto",
+          codigo_producto_sin: 5214100,
+          unidad_medida: 58,
+          quantity: 5,
+          price: 15000,
+          data: {
+            codigo_nandina: "2616.90.00",
+          },
+        },
+      ],
+      sector: "52",
+      data: {
+        origen: "Potosí",
+        numero_lote: "L-BCB-01",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "80013826",
+          "name": "BCB"
+        },
+        "items": [
+          {
+            "sku": "ORO",
+            "description": "Oro en bruto",
+            "codigo_producto_sin": 5214100,
+            "unidad_medida": 58,
+            "quantity": 5,
+            "price": 15000,
+            "data": {
+              "codigo_nandina": "2616.90.00"
+            }
+          }
+        ],
+        "sector": "52",
+        "data": {
+          "origen": "Potosí"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

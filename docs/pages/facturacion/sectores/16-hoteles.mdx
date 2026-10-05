@@ -1,0 +1,103 @@
+# 16 · Hoteles
+
+Hoteles con crédito fiscal. La cabecera describe la **estadía** y el detalle
+identifica **habitación y huésped por línea**. Versión sin crédito:
+[6 · Turismo](./06-turismo.mdx).
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `fecha_ingreso_hospedaje` | fecha | Requerido | Fecha de ingreso del huésped |
+| `cantidad_habitaciones` | int | No | Habitaciones ocupadas |
+| `cantidad_huespedes` | int | No | Total de huéspedes |
+| `cantidad_mayores` / `cantidad_menores` | int | No | Desglose adultos/menores |
+
+<Callout intent="warning">
+  Sin fecha de ingreso el XML sale con el nodo vacío e inválido. Siempre envíala.
+</Callout>
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `codigo_tipo_habitacion` | int | Ver perfil | Tipo de habitación de la línea |
+| `detalle_huespedes` | JSON | No | Huéspedes de la línea |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "7654321",
+        name: "Huésped Ejemplo",
+      },
+
+      // Una línea por habitación/estadía, con su huésped
+      items: [
+        {
+          sku: "HAB-DOBLE",
+          description: "Habitación doble, 3 noches",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 3,
+          price: 400,
+          data: {
+            codigo_tipo_habitacion: 1,
+            detalle_huespedes: {
+              huespedes: ["Juan", "María"],
+            },
+          },
+        },
+      ],
+
+      sector: "16",
+
+      // La estadía: ingreso obligatorio + ocupación
+      data: {
+        fecha_ingreso_hospedaje: "2026-10-01",
+        cantidad_habitaciones: 1,
+        cantidad_huespedes: 2,
+        cantidad_mayores: 2,
+        cantidad_menores: 0,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "7654321",
+          "name": "Huésped Ejemplo"
+        },
+        "items": [
+          {
+            "sku": "HAB-DOBLE",
+            "description": "Habitación doble, 3 noches",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 3,
+            "price": 400,
+            "data": {
+              "codigo_tipo_habitacion": 1
+            }
+          }
+        ],
+        "sector": "16",
+        "data": {
+          "fecha_ingreso_hospedaje": "2026-10-01",
+          "cantidad_habitaciones": 1,
+          "cantidad_huespedes": 2
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

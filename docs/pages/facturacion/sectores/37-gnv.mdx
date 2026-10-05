@@ -1,0 +1,80 @@
+# 37 · Comercialización de GNV
+
+Gas natural vehicular con crédito fiscal. Cabecera con **vale, vehículo y
+envase**; sin detalle sectorial.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_vale` | number | Ver perfil | Monto del vale GNV |
+| `placa_vehiculo` | string | Ver perfil | Placa del vehículo |
+| `tipo_envase` | string | Ver perfil | Tipo de envase |
+| `codigo_pais` | string | Ver perfil | País de la operación |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Transporte SRL",
+      },
+      items: [
+        {
+          sku: "GNV-M3",
+          description: "GNV por metro cúbico",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 50,
+          price: 2.5,
+        },
+      ],
+      sector: "37",
+
+      // Vale + vehículo en cabecera
+      data: {
+        monto_vale: 125,
+        placa_vehiculo: "ABC-123",
+        tipo_envase: "Cilindro",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Transporte SRL"
+        },
+        "items": [
+          {
+            "sku": "GNV-M3",
+            "description": "GNV por metro cúbico",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 50,
+            "price": 2.5
+          }
+        ],
+        "sector": "37",
+        "data": {
+          "monto_vale": 125,
+          "placa_vehiculo": "ABC-123"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

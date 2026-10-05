@@ -1,0 +1,63 @@
+# 39 · Comercialización de GN y GLP
+
+Gas natural y GLP con crédito fiscal. Sin campos sectoriales: payload estándar.
+
+## Cabecera (`data`)
+
+`data: {}` — sin campos sectoriales.
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Distribuidora Gas SRL",
+      },
+      items: [
+        {
+          sku: "GLP-10KG",
+          description: "Garrafa GLP 10kg",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 20,
+          price: 22.5,
+        },
+      ],
+      sector: "39",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Distribuidora Gas SRL"
+        },
+        "items": [
+          {
+            "sku": "GLP-10KG",
+            "description": "Garrafa GLP 10kg",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 20,
+            "price": 22.5
+          }
+        ],
+        "sector": "39"
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

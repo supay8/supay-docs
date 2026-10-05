@@ -1,0 +1,82 @@
+# 28 · Comercial de Exportación de Servicios
+
+Exportación de servicios sin crédito fiscal. Versión liviana de la
+[3 · Exportación](./03-exportacion.mdx): comprador, destino e info adicional,
+sin campos de mercadería.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `nim` | string | Ver perfil | Identificación del exportador |
+| `direccion_comprador` | string | Ver perfil | Dirección del comprador externo |
+| `lugar_destino` | string | Ver perfil | Lugar de destino |
+| `pais_destino` | string | Ver perfil | País de destino |
+| `incoterm` | string | Ver perfil | Término comercial |
+| `informacion_adicional` | string | No | Info libre |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "80013826",
+        name: "Cliente Exterior SA",
+      },
+      items: [
+        {
+          sku: "DEV-MES",
+          description: "Desarrollo software octubre",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 4000,
+        },
+      ],
+      sector: "28",
+      data: {
+        nim: "12345",
+        pais_destino: "Chile",
+        lugar_destino: "Santiago",
+        incoterm: "N/A",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "80013826",
+          "name": "Cliente Exterior SA"
+        },
+        "items": [
+          {
+            "sku": "DEV-MES",
+            "description": "Desarrollo software octubre",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 4000
+          }
+        ],
+        "sector": "28",
+        "data": {
+          "nim": "12345",
+          "pais_destino": "Chile"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

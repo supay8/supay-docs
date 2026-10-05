@@ -1,0 +1,63 @@
+# 7 · Seguridad Alimentaria y Abastecimiento
+
+Apoyo alimentario, sin crédito fiscal. Sin campos sectoriales: payload estándar.
+
+## Cabecera (`data`)
+
+`data: {}` — sin campos sectoriales.
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "3344556",
+        name: "Beneficiario",
+      },
+      items: [
+        {
+          sku: "CANASTA",
+          description: "Canasta alimentaria",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 300,
+        },
+      ],
+      sector: "7",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "3344556",
+          "name": "Beneficiario"
+        },
+        "items": [
+          {
+            "sku": "CANASTA",
+            "description": "Canasta alimentaria",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 300
+          }
+        ],
+        "sector": "7"
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

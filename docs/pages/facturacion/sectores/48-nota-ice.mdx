@@ -1,0 +1,85 @@
+# 48 · Nota Crédito Débito ICE
+
+Ajustes sobre ICE por DocumentoAjuste. Como el
+[47 · Descuentos](./47-nota-descuentos.mdx) más los **datos ICE** (marca,
+alícuotas y montos por línea). Exige `reference_invoice_id`.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_total_devuelto` | number | Ver perfil | Total devuelto |
+| `monto_descuento_credito_debito` | number | Ver perfil | Descuento del ajuste |
+| `monto_efectivo_credito_debito` | number | No | Override del crédito calculado |
+| `numero_nota_credito_debito` | string/int | Ver perfil | Número del documento |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `marca_ice` | string | Ver perfil | Marca del producto ICE |
+| `cantidad_ice` | number | Ver perfil | Cantidad base ICE |
+| `precio_neto_venta_ice` | number | Ver perfil | Precio neto base ICE |
+| `alicuota_iva` | number | Ver perfil | Alícuota IVA |
+| `alicuota_especifica` / `alicuota_porcentual` | number | Ver perfil | Alícuotas ICE |
+| `monto_ice_especifico` / `monto_ice_porcentual` | number | Ver perfil | ICE de la línea |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const nota = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "CI",
+        document_number: "9971522",
+        name: "Ramiro",
+      },
+      invoice_type: "credit_note",
+      sector: "48",
+      reference_invoice_id: "b61d67ed-7962-4989-958f-8ccc01979d64",
+
+      // Línea con sus datos ICE
+      items: [
+        {
+          sku: "CERVEZA",
+          quantity: 48,
+          price: 8,
+          data: {
+            marca_ice: "Marca X",
+            monto_ice_porcentual: 30.72,
+          },
+        },
+      ],
+
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "CI",
+          "document_number": "9971522",
+          "name": "Ramiro"
+        },
+        "invoice_type": "credit_note",
+        "sector": "48",
+        "reference_invoice_id": "b61d67ed-7962-4989-958f-8ccc01979d64",
+        "items": [
+          {
+            "sku": "CERVEZA",
+            "quantity": 48,
+            "price": 8,
+            "data": {
+              "marca_ice": "Marca X"
+            }
+          }
+        ]
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

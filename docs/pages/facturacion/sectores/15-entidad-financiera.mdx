@@ -1,0 +1,74 @@
+# 15 · Entidades Financieras
+
+Banca y arrendamiento financiero con crédito fiscal. Va por **fachada propia**.
+Un solo campo estrella en cabecera; sin detalle sectorial.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_total_arrendamiento_financiero` | number | Ver perfil | Total del arrendamiento financiero del periodo |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "6789012",
+        name: "Arrendatario SA",
+      },
+      items: [
+        {
+          sku: "ARREND-OCT",
+          description: "Cuota arrendamiento octubre",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 5000,
+        },
+      ],
+      sector: "15",
+
+      // El total arrendado del periodo
+      data: {
+        monto_total_arrendamiento_financiero: 5000,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "6789012",
+          "name": "Arrendatario SA"
+        },
+        "items": [
+          {
+            "sku": "ARREND-OCT",
+            "description": "Cuota arrendamiento octubre",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 5000
+          }
+        ],
+        "sector": "15",
+        "data": {
+          "monto_total_arrendamiento_financiero": 5000
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

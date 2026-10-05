@@ -1,0 +1,193 @@
+# Emitir factura
+
+Tres operaciones, mismo payload (`MinimalInvoiceRequest`):
+
+| Operación | Efecto | Respuesta |
+|---|---|---|
+| `preview` | Valida sin crear nada (no toca SIAT) | `200` vista previa |
+| `create` | Guarda borrador | `201` + `Location: /v1/invoices/{id}` |
+| `emit` | Crea y emite en el mismo request (**ruta estrella**, síncrona) | `200` + `Location` |
+| `emit` por ID | Emite un borrador existente | `200` (u `OFFLINE`) |
+
+Estados y ciclo post-emisión: [Quickstart](../empezar/quickstart.mdx).
+
+**En esta página aprenderás:** preview, create y emit con el mismo payload, descargas y errores del caso · **Prerrequisitos:** POS con CUIS/CUFD ([Onboarding](../empezar/onboarding.mdx)) · **Tiempo:** ~10 min · ¿Términos nuevos? [Glosario](../general/glosario.mdx).
+
+## Payload (`MinimalInvoiceRequest`)
+
+| Campo | Tipo | Obligatorio | Descripción |
+|---|---|---|---|
+| `point_of_sale_id` | uuid | Sí | POS activo de tu tenant, con CUIS/CUFD vigente |
+| `customer` | objeto | Sí | Snapshot del receptor (ver tabla) |
+| `items` | array | Sí, ≥ 1 | Líneas (ver tabla; excepción: ajustes con `reference_invoice_id` copian líneas) |
+| `invoice_type` | string | No, default `sale` | `sale`, `education`, `credit_note`, `debit_note` (+ aliases) |
+| `sector` | string | No, default `auto` (= 1) | Código (`"1"`, `"11"`...) o alias (`sale`, `education`) |
+| `data` | objeto | No, default `{}` | Campos sectoriales de cabecera ([Sectores](./sectores/index.mdx)) |
+| `layout` | string | Solo sector 24 | `nota_credito_debito` o `nota_fiscal_credito_debito` |
+| `reference_invoice_id` | uuid | Solo ajustes (24/29/47/48) | Factura original del mismo tenant |
+| `payment` | objeto | No, default `1,1,1` | Si se envía, los 3 campos `>0` |
+| `total` | number | Solo sectores sin detalle | Total directo |
+
+### `customer`
+
+| Campo | Tipo | Obligatorio | Descripción |
+|---|---|---|---|
+| `document_number` | string | Sí | NIT/CI sin guiones |
+| `name` | string | Sí | Razón social / nombre |
+| `document_type` | string | No, default `CI` | `CI`, `CEX`, `PAS`, `NIT`, `OD` (o `1`–`5`) |
+| `complement` | string | No | Complemento del documento |
+| `email` | string | No | Para notificaciones |
+
+<Callout intent="warning">
+  `customer.id` está **prohibido** → `400 "customer.id no está permitido; envíe el
+  snapshot completo del receptor"`. El cliente se resuelve/crea desde el payload.
+</Callout>
+
+### `items[]`
+
+| Campo | Tipo | Obligatorio | Descripción |
+|---|---|---|---|
+| `sku` | string | Sí | Código interno (no vacío) |
+| `description` | string | Sí | Descripción fiscal (no vacía) |
+| `codigo_producto_sin` | int | Sí, `>0` | Del catálogo sincronizado |
+| `unidad_medida` | int | Sí, `>0` | Código SIAT de unidad |
+| `quantity` | number | Sí, `>0` | Cantidad |
+| `price` | number | Sí, `≥0` | Precio unitario en Bs |
+| `discount` | number | No, default `0` | Debe ser ≤ `quantity × price` |
+| `codigo_actividad` | string | Se hereda del company | Si ni empresa ni ítem lo tienen → `400` |
+| `data` | objeto | No | Campos sectoriales de detalle |
+
+### `payment`
+
+| Campo | Tipo | Obligatorio | Descripción |
+|---|---|---|---|
+| `method_code` | int | Sí (si envías `payment`) | Método SIAT |
+| `currency_code` | int | Sí | Moneda (`2` + `exchange_rate` para USD) |
+| `exchange_rate` | number | Sí, `>0` | Monto moneda = `total / tipo_cambio` |
+
+<Callout intent="warning">
+  Cualquier campo no declarado o typo → `400 "json: unknown field ..."`
+  (`DisallowUnknownFields`). Programa contra `error.code`, no contra `message`.
+</Callout>
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Un solo payload para preview, create y emit
+    const payload = {
+      point_of_sale_id: pos.id,
+
+      // Receptor: snapshot completo
+      customer: {
+        document_type: "ci",
+        document_number: "1234567",
+        name: "Ada Lovelace",
+        email: "ada@example.com",
+      },
+
+      // Líneas: sku + snapshot fiscal por línea
+      items: [
+        {
+          sku: "PLAN-PRO",
+          description: "Plan profesional",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 150,
+          discount: 0,
+        },
+      ],
+
+      // Operación: venta local, sector autoresuelto
+      sector: "auto",
+    };
+
+    const vista = await supay.invoices.preview(payload); // no persiste
+    const borrador = await supay.invoices.create(payload); // 201 + Location
+    const factura = await supay.invoices.emit(payload); // ruta estrella
+
+    // Emitir un borrador ya creado
+    await supay.invoices.emitById({ id: borrador.id });
+
+    // Listar por punto de venta y estado
+    const lista = await supay.invoices.list({
+      point_of_sale_id: pos.id,
+      status: "ACCEPTED",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    # Mismo payload, legible: un campo por línea
+    PAYLOAD=$(cat <<'JSON'
+    {
+      "point_of_sale_id": "5226da47-74da-4b27-a26d-892c62fa6d26",
+      "customer": {
+        "document_type": "ci",
+        "document_number": "1234567",
+        "name": "Ada Lovelace"
+      },
+      "items": [
+        {
+          "sku": "PLAN-PRO",
+          "description": "Plan profesional",
+          "codigo_producto_sin": 5113100,
+          "unidad_medida": 58,
+          "quantity": 1,
+          "price": 150
+        }
+      ],
+      "sector": "auto"
+    }
+    JSON
+    )
+
+    # Validar (200, no persiste)
+    curl -s -X POST "$BASE/v1/invoices/preview" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "$PAYLOAD"
+
+    # Crear borrador (201 + Location)
+    curl -si -X POST "$BASE/v1/invoices" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "$PAYLOAD"
+
+    # Crear + emitir (ruta estrella)
+    curl -si -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "$PAYLOAD"
+
+    # Emitir borrador existente
+    curl -s -X POST "$BASE/v1/invoices/$ID/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+
+    # Listar aceptadas del POS
+    curl -s "$BASE/v1/invoices?point_of_sale_id=$POS&status=ACCEPTED" \
+      -H "X-API-Key: $KEY"
+    ```
+  </Tab>
+</Tabs>
+
+## Descargas y estado
+
+| Recurso | Detalle |
+|---|---|
+| `GET /{id}?include=` | `xml,company,point_of_sale,cufd,archivo,all` |
+| `/{id}/xml` | `application/xml` + `Content-Disposition: attachment` |
+| `/{id}/pdf` | Genera on-demand si hay CUF; sin archivo → `404` plano (sin envelope) |
+| `/{id}/siat-status` | Re-verifica contra el SIAT |
+
+## Errores de este caso
+
+| Situación | Respuesta |
+|---|---|
+| `sector:"30"` | `400 "requiere emisión masiva"` ([Paquetes](./paquetes-masiva.mdx)) |
+| POS de otro tenant / factura ajena | `404` (enmascarado por seguridad) |
+| SIAT caído en `emit` | `200 OFFLINE` o `503` — no duplicar, conciliar por ID |
+
+Siguiente: [Sectores](./sectores/index.mdx) · [Anulación](./anulacion-venta.mdx).

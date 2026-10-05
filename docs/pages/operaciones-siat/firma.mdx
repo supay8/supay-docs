@@ -1,0 +1,41 @@
+# Firmar XML
+
+Firma cualquier XML con el certificado P12 activo del punto de venta, sin
+emitir. Útil para flujos propios (como el [33 · Tasa Cero Ley 1613](../facturacion/sectores/33-tasa-cero-ley.mdx),
+cuyo XML firmas tú) y para diagnóstico.
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `xml` | string | Sí | XML sin firmar |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Firma con el P12 del POS y devuelve el XML firmado
+    const firmado = await supay.siat.signXml({
+      pointOfSaleId: pos.id,
+      xml: "<xml-sin-firmar/>",
+    });
+    // firmado.xml
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/siat/firma/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "xml": "<xml-sin-firmar/>"
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+## Errores típicos
+
+| Situación | Respuesta |
+|---|---|
+| Sin certificado activo | `409 CONFLICT` |
+| POS de otro tenant | `404` |
+
+Siguiente: [Enviar compras](./compras.mdx) · [Sincronización](./sincronizacion-catalogos.mdx).

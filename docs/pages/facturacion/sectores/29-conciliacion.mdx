@@ -1,0 +1,110 @@
+# 29 · Nota de Conciliación
+
+Concilia una factura con montos distintos a los originales, por DocumentoAjuste.
+Cabecera con los **totales originales vs conciliados**; cada línea con sus
+**tres montos**. Las líneas originales se cargan de la referenciada.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_total_original` | number | Sí | Total de la factura referenciada |
+| `monto_total_conciliado` | number | Sí | Total conciliado |
+| `numero_autorizacion_cuf` | string | Sí | CUF de la referenciada |
+| `fecha_emision_factura` | fecha | Sí | Emisión de la referenciada |
+| `numero_nota_conciliacion` | int | No | Número de la nota |
+| `credito_fiscal_iva` | number | No | IVA crédito de la conciliación |
+| `debito_fiscal_iva` | number | No | IVA débito de la conciliación |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `monto_original` | number | Sí | Monto original de la línea |
+| `monto_final` | number | Sí | Monto final de la línea |
+| `monto_conciliado` | number | Sí | Diferencia conciliada |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const conc = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "CI",
+        document_number: "9971522",
+        name: "Ramiro",
+      },
+      invoice_type: "credit_note",
+      sector: "29",
+      reference_invoice_id: "<uuid-original>",
+
+      // Cada línea conciliada con sus tres montos
+      items: [
+        {
+          sku: "PROD-001",
+          quantity: 1,
+          price: 900,
+          data: {
+            monto_original: 1000,
+            monto_final: 900,
+            monto_conciliado: 100,
+          },
+        },
+      ],
+
+      // Totales de la conciliación
+      data: {
+        monto_total_original: 1000,
+        monto_total_conciliado: 900,
+        numero_autorizacion_cuf: "<cuf-original>",
+        fecha_emision_factura: "2026-09-15",
+        credito_fiscal_iva: 117,
+        debito_fiscal_iva: 117,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "CI",
+          "document_number": "9971522",
+          "name": "Ramiro"
+        },
+        "invoice_type": "credit_note",
+        "sector": "29",
+        "reference_invoice_id": "<uuid-original>",
+        "items": [
+          {
+            "sku": "PROD-001",
+            "quantity": 1,
+            "price": 900,
+            "data": {
+              "monto_original": 1000,
+              "monto_final": 900,
+              "monto_conciliado": 100
+            }
+          }
+        ],
+        "data": {
+          "monto_total_original": 1000,
+          "monto_total_conciliado": 900,
+          "numero_autorizacion_cuf": "<cuf-original>",
+          "fecha_emision_factura": "2026-09-15"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+## Errores típicos
+
+| Situación | Respuesta |
+|---|---|
+| Falta un monto (cabecera o línea) | `400 VALIDATION_ERROR` |
+| Referencia de otro tenant | `404` |

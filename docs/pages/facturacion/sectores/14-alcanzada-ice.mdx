@@ -1,0 +1,99 @@
+# 14 · Productos Alcanzados por el ICE
+
+Bebidas, tabaco y demás alcanzados por el Impuesto a los Consumos Específicos,
+con crédito fiscal. La cabecera lleva los **montos ICE**; el detalle lleva
+**marca, alícuotas y base ICE por línea**.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_ice_especifico` | number | Ver perfil | ICE específico total de la factura |
+| `monto_ice_porcentual` | number | Ver perfil | ICE porcentual total de la factura |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `marca_ice` | string | Ver perfil | Marca del producto ICE |
+| `cantidad_ice` | number | Ver perfil | Cantidad base del ICE |
+| `precio_neto_venta_ice` | number | Ver perfil | Precio neto de venta base ICE |
+| `alicuota_iva` | number | Ver perfil | Alícuota IVA aplicable |
+| `alicuota_especifica` / `alicuota_porcentual` | number | Ver perfil | Alícuotas ICE |
+| `monto_ice_especifico` / `monto_ice_porcentual` | number | Ver perfil | ICE de la línea |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "9012345",
+        name: "Distribuidora SA",
+      },
+      items: [
+        {
+          sku: "CERVEZA",
+          description: "Cerveza en lata 350ml",
+          codigo_producto_sin: 5214100,
+          unidad_medida: 58,
+          quantity: 48,
+          price: 8,
+          data: {
+            marca_ice: "Marca X",
+            cantidad_ice: 48,
+            alicuota_porcentual: 8,
+            monto_ice_porcentual: 30.72,
+          },
+        },
+      ],
+      sector: "14",
+
+      // Totales ICE de la factura
+      data: {
+        monto_ice_especifico: 0,
+        monto_ice_porcentual: 30.72,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "9012345",
+          "name": "Distribuidora SA"
+        },
+        "items": [
+          {
+            "sku": "CERVEZA",
+            "description": "Cerveza en lata 350ml",
+            "codigo_producto_sin": 5214100,
+            "unidad_medida": 58,
+            "quantity": 48,
+            "price": 8,
+            "data": {
+              "marca_ice": "Marca X",
+              "monto_ice_porcentual": 30.72
+            }
+          }
+        ],
+        "sector": "14",
+        "data": {
+          "monto_ice_porcentual": 30.72
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+<Callout intent="warning">
+  Sin los montos ICE el documento compila pero el SIAT lo rechaza. Para notas
+  sobre ICE usa el [48 · Nota ICE](./48-nota-ice.mdx).
+</Callout>

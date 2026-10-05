@@ -1,0 +1,31 @@
+# Modelo de datos
+
+Jerarquía de objetos en Supay, de arriba hacia abajo. Cada nivel pertenece al
+anterior y hereda su tenant: nunca se mezclan datos entre empresas.
+
+## Jerarquía
+
+| Nivel | Qué es | Claves |
+|---|---|---|
+| **Tenant / Empresa** | Tu empresa (NIT + razón social). Dueña de una o más API keys | `nit`, `business_name`, `ambiente`, `modalidad` |
+| **Sucursal** | Casa matriz o sucursales (`codigo_sucursal`, `0` = matriz) | `company_id`, `name` |
+| **Punto de venta** | Caja o terminal que emite (`codigo_punto_venta` auto) | `branch_id`, `name`, `description` |
+| **Certificado P12** | Firma digital ante el SIAT (≤ 5 MB, alertas a 30/15/7 días) | `p12_file`, `p12_password` |
+| **CUIS / CUFD** | Códigos SIAT del POS (se renuevan automáticamente) | Vía `siat.setup` |
+| **Cliente** | Receptor (se crea desde el snapshot de cada factura) | `document_number` + `name` |
+| **Factura** | Documento fiscal (`id`, `cuf`, `invoice_number`, `status`) | `point_of_sale_id`, `customer`, `items` |
+| **Evento de contingencia** | Respaldo oficial cuando cae la red SIAT | `contingency_event_id` |
+
+## Reglas del modelo
+
+- `company_id` se hereda: sucursal → POS → factura. Un ID de otro tenant responde
+  `404` (enmascarado por seguridad, nunca `403`).
+- `codigo_punto_venta` se asigna solo (`MAX+1`); no lo inventes.
+- El cliente **no** se da de alta antes: viaja como snapshot en cada factura
+  (`customer.id` está prohibido).
+- Cada `POST` de creación inicia **otra** factura (sin idempotencia): guarda `id` +
+  `cuf` y concilia por ID.
+- Estados de factura: `PENDING → SENDING → ACCEPTED | OBSERVED | REJECTED`,
+  más `OFFLINE` (contingencia), `SENT` (solo lotes) y `CANCELLED` (anulación).
+
+Alta paso a paso: [Onboarding](../empezar/onboarding.mdx).

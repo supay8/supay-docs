@@ -1,0 +1,71 @@
+# 36 · Prevalorada Sin Derecho a Crédito Fiscal
+
+Tarjetas y pines **sin** crédito fiscal. Igual regla que el
+[23 · Prevalorada](./23-prevalorada.mdx): **exactamente una línea**.
+
+## Cabecera (`data`)
+
+`data: {}` — sin campos sectoriales.
+
+## Detalle (`items[].data`)
+
+Una sola línea, sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // UNA sola línea: dos líneas responden 400
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "7788990",
+        name: "Cliente Prepago",
+      },
+      items: [
+        {
+          sku: "TARJ-50",
+          description: "Tarjeta Bs 50",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 50,
+        },
+      ],
+      sector: "36",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "7788990",
+          "name": "Cliente Prepago"
+        },
+        "items": [
+          {
+            "sku": "TARJ-50",
+            "description": "Tarjeta Bs 50",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 50
+          }
+        ],
+        "sector": "36"
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+## Errores típicos
+
+| Situación | Respuesta |
+|---|---|
+| Más de una línea | `400 VALIDATION_ERROR` |

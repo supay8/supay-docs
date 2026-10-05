@@ -1,0 +1,77 @@
+# Supay · Facturación electrónica para Bolivia
+
+Emite facturas válidas ante el SIAT desde tu propio sistema, por API o con el
+SDK TypeScript. Sin integrar SOAP a mano, sin gestionar CUIS/CUFD a mano.
+
+<Callout intent="info">
+  Beta cerrada: solo ambiente **PILOTO** del SIAT (sin validez fiscal).
+  Pre-requisito único: la API corriendo (`GET /v1/health` → `{"status":"ok"}`).
+</Callout>
+
+## Por dónde empiezo
+
+<CardGroup cols={3}>
+  <Card
+    title="Emitir mi primera factura"
+    icon="solid bolt"
+    href="/empezar/quickstart"
+  >
+    5 minutos: health → preview → emit. El camino más corto a tu primer `ACCEPTED`.
+  </Card>
+  <Card
+    title="Operar un tenant"
+    icon="solid building"
+    href="/empezar/onboarding"
+  >
+    20 minutos: empresa → sucursal → POS → P12 → setup SIAT → catálogos.
+  </Card>
+  <Card
+    title="Explorar sectores"
+    icon="solid grid"
+    href="/sectores"
+  >
+    Los 52 sectores con sus campos y ejemplos: compra-venta, salud, minería y más.
+  </Card>
+</CardGroup>
+
+## Qué resuelve
+
+| Sin Supay | Con Supay |
+|---|---|
+| Integrar SOAP del SIAT a mano (12 fachadas, 51 sectores) | Un `POST /v1/invoices/emit` + SDK |
+| Gestionar CUIS/CUFD, firma XAdES, CUF y catálogos | Automático (setup + renovación + sincronización) |
+| Contingencia offline manual | Emisión `OFFLINE` + paquetes oficiales |
+
+## Cómo funciona (flujo día 1)
+
+<Steps toc={true}>
+  <Step title="Alta del tenant">
+    La empresa se registra (NIT + razón social) y recibe su `X-API-Key`.
+    Ver [Onboarding](../empezar/onboarding.mdx).
+  </Step>
+  <Step title="Puesta en marcha SIAT">
+    Sucursal → punto de venta → certificado P12 → setup (CUIS + CUFD) →
+    sincronización de catálogos.
+  </Step>
+  <Step title="Facturación">
+    `preview` (validar) → `emit` (crear y emitir) → `ACCEPTED`. XML y PDF
+    descargables. Ver [Emitir factura](../facturacion/emitir-factura.mdx).
+  </Step>
+  <Step title="Post-emisión">
+    Consulta de estado, [anulación](../facturacion/anulacion-venta.mdx),
+    [contingencia](../facturacion/contingencia.mdx) y
+    [paquetes](../facturacion/paquetes-masiva.mdx).
+  </Step>
+</Steps>
+
+## Mapa del sitio
+
+| Quiero... | Voy a... |
+|---|---|
+| Ver el modelo de datos | [Modelo de datos](./modelo.mdx) |
+| Entender vocabulario fiscal | [Glosario](./glosario.mdx) |
+| Autenticarme (API key / JWT) | [Autenticación](../empezar/autenticacion.mdx) |
+| Emitir, anular, contingencia, lotes | [Facturación](../facturacion/emitir-factura.mdx) |
+| CUIS/CUFD, catálogos, firma, compras | [Operaciones SIAT](../operaciones-siat/cuis-cufd.mdx) |
+| Ver el SDK como reflejo de la API | [SDK TypeScript](../referencia/sdk.mdx) |
+| Entender un error | [Errores](../referencia/errores.mdx) |

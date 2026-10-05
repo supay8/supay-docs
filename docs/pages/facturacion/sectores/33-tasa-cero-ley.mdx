@@ -1,0 +1,61 @@
+# 33 · Tasa Cero IVA Ley N° 1613
+
+Existe en el catálogo pero el SDK **no trae constructor**: no hay emisión
+individual ni masiva para este código. La vía es la ruta completa `/invoices`
+con **XML externo** (archivo + hash + CUF propios).
+
+<Callout intent="warning">
+  Cualquier intento por `POST /v1/invoices/emit` con `sector: "33"` → `400
+  "sector 33 no tiene constructor en go-siat"`. No es un bug: es la única vía.
+</Callout>
+
+## Vía XML externo
+
+| Elemento | Detalle |
+|---|---|
+| Ruta | `/invoices` completa (no `/v1/invoices/emit`) |
+| Requiere | `archivo` (XML firmado por ti) + `hash_archivo` + `cuf` |
+| Firma | La generas tú con tu certificado (Supay no firma este sector) |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Supay no construye este XML: lo firmas y lo registras
+    // Usa supay.fetch (passthrough con tu auth) contra /invoices completa
+    const res = await supay.fetch("/invoices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        point_of_sale_id: pos.id,
+        customer: { ...receptor },
+        archivo: "<xml-firmado-base64>",
+        hash_archivo: "<sha256>",
+        cuf: "<cuf-generado>",
+      }),
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/invoices" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "1234567",
+          "name": "Cliente"
+        },
+        "archivo": "<xml-firmado-base64>",
+        "hash_archivo": "<sha256>",
+        "cuf": "<cuf-generado>"
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+<Callout intent="info">
+  ¿Tasa cero de libros/transporte internacional con constructor? Es el
+  [8 · Tasa Cero](./08-tasa-cero.mdx).
+</Callout>

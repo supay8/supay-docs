@@ -1,0 +1,90 @@
+# Paquetes y masiva
+
+Lotes para contingencia y alto volumen. Firman offline (`codigoEmision=2`) y
+reservan numeración antes de enviar. `SENT` **solo** existe en flujo de lote (la
+emisión individual nunca lo produce).
+
+**En esta página aprenderás:** enviar paquetes de contingencia y emisión masiva, validar lotes y leer sus estados · **Prerrequisitos:** facturas `OFFLINE` o sector 30 · **Tiempo:** ~10 min.
+
+## Paquete (contingencia)
+
+| Campo | Tipo | Obligatorio | Descripción |
+|---|---|---|---|
+| `invoice_ids` | uuid[] | No | Ausente = auto (facturas `OFFLINE` pendientes). `null`, duplicados o string → `400` |
+
+Validar antes de enviar: `POST /siat/paquete/{batchId}/validate {}`.
+
+## Masiva
+
+Única vía del sector 30 (boleto aéreo): `sector:"30"` en individual → `400`.
+El 30 admite borrador sin `items` (con `total` + pasajero y cabecera).
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Paquete: sin invoice_ids toma las OFFLINE pendientes (auto)
+    const pack = await supay.siat.sendPackage({
+      pointOfSaleId: pos.id,
+      invoice_ids: [inv.id],
+    });
+
+    // Validar el lote antes de enviar
+    await supay.siat.validatePackage({ batchId: pack.batch_id });
+
+    // Masiva: única vía del sector 30 (boleto aéreo)
+    const bulk = await supay.siat.sendBulk({
+      companyId: company.id,
+      pointOfSaleId: pos.id,
+      ...lote,
+    });
+
+    // Validar el lote masivo (batchId sale del envío)
+    await supay.siat.validateBulk({ batchId: bulk.batch_id });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    # Paquete con facturas explícitas
+    curl -s -X POST "$BASE/v1/siat/paquete/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"invoice_ids\": [\"$ID1\", \"$ID2\"]
+      }"
+
+    # Validar el lote
+    curl -s -X POST "$BASE/v1/siat/paquete/$BATCH/validate" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+
+    # Masiva (sector 30 solo por aquí)
+    curl -s -X POST "$BASE/v1/siat/masiva/$CID/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "$LOTE"
+
+    # Validar el lote masivo
+    curl -s -X POST "$BASE/v1/siat/masiva/$BATCH/validate" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+    ```
+  </Tab>
+</Tabs>
+
+## Estados del lote
+
+| Transición | Significado |
+|---|---|
+| `SENDING → SENT` | Lote reservado con `CodigoRecepcion` del SIAT |
+| `SENT → ACCEPTED / OBSERVED / REJECTED` | Resultado por factura del lote |
+| `OFFLINE → SENT` | Factura offline incorporada a un paquete aceptado |
+
+<Callout intent="info">
+  El XML de cada factura usa el mismo pipeline de la emisión individual. La firma
+  se recalcula sobre el XML del lote: el hash difiere por definición; lo que se
+  concilia es el contenido, no el hash.
+</Callout>
+
+Siguiente: [Contingencia](./contingencia.mdx) · [Operaciones SIAT](../operaciones-siat/cuis-cufd.mdx).

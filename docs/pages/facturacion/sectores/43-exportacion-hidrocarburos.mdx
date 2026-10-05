@@ -1,0 +1,88 @@
+# 43 · Comercial de Exportación Hidrocarburos
+
+Exportación de hidrocarburos sin crédito fiscal. Cabecera con **costos,
+incoterm y destino**; sin NANDINA (a diferencia de la
+[3 · Exportación](./03-exportacion.mdx)).
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `nim` | string | Ver perfil | Identificación del exportador |
+| `costos_gastos_nacionales` | objeto | Ver perfil | Costos nacionales (JSON) |
+| `costos_gastos_internacionales` | objeto | Ver perfil | Costos internacionales |
+| `total_gastos_nacionales_fob` / `total_gastos_internacionales` | number | Ver perfil | Totales FOB |
+| `incoterm` / `incoterm_detalle` | string | Ver perfil | Término + detalle |
+| `lugar_destino` / `puerto_destino` | string | Ver perfil | Destino |
+| `direccion_comprador` | string | Ver perfil | Comprador externo |
+| `monto_detalle` | number | Ver perfil | Monto de detalle |
+| `numero_descripcion_paquetes_bultos` | string | Ver perfil | Bultos |
+| `informacion_adicional` | string | No | Info libre |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "80013826",
+        name: "Comprador Exterior SA",
+      },
+      items: [
+        {
+          sku: "GLP-EXP",
+          description: "GLP a granel",
+          codigo_producto_sin: 5214100,
+          unidad_medida: 58,
+          quantity: 1000,
+          price: 2.1,
+        },
+      ],
+      sector: "43",
+      data: {
+        nim: "12345",
+        incoterm: "FOB",
+        lugar_destino: "Arica",
+        costos_gastos_nacionales: {
+          transporte: 800,
+        },
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "80013826",
+          "name": "Comprador Exterior SA"
+        },
+        "items": [
+          {
+            "sku": "GLP-EXP",
+            "description": "GLP a granel",
+            "codigo_producto_sin": 5214100,
+            "unidad_medida": 58,
+            "quantity": 1000,
+            "price": 2.1
+          }
+        ],
+        "sector": "43",
+        "data": {
+          "nim": "12345",
+          "incoterm": "FOB"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

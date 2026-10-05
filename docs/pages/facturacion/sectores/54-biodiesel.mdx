@@ -1,0 +1,69 @@
+# 54 · Insumos para Biodiésel [Experimental]
+
+<Callout intent="warning">
+  Experimental: cobertura técnica sin homologación. Solo PILOTO, como feedback
+  de producto.
+</Callout>
+
+Compra-venta de insumos para biodiésel, sin crédito fiscal. Sin campos
+sectoriales: payload estándar.
+
+## Cabecera (`data`)
+
+`data: {}` — sin campos sectoriales.
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const f = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "4567890",
+        name: "Planta Biodiésel SA",
+      },
+      items: [
+        {
+          sku: "ACEITE-VEG",
+          description: "Aceite vegetal crudo",
+          codigo_producto_sin: 5214100,
+          unidad_medida: 58,
+          quantity: 1000,
+          price: 5.5,
+        },
+      ],
+      sector: "54",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "4567890",
+          "name": "Planta Biodiésel SA"
+        },
+        "items": [
+          {
+            "sku": "ACEITE-VEG",
+            "description": "Aceite vegetal crudo",
+            "codigo_producto_sin": 5214100,
+            "unidad_medida": 58,
+            "quantity": 1000,
+            "price": 5.5
+          }
+        ],
+        "sector": "54"
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,86 @@
+# 40 · Servicios Básicos Zona Franca
+
+Igual estructura que el [13 · Servicios Básicos](./13-servicios-basicos.mdx)
+(medidor, periodo, consumo, ajustes, tasas) pero **sin** crédito fiscal.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `numero_medidor` | string | Ver perfil | Medidor del suministro |
+| `domicilio_cliente` | string | Ver perfil | Domicilio del suministro |
+| `ciudad` / `zona` | string | Ver perfil | Ciudad y zona |
+| `mes` / `gestion` | string | Ver perfil | Periodo del consumo |
+| `consumo_periodo` | number | Ver perfil | Consumo del periodo |
+| `beneficiario_ley_1886` | string | Ver perfil | Beneficiario Ley 1886 |
+| `monto_descuento_ley_1886` | number | Ver perfil | Descuento Ley 1886 |
+| `monto_descuento_tarifa_dignidad` | number | Ver perfil | Descuento tarifa dignidad |
+| `ajuste_sujeto_iva` / `ajuste_no_sujeto_iva` | number | Ver perfil | Ajustes (+ sus `detalle_...`) |
+| `tasa_alumbrado` / `tasa_aseo` / `otras_tasas` | number | Ver perfil | Tasas municipales |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "1122334",
+        name: "Abonado ZF",
+      },
+      items: [
+        {
+          sku: "LUZ-ZF",
+          description: "Energía eléctrica ZF septiembre",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 180,
+        },
+      ],
+      sector: "40",
+      data: {
+        numero_medidor: "M-ZF-01",
+        mes: "09",
+        gestion: "2026",
+        consumo_periodo: 220,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "1122334",
+          "name": "Abonado ZF"
+        },
+        "items": [
+          {
+            "sku": "LUZ-ZF",
+            "description": "Energía eléctrica ZF septiembre",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 180
+          }
+        ],
+        "sector": "40",
+        "data": {
+          "numero_medidor": "M-ZF-01",
+          "mes": "09",
+          "gestion": "2026"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

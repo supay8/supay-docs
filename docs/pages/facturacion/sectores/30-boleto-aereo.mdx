@@ -1,0 +1,87 @@
+# 30 · Boleto Aéreo
+
+Pasajes aéreos sin crédito fiscal. Particularidades: **sin detalle** (el XSD solo
+define cabecera), **solo emisión masiva** (nunca individual) y admite borrador
+sin `items` (con `total` + pasajero).
+
+<Callout intent="warning">
+  `sector: "30"` en emisión individual → `400 "requiere emisión masiva"`. Es la
+  única vía: `POST /v1/siat/masiva/{companyId}/{pointOfSaleId}`.
+</Callout>
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `nombre_pasajero` | string | Sí | Pasajero del boleto |
+| `numero_documento_pasajero` | string | Sí | Documento del pasajero |
+| `codigo_iata_linea_aerea` | int | No | IATA de la aerolínea |
+| `codigo_iata_agente_viajes` | string | No | IATA de la agencia |
+| `nit_agente_viajes` | int | No | NIT de la agencia |
+| `codigo_origen_servicio` | string | No | Origen del servicio |
+| `codigo_tipo_transaccion` | string | No | Tipo de transacción |
+| `monto_tarifa` | number | No | Tarifa del boleto |
+
+## Detalle
+
+Sin detalle: el boleto no tiene líneas.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Borrador sin items: total + pasajero en cabecera
+    const borrador = await supay.invoices.create({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "1234567",
+        name: "Pasajero Ejemplo",
+      },
+      items: [],
+      sector: "30",
+      total: 850,
+      data: {
+        nombre_pasajero: "Pasajero Ejemplo",
+        numero_documento_pasajero: "1234567",
+        codigo_iata_linea_aerea: 1,
+      },
+    });
+
+    // Envío: SOLO por masiva
+    const bulk = await supay.siat.sendBulk({
+      companyId: company.id,
+      pointOfSaleId: pos.id,
+      ...lote,
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    # 1. Borrador sin items
+    curl -s -X POST "$BASE/v1/invoices" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "1234567",
+          "name": "Pasajero Ejemplo"
+        },
+        "items": [],
+        "sector": "30",
+        "total": 850,
+        "data": {
+          "nombre_pasajero": "Pasajero Ejemplo",
+          "numero_documento_pasajero": "1234567"
+        }
+      }'
+
+    # 2. Envío SOLO por masiva
+    curl -s -X POST "$BASE/v1/siat/masiva/$CID/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "$LOTE_BOLETO"
+    ```
+  </Tab>
+</Tabs>

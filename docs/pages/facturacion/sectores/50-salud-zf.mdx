@@ -1,0 +1,84 @@
+# 50 · Hospitales / Clínicas Zona Franca
+
+Igual que el [17 · Salud](./17-salud.mdx) (modalidad + médico por línea) pero
+**sin** crédito fiscal.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `modalidad_servicio` | string | No | Modalidad (ej. "Ambulatorio") |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `nombre_apellido_medico` | string | Ver perfil | Médico tratante |
+| `nit_documento_medico` | string | Ver perfil | Documento del médico |
+| `nro_matricula_medico` | string | Ver perfil | Matrícula profesional |
+| `especialidad` | string | Ver perfil | Especialidad |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "5544332",
+        name: "Paciente ZF",
+      },
+      items: [
+        {
+          sku: "CONS-GRAL",
+          description: "Consulta general",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 200,
+          data: {
+            nombre_apellido_medico: "Dr. Paz",
+            nro_matricula_medico: "M-5678",
+          },
+        },
+      ],
+      sector: "50",
+      data: {
+        modalidad_servicio: "Ambulatorio",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "5544332",
+          "name": "Paciente ZF"
+        },
+        "items": [
+          {
+            "sku": "CONS-GRAL",
+            "description": "Consulta general",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 200,
+            "data": {
+              "nombre_apellido_medico": "Dr. Paz"
+            }
+          }
+        ],
+        "sector": "50",
+        "data": {
+          "modalidad_servicio": "Ambulatorio"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

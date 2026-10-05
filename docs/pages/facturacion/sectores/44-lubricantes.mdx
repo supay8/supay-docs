@@ -1,0 +1,80 @@
+# 44 · Importación y Comercialización de Lubricantes
+
+Lubricantes con crédito fiscal. Igual identificación de partes que el
+[19 · IEHD](./19-iehd.mdx) más la **deducción IEHD del D.S. 25530**.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_deduccion_iehd_ds25530` | number | Ver perfil | Deducción IEHD según D.S. 25530 |
+| `ciudad` | string | Ver perfil | Ciudad de la operación |
+| `nombre_propietario` | string | Ver perfil | Propietario del producto |
+| `nombre_representante_legal` | string | Ver perfil | Representante legal |
+| `condicion_pago` | string | Ver perfil | Condición de pago |
+| `periodo_entrega` | string | Ver perfil | Periodo de entrega |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Taller SRL",
+      },
+      items: [
+        {
+          sku: "LUB-20W50",
+          description: "Lubricante 20W50",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 100,
+          price: 95,
+        },
+      ],
+      sector: "44",
+      data: {
+        monto_deduccion_iehd_ds25530: 120,
+        ciudad: "Cochabamba",
+        condicion_pago: "Contado",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Taller SRL"
+        },
+        "items": [
+          {
+            "sku": "LUB-20W50",
+            "description": "Lubricante 20W50",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 100,
+            "price": 95
+          }
+        ],
+        "sector": "44",
+        "data": {
+          "monto_deduccion_iehd_ds25530": 120,
+          "ciudad": "Cochabamba"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

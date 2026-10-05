@@ -1,0 +1,87 @@
+# 22 · Telecomunicaciones
+
+Telefonía, internet y datos con crédito fiscal. Va por **fachada propia**. La
+cabecera lleva el **NIT conjunto**; el detalle identifica **equipos por
+serie/IMEI**.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `nit_conjunto` | int | No | NIT conjunto para facturación agregada de líneas |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `numero_serie` | string | No | Serie del equipo entregado |
+| `numero_imei` | string | No | IMEI del equipo |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "5678901",
+        name: "Cliente Telco",
+      },
+      items: [
+        // Servicio: sin datos sectoriales
+        {
+          sku: "PLAN-10GB",
+          description: "Plan datos 10GB octubre",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 99,
+        },
+        // Equipo: con serie e IMEI
+        {
+          sku: "EQUIPO-A54",
+          description: "Equipo financiado",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 1800,
+          data: {
+            numero_serie: "SN-TEL-9",
+            numero_imei: "355000000000009",
+          },
+        },
+      ],
+      sector: "22",
+      data: {
+        nit_conjunto: 5678901,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "5678901",
+          "name": "Cliente Telco"
+        },
+        "items": [
+          {
+            "sku": "PLAN-10GB",
+            "description": "Plan datos 10GB octubre",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 99
+          }
+        ],
+        "sector": "22"
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

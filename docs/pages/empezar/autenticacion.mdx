@@ -1,0 +1,130 @@
+# Autenticación
+
+Dos mecanismos, nunca mezclados en el mismo request:
+
+| Uso | Credencial | Cómo se obtiene |
+|---|---|---|
+| Integración máquina-a-máquina (SDK) | `X-API-Key: sup_live_xxx` | Bootstrap con `X-Backend-Token` (operador) o `POST /companies/{id}/api-keys` con JWT |
+| Frontend humano | `Authorization: Bearer <jwt>` + `X-Company-ID: <uuid>` | `POST /auth/signup` o `/auth/login` |
+
+<Callout intent="info">
+  La key pertenece a **una sola empresa** y todo se filtra por ese tenant: una
+  factura ajena responde `404` (nunca `403`, para no revelar existencia). La
+  `api_key` completa solo se muestra una vez, al crearla.
+</Callout>
+
+## Máquina-a-máquina
+
+| Elemento | Detalle |
+|---|---|
+| Formato | `sup_live_<prefijo>_<secreto>` (o `sup_test_...`) |
+| Header | `X-API-Key` |
+| Sin key o inválida/inactiva | `401 UNAUTHORIZED` |
+| SDK | Solo usa este modo |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    import { Supay } from "@supay/sdk";
+
+    // Integración: solo X-API-Key, nada más
+    const supay = new Supay({ apiKey: "sup_live_xxx" });
+
+    // Bootstrap del operador (usa BACKEND_SECRET, no apiKey)
+    const op = new Supay({
+      baseUrl: "http://localhost:8081",
+      backendToken: process.env.BACKEND_SECRET!,
+    });
+
+    const { company, api_key } = await op.bootstrap.createCompany({
+      nit: "123456789",
+      business_name: "Mi Empresa SRL",
+      ambiente: "PILOTO",
+    });
+    // api_key solo sale aquí: guárdala como secreto
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    # Bootstrap: crea empresa + devuelve su API key (solo se muestra una vez)
+    curl -s -X POST "$BASE/v1/internal/companies" \
+      -H "X-Backend-Token: $BACKEND_SECRET" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "nit": "123456789",
+        "business_name": "Mi Empresa SRL",
+        "ambiente": "PILOTO"
+      }'
+    # → 201 {"company":{"id":"..."}, "api_key":"sup_live_..."}
+
+    # Pedidos normales con la key del tenant
+    curl -s "$BASE/v1/invoices/sectores" -H "X-API-Key: $KEY"
+    ```
+  </Tab>
+</Tabs>
+
+<Callout intent="warning">
+  Con token erróneo, el bootstrap responde `401` en **texto plano**
+  (`Unauthorized internal request`), no el envelope JSON. Tiene rate-limit por IP.
+</Callout>
+
+## Sesión humana (JWT + membresía)
+
+El JWT identifica al **usuario**; `X-Company-ID` elige sobre cuál de sus empresas
+opera (validada en DB por request).
+
+| Endpoint | Auth | Respuesta |
+|---|---|---|
+| `POST /auth/signup` | ninguna (rate-limit) | `201` + `user`, `access_token`, `token_type: Bearer`, `expires_at` |
+| `POST /auth/login` | ninguna | `200` igual; credenciales malas → `401` genérico |
+| `GET /auth/me` | solo Bearer | usuario |
+| `GET /auth/companies` | solo Bearer | empresas y rol |
+| `POST /auth/companies` | solo Bearer | crea empresa (quedas `owner`) |
+| `POST /companies/{id}/api-keys` | Bearer | key para esa empresa |
+
+| Campo signup | Tipo | Obligatorio | Descripción |
+|---|---|---|---|
+| `name` | string | Sí | Nombre visible |
+| `email` | string | Sí | Único, formato email |
+| `password` | string | Sí | 8 a 72 caracteres |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Sin credenciales: el JWT se obtiene con signup/login
+    const auth = new Supay({ baseUrl: "http://localhost:8081" });
+
+    const session = await auth.auth.signup({
+      name: "Ada",
+      email: "ada@example.com",
+      password: "una-clave-segura",
+    });
+    // session.access_token → úsalo como Bearer
+
+    const empresas = await auth.auth.listMyCompanies();
+
+    // Crear empresa: quedas owner, luego genera su API key
+    const empresa = await auth.auth.createMyCompany({
+      nit: "...",
+      business_name: "...",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/auth/signup" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "name": "Ada",
+        "email": "ada@example.com",
+        "password": "una-clave-segura"
+      }'
+
+    curl -s "$BASE/v1/auth/companies" \
+      -H "Authorization: Bearer $JWT"
+    ```
+  </Tab>
+</Tabs>
+
+Sin membresía sobre la empresa → `403`. Sin `X-Company-ID` en rutas de negocio → `400`.
+Ver [Errores](../referencia/errores.mdx).

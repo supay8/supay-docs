@@ -1,0 +1,79 @@
+# 31 · Suministro de Energía
+
+Energía (no domiciliaria regulada como el 13), con crédito fiscal. Cabecera con
+país, placa y envase; sin detalle sectorial.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `codigo_pais` | string | Ver perfil | País de la operación |
+| `placa_vehiculo` | string | Ver perfil | Placa asociada al suministro |
+| `tipo_envase` | string | Ver perfil | Tipo de envase |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Transporte SRL",
+      },
+      items: [
+        {
+          sku: "ENERGIA",
+          description: "Suministro energía octubre",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 1200,
+        },
+      ],
+      sector: "31",
+      data: {
+        placa_vehiculo: "ABC-123",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Transporte SRL"
+        },
+        "items": [
+          {
+            "sku": "ENERGIA",
+            "description": "Suministro energía octubre",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 1200
+          }
+        ],
+        "sector": "31",
+        "data": {
+          "placa_vehiculo": "ABC-123"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+<Callout intent="info">
+  ¿Energía domiciliaria regulada (medidor, tarifa dignidad)? Es el
+  [13 · Servicios Básicos](./13-servicios-basicos.mdx).
+</Callout>

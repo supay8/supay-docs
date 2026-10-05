@@ -1,0 +1,82 @@
+# 2 · Alquiler de Bienes Inmuebles
+
+Alquileres con derecho a crédito fiscal. El campo que manda es el **periodo
+facturado**: a qué mes corresponde el cobro. Sin detalle sectorial.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `periodo_facturado` | string | Sí | Mes facturado, formato `2026-08` |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales: la línea describe qué se alquila
+(ej. "Alquiler oficina piso 3, agosto 2026").
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "2345678",
+        name: "Inquilino SRL",
+      },
+      items: [
+        {
+          sku: "ALQ-OF3",
+          description: "Alquiler oficina piso 3, agosto 2026",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 3500,
+        },
+      ],
+      sector: "2",
+
+      // El mes que se cobra, siempre AAAA-MM
+      data: {
+        periodo_facturado: "2026-08",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "2345678",
+          "name": "Inquilino SRL"
+        },
+        "items": [
+          {
+            "sku": "ALQ-OF3",
+            "description": "Alquiler oficina piso 3, agosto 2026",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 3500
+          }
+        ],
+        "sector": "2",
+        "data": {
+          "periodo_facturado": "2026-08"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+## Errores típicos
+
+| Situación | Respuesta |
+|---|---|
+| Sin `periodo_facturado` | `400 VALIDATION_ERROR` |
+| Formato distinto de `AAAA-MM` | `400` |

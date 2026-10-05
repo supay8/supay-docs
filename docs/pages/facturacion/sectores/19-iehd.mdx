@@ -1,0 +1,102 @@
+# 19 · Hidrocarburos Alcanzada IEHD
+
+Combustibles alcanzados por el IEHD, con crédito fiscal. La cabecera identifica
+**quién vende a quién y bajo qué condiciones**; cada línea lleva su **% IEHD**.
+Sin ambos, el SIAT rechaza.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_iehd` | number | Ver perfil | Monto del IEHD de la operación |
+| `ciudad` | string | Ver perfil | Ciudad de la operación |
+| `nombre_propietario` | string | Ver perfil | Propietario del producto |
+| `nombre_representante_legal` | string | Ver perfil | Representante legal |
+| `condicion_pago` | string | Ver perfil | Condición de pago pactada |
+| `periodo_entrega` | string | Ver perfil | Periodo de entrega |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `porcentaje_iehd` | number | Ver perfil | % IEHD aplicado a la línea |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Transporte SRL",
+      },
+
+      // Línea con su % IEHD: sin esto el SIAT rechaza
+      items: [
+        {
+          sku: "DIESEL",
+          description: "Diésel oíl",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 1000,
+          price: 3.72,
+          data: {
+            porcentaje_iehd: 10,
+          },
+        },
+      ],
+
+      sector: "19",
+
+      // Quién vende, a quién y en qué condiciones
+      data: {
+        monto_iehd: 372,
+        ciudad: "Santa Cruz",
+        nombre_propietario: "Planta Sur",
+        nombre_representante_legal: "Apoderado",
+        condicion_pago: "Contado",
+        periodo_entrega: "2026-10",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Transporte SRL"
+        },
+        "items": [
+          {
+            "sku": "DIESEL",
+            "description": "Diésel oíl",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 1000,
+            "price": 3.72,
+            "data": {
+              "porcentaje_iehd": 10
+            }
+          }
+        ],
+        "sector": "19",
+        "data": {
+          "monto_iehd": 372,
+          "ciudad": "Santa Cruz"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+<Callout intent="warning">
+  ¿Tu hidrocarburo **no** está alcanzado por el IEHD? Usa el
+  [38 · No Alcanzada](./38-no-alcanzada-iehd.mdx). No mezcles sectores.
+</Callout>

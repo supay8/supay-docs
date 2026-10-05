@@ -1,0 +1,62 @@
+# Anulación de venta
+
+Anula una factura emitida con el motivo del catálogo SIAT. La factura pasa a
+`CANCELLED` y la anulación se puede revertir. Para corregir una venta no se
+re-emite el mismo ID: se anula y/o se emite una **nota** (ver
+[24 · Nota](./sectores/24-nota-credito-debito.mdx)).
+
+**En esta página aprenderás:** anular con motivo SIAT y revertir la anulación · **Prerrequisitos:** factura emitida de tu tenant · **Tiempo:** ~5 min.
+
+| Recurso | Detalle |
+|---|---|
+| Anular | `POST /v1/invoices/{id}/annul` → `200` en `CANCELLED` |
+| Revertir | `POST /v1/invoices/{id}/annul/revert` (body `{}`) → `200` |
+| `codigo_motivo` | Del catálogo `motivos-anulacion` (`GET /companies/{id}/catalogs/motivos-anulacion`) |
+| Precondición | La factura existe y es de tu tenant (ID ajeno → `404`) |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Anular con motivo del catálogo SIAT
+    const anulada = await supay.invoices.annul({
+      id,
+      codigo_motivo: 1,
+    });
+    // anulada.status === "CANCELLED"
+
+    // Revertir la anulación (vuelve al estado anterior)
+    const vigente = await supay.invoices.revertAnnul({ id });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    # 1. Motivos válidos del catálogo
+    curl -s "$BASE/v1/companies/$CID/catalogs/motivos-anulacion" \
+      -H "X-API-Key: $KEY"
+
+    # 2. Anular → 200 en CANCELLED
+    curl -s -X POST "$BASE/v1/invoices/$ID/annul" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "codigo_motivo": 1
+      }'
+
+    # 3. Revertir → 200
+    curl -s -X POST "$BASE/v1/invoices/$ID/annul/revert" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{}'
+    ```
+  </Tab>
+</Tabs>
+
+## Errores de este caso
+
+| Situación | Respuesta |
+|---|---|
+| ID inexistente o de otra empresa | `404 NOT_FOUND` |
+| Motivo fuera de catálogo | `400 VALIDATION_ERROR` |
+| Estado no anulable (borrador sin emitir) | `409 CONFLICT` |
+
+Relacionado: [24 · Notas](./sectores/24-nota-credito-debito.mdx) · [Errores](../referencia/errores.mdx).

@@ -1,0 +1,74 @@
+# 5 · Venta en Zona Franca
+
+Ventas dentro de zona franca, sin crédito fiscal. La cabecera lleva el **número
+de parte de recepción** que ampara la mercadería; sin detalle sectorial.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `numero_parte_recepcion` | string | Ver perfil | Parte de recepción de la mercadería en ZF |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "7890123",
+        name: "Usuario ZF",
+      },
+      items: [
+        {
+          sku: "ELEC-ZF",
+          description: "Electrónicos",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 5,
+          price: 800,
+        },
+      ],
+      sector: "5",
+
+      // La mercadería queda amparada por su parte de recepción
+      data: {
+        numero_parte_recepcion: "PR-2026-7788",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "7890123",
+          "name": "Usuario ZF"
+        },
+        "items": [
+          {
+            "sku": "ELEC-ZF",
+            "description": "Electrónicos",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 5,
+            "price": 800
+          }
+        ],
+        "sector": "5",
+        "data": {
+          "numero_parte_recepcion": "PR-2026-7788"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

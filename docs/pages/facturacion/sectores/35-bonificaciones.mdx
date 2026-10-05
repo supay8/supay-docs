@@ -1,0 +1,69 @@
+# 35 · Compra Venta Bonificaciones
+
+Ventas con bonificaciones, con crédito fiscal. Igual que el
+[1 · Compra y Venta](./01-compra-venta.mdx): el descuento va por línea
+(`discount`), sin campos sectoriales.
+
+## Cabecera (`data`)
+
+`data: {}` — sin campos sectoriales.
+
+## Detalle (`items[].data`)
+
+Sin campos propios: usa `discount` por línea para la bonificación.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "123456789",
+        name: "Empresa SAC",
+      },
+      items: [
+        {
+          sku: "PROD-10",
+          description: "Producto con bonificación",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 10,
+          price: 100,
+
+          // La bonificación vive aquí, no en data
+          discount: 100,
+        },
+      ],
+      sector: "35",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "123456789",
+          "name": "Empresa SAC"
+        },
+        "items": [
+          {
+            "sku": "PROD-10",
+            "description": "Producto con bonificación",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 10,
+            "price": 100,
+            "discount": 100
+          }
+        ],
+        "sector": "35"
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

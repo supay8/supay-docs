@@ -1,0 +1,300 @@
+# Onboarding del tenant
+
+Deja una empresa lista para emitir en PILOTO en 7 pasos. Los pasos encadenan IDs
+(`company → branch → POS → setup`). Todas las rutas valen con y sin `/v1` (usa `/v1`).
+
+**En esta página aprenderás:** dejar una empresa lista para emitir en 7 pasos · **Prerrequisitos:** API corriendo + `BACKEND_SECRET` (operador) · **Tiempo:** ~20 min.
+
+<Steps toc={true}>
+  <Step title="Empresa (operador)">
+    Solo `nit` + `business_name` son obligatorios. La `api_key` **solo se muestra
+    una vez**: guárdala como secreto. NIT duplicado → `409`.
+
+    | Campo | Tipo | Obligatorio | Descripción |
+    |---|---|---|---|
+    | `nit` | string | Sí | Sin guiones ni dígito verificador extra |
+    | `business_name` | string | Sí | Razón social |
+    | `ambiente` | enum | No, default `PILOTO` | `PILOTO` o `PRODUCCION` (beta: siempre `PILOTO`) |
+    | `modalidad` | int | No, default `1` | `1` electrónica, `2` computarizada |
+    | `municipio`, `direccion`, `telefono` | string | No | Datos de la empresa |
+    | `codigo_actividad` | string | No | Se hereda a los ítems que lo omitan |
+    | `token_delegado` | string | No | Token SIAT (vía `PATCH /companies/{id}`) |
+    | `certificate_webhook_url` | string | No | `http(s)://` para alertas de vencimiento |
+    | `invoice_email_enabled` | bool | No, default `false` | Email de factura (función cloud) |
+
+    <Tabs>
+      <Tab title="SDK TypeScript" language="typescript">
+        ```typescript
+        // Operador: autentica con BACKEND_SECRET, no con apiKey
+        const op = new Supay({
+          baseUrl,
+          backendToken: process.env.BACKEND_SECRET!,
+        });
+
+        const { company, api_key } = await op.bootstrap.createCompany({
+          nit: "123456789",
+          business_name: "Mi Empresa SRL",
+          ambiente: "PILOTO",
+          modalidad: 1,
+          codigo_actividad: "620900",
+        });
+
+        // A partir de aquí todo usa la key del tenant
+        const supay = new Supay({ apiKey: api_key!, baseUrl });
+        ```
+      </Tab>
+      <Tab title="REST API" language="curl">
+        ```bash
+        BOOT=$(curl -s -X POST "$BASE/v1/internal/companies" \
+          -H "X-Backend-Token: $BACKEND_SECRET" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "nit": "123456789",
+            "business_name": "Mi Empresa SRL",
+            "ambiente": "PILOTO"
+          }')
+
+        # Guarda ambos: la key solo se muestra esta vez
+        KEY=$(echo "$BOOT" | jq -r .api_key)
+        CID=$(echo "$BOOT" | jq -r .company.id)
+        # 401 en texto plano = BACKEND_SECRET mal
+        ```
+      </Tab>
+    </Tabs>
+    <Callout intent="info">
+      Alternativa humana: `signup → login → POST /auth/companies` (quedas `owner`),
+      luego `POST /companies/{id}/api-keys`. Detalle en [Autenticación](./autenticacion.mdx).
+    </Callout>
+  </Step>
+  <Step title="Sucursal">
+    | Campo | Tipo | Obligatorio | Descripción |
+    |---|---|---|---|
+    | `company_id` | uuid | Sí | Debe ser tu tenant |
+    | `name` | string | Sí | Ej. "Casa Matriz" |
+    | `codigo_sucursal` | int | No, default `0` | `0` = casa matriz |
+    | `address` | string | No | Dirección |
+
+    <Tabs>
+      <Tab title="SDK TypeScript" language="typescript">
+        ```typescript
+        const branch = await supay.branches.create({
+          company_id: company.id,
+          codigo_sucursal: 0,
+          name: "Casa Matriz",
+          address: "Av. 123",
+        });
+        ```
+      </Tab>
+      <Tab title="REST API" language="curl">
+        ```bash
+        BID=$(curl -s -X POST "$BASE/v1/branches/" \
+          -H "X-API-Key: $KEY" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"company_id\": \"$CID\",
+            \"codigo_sucursal\": 0,
+            \"name\": \"Casa Matriz\"
+          }" | jq -r .id)
+        ```
+      </Tab>
+    </Tabs>
+    <Callout intent="warning">
+      Actualizar sucursal es `PUT /branches/{id}` (no PATCH). Listar:
+      `GET /branches/?company_id=<id>`.
+    </Callout>
+  </Step>
+  <Step title="Punto de venta">
+    | Campo | Tipo | Obligatorio | Descripción |
+    |---|---|---|---|
+    | `branch_id` | uuid | Sí | Sucursal del paso 2 |
+    | `name` | string | Sí | Ej. "Caja 1" |
+    | `description` | string | Sí | Ej. "Punto principal" |
+    | `tipo_punto_venta` | int | No, default `2` | Tipo SIAT del POS |
+
+    `codigo_punto_venta` se asigna solo; `company_id`/`codigo_sucursal` se heredan.
+    Actualizar es `PATCH` (no PUT).
+
+    <Tabs>
+      <Tab title="SDK TypeScript" language="typescript">
+        ```typescript
+        const pos = await supay.pointOfSales.create({
+          branch_id: branch.id,
+          name: "Caja 1",
+          description: "Punto principal",
+          tipo_punto_venta: 2,
+        });
+        ```
+      </Tab>
+      <Tab title="REST API" language="curl">
+        ```bash
+        POS=$(curl -s -X POST "$BASE/v1/point-of-sales/" \
+          -H "X-API-Key: $KEY" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"branch_id\": \"$BID\",
+            \"name\": \"Caja 1\",
+            \"description\": \"Punto principal\"
+          }" | jq -r .id)
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Certificado P12">
+    `multipart/form-data`, límite 5 MB, solo `.p12`/`.pfx`.
+
+    | Campo (form) | Tipo | Obligatorio | Descripción |
+    |---|---|---|---|
+    | `p12_file` | binario | Sí | Archivo P12/PFX |
+    | `p12_password` | string | No | Clave del P12 |
+    | `name` / `type` | string | No | Default `cert-<id>-<fecha>` / `P12` |
+
+    <Tabs>
+      <Tab title="SDK TypeScript" language="typescript">
+        ```typescript
+        // Sube el P12 que firma ante el SIAT
+        await supay.certificates.upload({
+          id: company.id,
+          p12_file: new File([p12Bytes], "cert.p12"), // Blob/Buffer según runtime
+          p12_password: "***",
+          name: "cert-principal",
+        });
+
+        // Verifica el activo y su vigencia
+        const activo = await supay.certificates.getActive({ id: company.id });
+        // not_after: alertas a 30/15/7 días + marca EXPIRED automática
+        ```
+      </Tab>
+      <Tab title="REST API" language="curl">
+        ```bash
+        # Una flag -F por campo del formulario
+        curl -s -X POST "$BASE/v1/companies/$CID/certificates/" \
+          -H "X-API-Key: $KEY" \
+          -F "p12_file=@cert.p12;type=application/x-pkcs12" \
+          -F "p12_password=***"
+
+        curl -s "$BASE/v1/companies/$CID/certificates/active" \
+          -H "X-API-Key: $KEY"
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Setup SIAT (CUIS + CUFD)">
+    Idempotente: ejecútalo tras crear el POS y cada vez que dudes del estado.
+    Granular: `POST /siat/cuis/{pos}` y `/siat/cufd/{pos}` con `{}` (CUFD requiere CUIS).
+
+    <Tabs>
+      <Tab title="SDK TypeScript" language="typescript">
+        ```typescript
+        // Deja CUIS + CUFD vigentes de una vez
+        const setup = await supay.siat.setup({ point_of_sale_id: pos.id });
+        // setup.readiness
+        ```
+      </Tab>
+      <Tab title="REST API" language="curl">
+        ```bash
+        curl -s -X POST "$BASE/v1/siat/setup/$POS" \
+          -H "X-API-Key: $KEY" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"point_of_sale_id\": \"$POS\"
+          }"
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Sincronizar catálogos">
+    Sin `?operation` sincroniza todo; con `?operation=tipoMoneda` solo esa.
+    Operación desconocida → `400`.
+
+    <Tabs>
+      <Tab title="SDK TypeScript" language="typescript">
+        ```typescript
+        const sync = await supay.siat.syncCatalogs({ pointOfSaleId: pos.id });
+        // sync.operations[].codigos, sync.readiness.ready
+        ```
+      </Tab>
+      <Tab title="REST API" language="curl">
+        ```bash
+        curl -s -X POST "$BASE/v1/siat/sincronizar/$POS" \
+          -H "X-API-Key: $KEY" \
+          -H "Content-Type: application/json" \
+          -d '{}' | jq '.operations, .readiness'
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Verificar readiness e insumos">
+    <Tabs>
+      <Tab title="SDK TypeScript" language="typescript">
+        ```typescript
+        // Todo listo cuando ready === true y missing vacío
+        const ready = await supay.catalogs.getReadiness({
+          id: company.id,
+          point_of_sale_id: pos.id,
+        });
+
+        // Insumos para armar tu primer payload
+        const boot = await supay.catalogs.getEmisionBootstrap({
+          id: company.id,
+          codigo_actividad: "620900",
+        });
+
+        const prods = await supay.catalogs.listProductosSin({
+          id: company.id,
+          q: "tornillo",
+        });
+        // elige codigo_producto_sin + unidad_medida para tu payload
+        ```
+      </Tab>
+      <Tab title="REST API" language="curl">
+        ```bash
+        curl -s "$BASE/v1/companies/$CID/catalogs/readiness?point_of_sale_id=$POS" \
+          -H "X-API-Key: $KEY"
+
+        curl -s "$BASE/v1/companies/$CID/catalogs/productos-sin?q=tornillo" \
+          -H "X-API-Key: $KEY"
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+</Steps>
+
+## Operaciones secundarias
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Sucursales
+    const sucursales = await supay.branches.list({ company_id: company.id });
+    await supay.branches.update({ id: branch.id, name: "Sucursal Norte" });
+    await supay.branches.delete({ id: branch.id });
+
+    // Puntos de venta
+    const punto = await supay.pointOfSales.get({ id: pos.id });
+    await supay.pointOfSales.update({ id: pos.id, description: "Caja 2" });
+
+    // Solo lectura
+    const certs = await supay.certificates.list({ id: company.id });
+    const keys = await supay.apiKeys.list({ id: company.id });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s "$BASE/v1/branches/?company_id=$CID" -H "X-API-Key: $KEY"
+
+    curl -s -X PUT "$BASE/v1/branches/$BID" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{"name": "Sucursal Norte"}'
+
+    curl -s -X DELETE "$BASE/v1/branches/$BID" -H "X-API-Key: $KEY"
+
+    curl -s -X PATCH "$BASE/v1/point-of-sales/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{"description": "Caja 2"}'
+    ```
+  </Tab>
+</Tabs>
+
+Siguiente: [Emitir factura](../facturacion/emitir-factura.mdx) · [Sectores](../facturacion/sectores/index.mdx).

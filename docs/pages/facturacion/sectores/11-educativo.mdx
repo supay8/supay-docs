@@ -1,0 +1,86 @@
+# 11 · Sectores Educativos
+
+Colegios y universidades con crédito fiscal. La cabecera identifica al
+**estudiante** y al **periodo**; sin detalle sectorial. Usa
+`invoice_type: "education"`.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `nombre_estudiante` | string | Sí | Estudiante al que se factura |
+| `periodo_facturado` | string | Sí | Periodo, formato `2026-10` |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "9988776",
+        name: "Padre de Familia",
+      },
+      items: [
+        {
+          sku: "PENSION-OCT",
+          description: "Pensión escolar octubre",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 900,
+        },
+      ],
+
+      // Educación: tipo + sector 11 con estudiante y periodo
+      invoice_type: "education",
+      sector: "11",
+      data: {
+        nombre_estudiante: "Juan Pérez",
+        periodo_facturado: "2026-10",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "9988776",
+          "name": "Padre de Familia"
+        },
+        "items": [
+          {
+            "sku": "PENSION-OCT",
+            "description": "Pensión escolar octubre",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 900
+          }
+        ],
+        "invoice_type": "education",
+        "sector": "11",
+        "data": {
+          "nombre_estudiante": "Juan Pérez",
+          "periodo_facturado": "2026-10"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+## Errores típicos
+
+| Situación | Respuesta |
+|---|---|
+| Sin `nombre_estudiante` / `periodo_facturado` | `400 VALIDATION_ERROR` |

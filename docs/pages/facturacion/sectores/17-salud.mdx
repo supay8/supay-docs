@@ -1,0 +1,88 @@
+# 17 · Hospitales / Clínicas
+
+Salud con crédito fiscal. La cabecera lleva la **modalidad del servicio**; el
+detalle identifica **médico y acto médico por línea**.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `modalidad_servicio` | string | No | Modalidad (ej. "Ambulatorio") |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `nombre_apellido_medico` | string | Ver perfil | Médico tratante |
+| `nit_documento_medico` | string | Ver perfil | Documento del médico |
+| `nro_matricula_medico` | string | Ver perfil | Matrícula profesional |
+| `especialidad` / `especialidad_detalle` / `especialidad_medico` | string | Ver perfil | Especialidad |
+| `nro_quirofano_sala_operaciones` | string | Ver perfil | Quirófano/sala |
+| `nro_factura_medico` | string | Ver perfil | Factura del médico |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "5544332",
+        name: "Paciente",
+      },
+      items: [
+        {
+          sku: "CONS-CARD",
+          description: "Consulta cardiología",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 350,
+          data: {
+            nombre_apellido_medico: "Dra. Rojas",
+            especialidad: "Cardiología",
+            nro_matricula_medico: "M-1234",
+          },
+        },
+      ],
+      sector: "17",
+      data: {
+        modalidad_servicio: "Ambulatorio",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "5544332",
+          "name": "Paciente"
+        },
+        "items": [
+          {
+            "sku": "CONS-CARD",
+            "description": "Consulta cardiología",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 350,
+            "data": {
+              "nombre_apellido_medico": "Dra. Rojas",
+              "nro_matricula_medico": "M-1234"
+            }
+          }
+        ],
+        "sector": "17",
+        "data": {
+          "modalidad_servicio": "Ambulatorio"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

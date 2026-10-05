@@ -1,0 +1,28 @@
+# Glosario SIAT
+
+Términos fiscales bolivianos que usa esta documentación.
+
+| Término | Qué es |
+|---|---|
+| **SIAT** | Sistema Integrado de Administración Tributaria (Impuestos Nacionales de Bolivia) |
+| **NIT** | Número de Identificación Tributaria de la empresa |
+| **CUF** | Código Único de Facturación: identidad fiscal de cada factura |
+| **CUFD** | Código Único de Facturación Diaria: habilita emitir cada día (se renueva) |
+| **CUIS** | Código Único de Inicio de Sistema: habilita el punto de venta (se renueva) |
+| **PILOTO / PRODUCCIÓN** | Ambientes SIAT (`SIAT_AMBIENTE=2` piloto, `1` producción). Beta: solo piloto |
+| **Modalidad** | `1` electrónica en línea, `2` computarizada |
+| **Crédito fiscal** | Derecho del comprador a usar el IVA de la factura (sectores "Con" vs "Sin") |
+| **Sector / documento-sector** | Rubro normado (51 códigos): define fachada, XSD y campos `data` |
+| **Fachada** | Endpoint SOAP del SIAT por rubro (compra_venta, servicio_básico, etc.) |
+| **CAFC** | Código de Autorización de Facturas por Contingencia (emisión offline) |
+| **XAdES-BES** | Formato de firma digital del XML fiscal |
+| **Evento significativo** | Registro oficial de una contingencia (corte, caída) ante el SIAT |
+| **Paquete / Masiva** | Envíos por lote: contingencia offline y alto volumen (boleto aéreo) |
+| **NANDINA** | Nomenclatura arancelaria andina (mercadería de exportación/minería) |
+| **RUEX / NIM** | Registro Único de Exportadores / identificación del exportador |
+| **IEHD / ICE / IPJ** | Impuestos sectoriales (hidrocarburos, consumos específicos, juegos) |
+| **Ley 1886 / Tarifa dignidad** | Beneficios en servicios básicos (descuentos normados) |
+| **IATA** | Códigos de aerolínea/agencia (boleto aéreo) |
+
+Dudas de un término en un sector: cada página de [Sectores](../facturacion/sectores/index.mdx)
+explica sus campos en contexto.

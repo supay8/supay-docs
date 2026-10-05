@@ -1,0 +1,74 @@
+# 34 · Seguros
+
+Pólizas con crédito fiscal. Un solo campo estrella en cabecera
+(`ajuste_afectacion_iva`); sin detalle sectorial.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `ajuste_afectacion_iva` | number | Ver perfil | Ajuste por afectación del IVA de la póliza |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "2233445",
+        name: "Asegurado",
+      },
+      items: [
+        {
+          sku: "POL-AUTO",
+          description: "Póliza automotor anual",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 1200,
+        },
+      ],
+      sector: "34",
+
+      // Ajuste de IVA propio de seguros
+      data: {
+        ajuste_afectacion_iva: 0,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "2233445",
+          "name": "Asegurado"
+        },
+        "items": [
+          {
+            "sku": "POL-AUTO",
+            "description": "Póliza automotor anual",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 1200
+          }
+        ],
+        "sector": "34",
+        "data": {
+          "ajuste_afectacion_iva": 0
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

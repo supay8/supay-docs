@@ -1,0 +1,83 @@
+# 53 · Lubricantes IEHD [Experimental]
+
+<Callout intent="warning">
+  Experimental: cobertura técnica sin homologación. Solo PILOTO, como feedback
+  de producto.
+</Callout>
+
+Igual que el [44 · Lubricantes](./44-lubricantes.mdx) (deducción D.S. 25530 +
+partes) con crédito fiscal.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_deduccion_iehd_ds25530` | number | Ver perfil | Deducción IEHD según D.S. 25530 |
+| `ciudad` | string | Ver perfil | Ciudad de la operación |
+| `nombre_propietario` | string | Ver perfil | Propietario |
+| `nombre_representante_legal` | string | Ver perfil | Representante legal |
+| `condicion_pago` | string | Ver perfil | Condición de pago |
+| `periodo_entrega` | string | Ver perfil | Periodo de entrega |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const f = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Taller SRL",
+      },
+      items: [
+        {
+          sku: "LUB-IEHD",
+          description: "Lubricante alcanzado IEHD",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 50,
+          price: 95,
+        },
+      ],
+      sector: "53",
+      data: {
+        monto_deduccion_iehd_ds25530: 60,
+        ciudad: "Cochabamba",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Taller SRL"
+        },
+        "items": [
+          {
+            "sku": "LUB-IEHD",
+            "description": "Lubricante alcanzado IEHD",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 50,
+            "price": 95
+          }
+        ],
+        "sector": "53",
+        "data": {
+          "monto_deduccion_iehd_ds25530": 60
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

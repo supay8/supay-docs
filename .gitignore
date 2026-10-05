@@ -1,0 +1,9 @@
+**/.preview
+**/.definition
+
+# deps / build
+node_modules/
+sdks/typescript/node_modules/
+sdks/typescript/dist/
+*.log
+.DS_Store

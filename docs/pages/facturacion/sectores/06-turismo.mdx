@@ -1,0 +1,90 @@
+# 6 · Servicio Turístico y Hospedaje
+
+Turismo y hospedaje sin crédito fiscal. Igual estructura que
+[16 · Hoteles](./16-hoteles.mdx) (que sí da crédito), más el operador turístico.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `fecha_ingreso_hospedaje` | fecha | Ver perfil | Ingreso del huésped |
+| `cantidad_habitaciones` | int | No | Habitaciones ocupadas |
+| `cantidad_huespedes` | int | No | Total de huéspedes |
+| `cantidad_mayores` / `cantidad_menores` | int | No | Desglose adultos/menores |
+| `razon_social_operador_turismo` | string | No | Operador turístico del paquete |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `detalle_huespedes` | JSON | Ver perfil | Huéspedes de la línea |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "7654321",
+        name: "Turista Ejemplo",
+      },
+      items: [
+        {
+          sku: "TOUR-UYUNI",
+          description: "Tour Uyuni 3 días",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 2,
+          price: 1200,
+          data: {
+            detalle_huespedes: {
+              huespedes: ["Ana", "Luis"],
+            },
+          },
+        },
+      ],
+      sector: "6",
+      data: {
+        fecha_ingreso_hospedaje: "2026-10-01",
+        cantidad_huespedes: 2,
+        razon_social_operador_turismo: "Andes Tours SRL",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "7654321",
+          "name": "Turista Ejemplo"
+        },
+        "items": [
+          {
+            "sku": "TOUR-UYUNI",
+            "description": "Tour Uyuni 3 días",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 2,
+            "price": 1200
+          }
+        ],
+        "sector": "6",
+        "data": {
+          "fecha_ingreso_hospedaje": "2026-10-01",
+          "razon_social_operador_turismo": "Andes Tours SRL"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+<Callout intent="info">
+  ¿Tu hotel factura con crédito fiscal? Usa el [16 · Hoteles](./16-hoteles.mdx).
+</Callout>

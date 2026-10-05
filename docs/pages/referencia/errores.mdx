@@ -1,0 +1,65 @@
+# Errores accionables
+
+Programa contra `error.code`, nunca contra `message`:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "...",
+    "field": "items[0].description",
+    "sugerencias": ["..."],
+    "accion": "Corrija el payload y vuelva a enviarlo."
+  }
+}
+```
+
+Sin envelope: `401` del bootstrap interno (texto plano) y `404` del PDF sin archivo.
+
+| code | HTTP | Causa típica | Acción |
+|---|---|---|---|
+| `VALIDATION_ERROR` | 400 | Payload inválido; incluye `DisallowUnknownFields` (typo → `unknown field`). Frecuentes: `point_of_sale_id es obligatorio`, `customer.id no está permitido`, `items[0].description es obligatorio`, `payment requiere...`. Solo modo JWT: `falta el header X-Company-ID`. | Corregir (`field` indica dónde). |
+| `UNAUTHORIZED` | 401 | Falta `X-API-Key`, key inválida/inactiva, JWT expirado. | Re-emitir credencial. |
+| `FORBIDDEN` | 403 | JWT sin membresía, o empresa de la ruta ≠ credencial. | Revisar `X-Company-ID` / membresía. |
+| `NOT_FOUND` | 404 | ID inexistente **o de otra empresa** (enmascarado por seguridad). | Verificar IDs y tenant. |
+| `CONFLICT` | 409 | POS inactivo, sin CUIS/CUFD, catálogos no listos, NIT duplicado. | `siat.setup`; revisar precondiciones. |
+| `SIAT_REJECTED` | 422 | Rechazo SIAT + `details[]`. | Corregir y **crear factura nueva**. |
+| `SIAT_UNAVAILABLE` | 502/503 | Timeout/red SIAT. En `emit` puede llegar `OFFLINE` en vez de error. | No duplicar: `siat-status` y reintentar sobre el ID. |
+| `RATE_LIMITED` | 429 | Demasiadas peticiones. | Respetar `Retry-After`. |
+| `INTERNAL` | 500 | Detalle solo en log con `X-Request-ID`. | Backoff; reportar con el request ID. |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    import { SupayError } from "@supay/sdk";
+
+    try {
+      await supay.invoices.emit(req);
+    } catch (e) {
+      // El body trae el envelope: programa contra code
+      if (e instanceof SupayError) {
+        const err = (e as any).body?.error;
+
+        if (err?.code === "VALIDATION_ERROR") {
+          console.log("Corregir:", err.field);
+        }
+
+        if (err?.code === "SIAT_REJECTED") {
+          // Crear factura nueva, nunca re-emitir el ID
+          console.log("Details SIAT:", err.details);
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "$PAYLOAD" | jq '.error.code, .error.field'
+    ```
+  </Tab>
+</Tabs>
+
+Siguiente: [Emitir factura](../facturacion/emitir-factura.mdx) · [SDK](./sdk.mdx).

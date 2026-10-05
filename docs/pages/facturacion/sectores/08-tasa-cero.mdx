@@ -1,0 +1,69 @@
+# 8 · Tasa Cero
+
+Libros y transporte internacional de carga, sin crédito fiscal y tasa cero.
+Sin campos sectoriales: payload estándar.
+
+## Cabecera (`data`)
+
+`data: {}` — sin campos sectoriales.
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "8901234",
+        name: "Librería Central",
+      },
+      items: [
+        {
+          sku: "LIBRO-MAT",
+          description: "Texto escolar matemáticas",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 100,
+          price: 45,
+        },
+      ],
+      sector: "8",
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "8901234",
+          "name": "Librería Central"
+        },
+        "items": [
+          {
+            "sku": "LIBRO-MAT",
+            "description": "Texto escolar matemáticas",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 100,
+            "price": 45
+          }
+        ],
+        "sector": "8"
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+<Callout intent="info">
+  No confundir con el [33 · Tasa Cero Ley 1613](./33-tasa-cero-ley.mdx), que no
+  tiene constructor y se emite con XML externo.
+</Callout>

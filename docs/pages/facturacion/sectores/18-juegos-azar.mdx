@@ -1,0 +1,77 @@
+# 18 · Juegos de Azar
+
+Sorteos y juegos con crédito fiscal. La cabecera lleva los **totales del juego**;
+sin detalle sectorial.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `monto_total_ij` | number | Ver perfil | Monto total de juegos de azar |
+| `monto_total_sujeto_ipj` | number | Ver perfil | Base sujeta al IPJ |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "ci",
+        document_number: "1122334",
+        name: "Jugador",
+      },
+      items: [
+        {
+          sku: "TICKET",
+          description: "Ticket sorteo",
+          codigo_producto_sin: 5412100,
+          unidad_medida: 58,
+          quantity: 10,
+          price: 50,
+        },
+      ],
+      sector: "18",
+
+      // Totales del juego en cabecera
+      data: {
+        monto_total_ij: 500,
+        monto_total_sujeto_ipj: 500,
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "ci",
+          "document_number": "1122334",
+          "name": "Jugador"
+        },
+        "items": [
+          {
+            "sku": "TICKET",
+            "description": "Ticket sorteo",
+            "codigo_producto_sin": 5412100,
+            "unidad_medida": 58,
+            "quantity": 10,
+            "price": 50
+          }
+        ],
+        "sector": "18",
+        "data": {
+          "monto_total_ij": 500,
+          "monto_total_sujeto_ipj": 500
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

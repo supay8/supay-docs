@@ -1,0 +1,126 @@
+# 3 · Comercial de Exportación
+
+Ventas al exterior sin derecho a crédito fiscal. La cabecera lleva los **datos
+logísticos y comerciales** (quién exporta, a dónde, en qué términos); el detalle
+identifica la **mercadería** (NANDINA).
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `nim` | string | Ver perfil | Identificación del exportador |
+| `ruex` | string | Ver perfil | Registro Único de Exportadores |
+| `origen` | string | Ver perfil | Origen de la mercadería |
+| `pais_destino` | string | Ver perfil | País de destino |
+| `lugar_destino` | string | Ver perfil | Ciudad/lugar de destino |
+| `puerto_destino` / `puerto_transito` | string | No | Puertos de la ruta |
+| `incoterm` / `incoterm_detalle` | string | Ver perfil | Término comercial + detalle |
+
+<AccordionGroup>
+  <Accordion title="Ver el resto de campos (costos, totales FOB, bultos)">
+    | Campo | Tipo | Obligatorio | Qué significa |
+    |---|---|---|---|
+    | `costos_gastos_nacionales` | objeto | Ver perfil | Costos y gastos nacionales (JSON) |
+    | `costos_gastos_internacionales` | objeto | Ver perfil | Costos y gastos internacionales |
+    | `total_gastos_nacionales_fob` / `total_gastos_internacionales` | number | Ver perfil | Totales FOB |
+    | `tipo_cambio_anb` | number | Ver perfil | Tipo de cambio ANB |
+    | `direccion_comprador` | string | Ver perfil | Dirección del comprador externo |
+    | `informacion_adicional` | string | No | Info libre de la operación |
+    | `numero_descripcion_paquetes_bultos` | string | Ver perfil | Bultos/paquetes |
+  </Accordion>
+</AccordionGroup>
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `codigo_nandina` | string | Ver perfil | Código arancelario NANDINA |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+
+      // Comprador del exterior
+      customer: {
+        document_type: "nit",
+        document_number: "80013826",
+        name: "Comprador Exterior SAC",
+      },
+
+      // Mercadería con su arancel
+      items: [
+        {
+          sku: "CAFE-ORO",
+          description: "Café oro en grano",
+          codigo_producto_sin: 5214100,
+          unidad_medida: 58,
+          quantity: 100,
+          price: 25,
+          data: {
+            codigo_nandina: "0901.21.00",
+          },
+        },
+      ],
+
+      sector: "3",
+
+      // Quién exporta, a dónde y en qué términos
+      data: {
+        nim: "12345",
+        ruex: "RUEX-001",
+        origen: "Bolivia",
+        pais_destino: "Alemania",
+        incoterm: "FOB",
+        puerto_destino: "Arica",
+        costos_gastos_nacionales: {
+          flete: 500,
+          seguro: 100,
+        },
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "80013826",
+          "name": "Comprador Exterior SAC"
+        },
+        "items": [
+          {
+            "sku": "CAFE-ORO",
+            "description": "Café oro en grano",
+            "codigo_producto_sin": 5214100,
+            "unidad_medida": 58,
+            "quantity": 100,
+            "price": 25,
+            "data": {
+              "codigo_nandina": "0901.21.00"
+            }
+          }
+        ],
+        "sector": "3",
+        "data": {
+          "nim": "12345",
+          "ruex": "RUEX-001",
+          "origen": "Bolivia",
+          "pais_destino": "Alemania",
+          "incoterm": "FOB"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
+
+<Callout intent="warning">
+  Exportación no da crédito fiscal. Si tu cliente necesita crédito, usa el
+  [1 · Compra y Venta](./01-compra-venta.mdx).
+</Callout>

@@ -1,0 +1,54 @@
+# SDK TypeScript
+
+El SDK (`@supay/sdk`) se genera desde el mismo OpenAPI que la API Reference
+(`supay-v1.openapi.yml`): **es un reflejo 1:1** — mismos endpoints, mismos
+nombres (`x-fern-sdk-method-name`), mismos campos en snake_case. Si un ejemplo de
+esta doc y el SDK difieren, manda el SDK regenerado.
+
+> Estado: generado localmente, **aún no publicado en npm**. Instalación temporal
+> desde el repo hasta la publicación:
+>
+> ```bash
+> # 1. Compilar el SDK desde supay-docs
+> (cd sdks/typescript && npm run build)
+>
+> # 2a. En tu proyecto (ruta local)
+> npm i /ruta/a/supay-docs/sdks/typescript
+>
+> # 2b. O con pnpm workspace
+> # "@supay/sdk": "workspace:*"
+> ```
+>
+> Regenerar tras cambios del OpenAPI (desde la raíz de supay-docs):
+>
+> ```bash
+> fern generate --local --group local --force
+> ```
+
+## Uso
+
+```typescript
+import { Supay } from "@supay/sdk";
+
+// Un cliente por tenant (solo X-API-Key)
+const supay = new Supay({
+  apiKey: process.env.SUPAY_API_KEY!,
+  baseUrl: "http://localhost:8081",
+});
+
+// Grupos disponibles:
+//   system bootstrap auth branches pointOfSales certificates
+//   apiKeys siat catalogs invoices
+// (+ supay.fetch para rutas no cubiertas)
+await supay.system.healthCheck();
+await supay.invoices.preview({ ...payload }); // valida, no persiste
+await supay.invoices.emit({ ...payload }); // crea + emite
+```
+
+Nombres en snake_case en el wire (`point_of_sale_id`, `codigo_producto_sin`).
+Sin idempotencia: cada `create`/`emit` inicia otra factura — guarda `id` + `cuf`
+y reconcilia con `get` / `getSiatStatus`. Solo `X-API-Key` (el JWT es del dashboard).
+
+Ejemplos por caso de uso en cada página: [Quickstart](../empezar/quickstart.mdx) ·
+[Onboarding](../empezar/onboarding.mdx) · [Emitir](../facturacion/emitir-factura.mdx) ·
+[Anulación](../facturacion/anulacion-venta.mdx) · [Notas](../facturacion/sectores/24-nota-credito-debito.mdx).

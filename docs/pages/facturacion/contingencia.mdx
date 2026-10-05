@@ -1,0 +1,93 @@
+# Contingencia OFFLINE
+
+`emit` es síncrono: si el SIAT no responde por timeout/caída, la API **no falla**:
+devuelve `200` con `status: "OFFLINE"`, XML firmado local (`codigoEmision=2`) y
+`contingency_event_id`, vinculado a un evento significativo local.
+
+**En esta página aprenderás:** qué pasa cuando cae la red SIAT, registrar el evento y reenviar por paquete · **Prerrequisitos:** saber [emitir](../facturacion/emitir-factura.mdx) · **Tiempo:** ~10 min.
+
+<Callout intent="warning">
+  Un rechazo (`REJECTED`) se informa de inmediato y **no** abre contingencia. Solo
+  timeout/caída de red genera factura offline.
+</Callout>
+
+## Evento significativo
+
+| Campo | Tipo | Obligatorio | Descripción |
+|---|---|---|---|
+| `codigo_motivo_evento` | int | No, default corte de internet | Motivo SIAT del evento |
+| `descripcion` | string | No, default `"Corte del servicio de internet"` | Descripción |
+| `cufd_evento` | string | No, default CUFD vigente | CUFD del evento |
+| `fecha_hora_inicio_evento` | fecha | No | Default `now-10m` (clamp a vigencia CUFD) |
+| `fecha_hora_fin_evento` | fecha | No | Default `now+1h50m` (se completa al volver la red) |
+
+Requiere CUIS activo + CUFD vigente o responde `409`.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const inv = await supay.invoices.emit(payload);
+
+    // Solo timeout/caída genera OFFLINE (un REJECTED no entra aquí)
+    if (inv.status === "OFFLINE") {
+      // Guarda el XML firmado local + el evento
+      const xml = await supay.invoices.downloadXml({ id: inv.id });
+      // persistir xml + inv.contingency_event_id
+    }
+
+    // Registrar el evento significativo (usa defaults si omites campos)
+    const ev = await supay.siat.registerSignificantEvent({
+      pointOfSaleId: pos.id,
+      codigo_motivo_evento: 1,
+      descripcion: "Corte del servicio de internet",
+    });
+    // ev.codigo_recepcion
+
+    // Al volver la red: enviar por paquete y conciliar
+    await supay.siat.sendPackage({
+      pointOfSaleId: pos.id,
+      invoice_ids: [inv.id],
+    });
+    // OFFLINE → SENT → ACCEPTED / OBSERVED / REJECTED
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    # 1. Emitir: puede devolver OFFLINE en vez de error
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "$PAYLOAD" | jq '{id, status, contingency_event_id}'
+
+    # 2. Guardar el XML firmado local
+    curl -s "$BASE/v1/invoices/$ID/xml" \
+      -H "X-API-Key: $KEY" -o offline.xml
+
+    # 3. Registrar el evento significativo
+    curl -s -X POST "$BASE/v1/siat/evento-significativo/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "codigo_motivo_evento": 1,
+        "descripcion": "Corte del servicio de internet"
+      }'
+
+    # 4. Al volver la red: enviar por paquete
+    curl -s -X POST "$BASE/v1/siat/paquete/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"invoice_ids\": [\"$ID\"]
+      }"
+    ```
+  </Tab>
+</Tabs>
+
+## Reglas operativas
+
+| Regla | Detalle |
+|---|---|
+| Renovación | CUFD/CUIS se renuevan automáticamente; antes de emitir se valida CUFD vigente |
+| Beta | `REJECTED` no se reencola — corregir y crear factura nueva, conservando ID/CUF |
+
+Relacionado: [Paquetes y masiva](./paquetes-masiva.mdx) · [Errores](../referencia/errores.mdx).

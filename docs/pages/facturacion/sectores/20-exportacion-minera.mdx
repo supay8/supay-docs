@@ -1,0 +1,110 @@
+# 20 · Comercial de Exportación de Minerales
+
+Exportación minera sin crédito fiscal. Cabecera con **datos comerciales y de
+lote**; detalle con **NANDINA, leyes y extracción**.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `nim` / `ruex` | string | Ver perfil | Exportador y su registro |
+| `origen` | string | Ver perfil | Origen del mineral |
+| `pais_destino` / `puerto_destino` / `puerto_transito` | string | Ver perfil | Ruta |
+| `incoterm` | string | Ver perfil | Término comercial |
+
+<AccordionGroup>
+  <Accordion title="Ver el resto de campos (lote, pesos, gastos)">
+    | Campo | Tipo | Obligatorio | Qué significa |
+    |---|---|---|---|
+    | `tipo_cambio_anb` | number | Ver perfil | Tipo de cambio ANB |
+    | `numero_lote` | string | Ver perfil | Lote |
+    | `concentrado_granel` | string | Ver perfil | Concentrado o granel |
+    | `kilos_netos_humedos` / `kilos_netos_secos` | number | Ver perfil | Pesos |
+    | `humedad_porcentaje` / `humedad_valor` | number | Ver perfil | Humedad |
+    | `merma_porcentaje` / `merma_valor` | number | Ver perfil | Merma |
+    | `gastos_realizacion` | number | Ver perfil | Gastos de realización |
+    | `direccion_comprador` / `otros_datos` | string | Ver perfil | Comprador y extras |
+  </Accordion>
+</AccordionGroup>
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `codigo_nandina` | string | Ver perfil | Arancel del mineral |
+| `descripcion_leyes` | string | Ver perfil | Leyes del mineral |
+| `cantidad_extraccion` | number | Ver perfil | Cantidad extraída |
+| `unidad_medida_extraccion` | string | Ver perfil | Unidad de extracción |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "4567890",
+        name: "Fundidora Exterior",
+      },
+      items: [
+        {
+          sku: "ZN-CONC",
+          description: "Concentrado de zinc",
+          codigo_producto_sin: 5214100,
+          unidad_medida: 58,
+          quantity: 20,
+          price: 1800,
+          data: {
+            codigo_nandina: "2608.00.00",
+            descripcion_leyes: "Zn 52%",
+            cantidad_extraccion: 20,
+            unidad_medida_extraccion: "TM",
+          },
+        },
+      ],
+      sector: "20",
+      data: {
+        ruex: "RUEX-009",
+        origen: "Potosí",
+        pais_destino: "Corea del Sur",
+        incoterm: "FOB",
+        numero_lote: "L-2026-014",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "4567890",
+          "name": "Fundidora Exterior"
+        },
+        "items": [
+          {
+            "sku": "ZN-CONC",
+            "description": "Concentrado de zinc",
+            "codigo_producto_sin": 5214100,
+            "unidad_medida": 58,
+            "quantity": 20,
+            "price": 1800,
+            "data": {
+              "codigo_nandina": "2608.00.00"
+            }
+          }
+        ],
+        "sector": "20",
+        "data": {
+          "ruex": "RUEX-009",
+          "origen": "Potosí",
+          "incoterm": "FOB"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

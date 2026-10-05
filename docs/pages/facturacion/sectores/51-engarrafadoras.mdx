@@ -1,0 +1,70 @@
+# 51 · Engarrafadoras [Experimental]
+
+<Callout intent="warning">
+  Experimental: cobertura técnica sin homologación. Solo PILOTO, como feedback
+  de producto. El SIAT puede rechazarlo.
+</Callout>
+
+Engarrafado de GLP con crédito fiscal. Sin campos sectoriales: payload estándar.
+
+## Cabecera (`data`)
+
+`data: {}` — sin campos sectoriales.
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales.
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Solo PILOTO: verifica el resultado y repórtalo
+    const f = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Distribuidora",
+      },
+      items: [
+        {
+          sku: "GLP-ENG",
+          description: "Engarrafado GLP 10kg",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 10,
+          price: 22.5,
+        },
+      ],
+      sector: "51",
+    });
+    // Si REJECTED: details[] → issue (sector + código + mensajes, sin PII)
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Distribuidora"
+        },
+        "items": [
+          {
+            "sku": "GLP-ENG",
+            "description": "Engarrafado GLP 10kg",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 10,
+            "price": 22.5
+          }
+        ],
+        "sector": "51"
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

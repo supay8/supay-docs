@@ -1,0 +1,83 @@
+# 4 · Libre Consignación
+
+Mercadería en consignación al exterior, sin crédito fiscal. Cabecera mínima de
+ruta + NANDINA por línea.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `codigo_pais` | string | Ver perfil | País de la consignación |
+| `puerto_destino` | string | Ver perfil | Puerto de destino |
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `codigo_nandina` | string | Ver perfil | Arancel de la mercadería |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "80013826",
+        name: "Consignatario Exterior",
+      },
+      items: [
+        {
+          sku: "QUINUA",
+          description: "Quinua a granel",
+          codigo_producto_sin: 5214100,
+          unidad_medida: 58,
+          quantity: 500,
+          price: 8,
+          data: {
+            codigo_nandina: "1008.50.00",
+          },
+        },
+      ],
+      sector: "4",
+      data: {
+        codigo_pais: "DE",
+        puerto_destino: "Arica",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "80013826",
+          "name": "Consignatario Exterior"
+        },
+        "items": [
+          {
+            "sku": "QUINUA",
+            "description": "Quinua a granel",
+            "codigo_producto_sin": 5214100,
+            "unidad_medida": 58,
+            "quantity": 500,
+            "price": 8,
+            "data": {
+              "codigo_nandina": "1008.50.00"
+            }
+          }
+        ],
+        "sector": "4",
+        "data": {
+          "codigo_pais": "DE",
+          "puerto_destino": "Arica"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>

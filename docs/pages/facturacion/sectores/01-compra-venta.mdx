@@ -1,0 +1,99 @@
+# 1 · Compra y Venta
+
+La factura ordinaria con derecho a crédito fiscal. Fachada `compra_venta`.
+Si solo facturas ventas locales, quédate aquí: es el sector de referencia del MVP.
+
+## Cabecera (`data`)
+
+No pide ningún campo sectorial: `data: {}`. Los campos fiscales comunes los
+completa Supay.
+
+## Detalle (`items[].data`)
+
+| Campo | Tipo | Obligatorio | Para qué sirve |
+|---|---|---|---|
+| `numero_serie` | string | No | Serie física del producto (trazabilidad) |
+| `numero_imei` | string | No | IMEI del equipo (celulares, tablets) |
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+
+      // Receptor con crédito fiscal: usa NIT
+      customer: {
+        document_type: "nit",
+        document_number: "123456789",
+        name: "Empresa SAC",
+        email: "cobros@empresa.bo",
+      },
+
+      items: [
+        // Línea con trazabilidad (serie + IMEI)
+        {
+          sku: "CEL-001",
+          description: "Celular",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 1,
+          price: 2500,
+          data: {
+            numero_serie: "SN-001",
+            numero_imei: "355000000000001",
+          },
+        },
+        // Línea simple
+        {
+          sku: "PLAN-PRO",
+          description: "Plan profesional",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 2,
+          price: 150,
+        },
+      ],
+
+      sector: "1",
+    });
+    // ACCEPTED → guardar factura.id + factura.cuf
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "123456789",
+          "name": "Empresa SAC"
+        },
+        "items": [
+          {
+            "sku": "CEL-001",
+            "description": "Celular",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 1,
+            "price": 2500,
+            "data": {
+              "numero_serie": "SN-001",
+              "numero_imei": "355000000000001"
+            }
+          }
+        ],
+        "sector": "1"
+      }' | jq '{id, status, cuf}'
+    ```
+  </Tab>
+</Tabs>
+
+## Errores típicos
+
+| Situación | Respuesta |
+|---|---|
+| Solo `sku` sin snapshot | `400 "items[0].description es obligatorio"` |
+| Clave inventada en `data` | `400 "json: unknown field ..."` |

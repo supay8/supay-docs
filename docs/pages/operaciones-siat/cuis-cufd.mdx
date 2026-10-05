@@ -1,0 +1,65 @@
+# CUIS y CUFD
+
+Códigos que habilitan a tu punto de venta ante el SIAT. Sin CUIS no hay CUFD;
+sin CUFD vigente no se emite. Se renuevan automáticamente (job cada hora), pero
+estas rutas sirven para forzarlos y verificar vigencia.
+
+**En esta página aprenderás:** setup idempotente, forzar CUIS/CUFD y leer vigencia · **Prerrequisitos:** POS creado ([Onboarding](../empezar/onboarding.mdx)) · **Tiempo:** ~5 min · ¿Términos nuevos? [Glosario](../general/glosario.mdx).
+
+| Código | Qué es | Vigencia típica |
+|---|---|---|
+| **CUIS** | Habilita el punto de venta | Larga (renovación automática) |
+| **CUFD** | Habilita emitir cada día | Diaria (renovación automática ~4h antes de vencer) |
+
+<Callout intent="info">
+  La vía recomendada es el setup idempotente (CUIS + CUFD + readiness de una
+  vez). Estas rutas granulares son para forzar o diagnosticar.
+</Callout>
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    // Setup idempotente: CUIS + CUFD + readiness (recomendado)
+    const setup = await supay.siat.setup({ point_of_sale_id: pos.id });
+    // setup.readiness.ready === true
+
+    // Granular: forzar CUIS y luego CUFD (requiere CUIS previo)
+    const cuis = await supay.siat.requestCuis({ pointOfSaleId: pos.id });
+    // cuis.cuis, cuis.fecha_vigencia
+
+    const cufd = await supay.siat.requestCufd({ pointOfSaleId: pos.id });
+    // cufd.data.cufd, cufd.data.fecha_vigencia, cufd.data.codigo_control
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    # Setup idempotente (recomendado)
+    curl -s -X POST "$BASE/v1/siat/setup/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"point_of_sale_id\": \"$POS\"
+      }" | jq '.readiness'
+
+    # Granular
+    curl -s -X POST "$BASE/v1/siat/cuis/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{}' | jq '{cuis, fecha_vigencia}'
+
+    curl -s -X POST "$BASE/v1/siat/cufd/$POS" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{}' | jq '.data'
+    ```
+  </Tab>
+</Tabs>
+
+## Errores típicos
+
+| Situación | Respuesta |
+|---|---|
+| CUFD sin CUIS previo | `409 CONFLICT` |
+| SIAT caído | `503 SIAT_UNAVAILABLE` — reintentar, no duplicar |
+
+Siguiente: [Sincronización de catálogos](./sincronizacion-catalogos.mdx).

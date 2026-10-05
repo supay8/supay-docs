@@ -1,0 +1,71 @@
+# Sectores
+
+Todos los sectores que Supay soporta, uno por página: qué significa cada campo de
+**cabecera** (`data`) y de **detalle** (`items[].data`), con ejemplo en tabs
+`[SDK TypeScript | REST API]`. Clave no declarada para el sector → `400`.
+
+Los campos fiscales comunes (NIT emisor, CUF, totales, moneda, leyenda, CAFC en
+contingencia) los completa Supay: aquí solo van los **sectoriales**.
+
+**Cómo usar esta sección:** ubica tu rubro en la tabla y abre su página (campos con significado + ejemplo completo en tabs) · **Prerrequisitos:** saber tu rubro y si da crédito fiscal · ¿Términos nuevos? [Glosario](../../general/glosario.mdx).
+
+## Lista completa
+
+| Código | Sector | Crédito | Emisión |
+|---|---|---|---|
+| [1](./01-compra-venta.mdx) | Compra y Venta | Con | Individual |
+| [2](./02-alquiler.mdx) | Alquiler de Bienes Inmuebles | Con | Individual |
+| [3](./03-exportacion.mdx) | Comercial de Exportación | Sin | Individual |
+| [4](./04-libre-consignacion.mdx) | Libre Consignación | Sin | Individual |
+| [5](./05-zona-franca.mdx) | Venta en Zona Franca | Sin | Individual |
+| [6](./06-turismo.mdx) | Servicio Turístico y Hospedaje | Sin | Individual |
+| [7](./07-seguridad-alimentaria.mdx) | Seguridad Alimentaria | Sin | Individual |
+| [8](./08-tasa-cero.mdx) | Tasa Cero | Sin | Individual |
+| [9](./09-moneda-extranjera.mdx) | Moneda Extranjera | Sin | Individual |
+| [10](./10-dutty-free.mdx) | Dutty Free | Sin | Individual |
+| [11](./11-educativo.mdx) | Sectores Educativos | Con | Individual |
+| [12](./12-hidrocarburos.mdx) | Comercialización de Hidrocarburos | Con | Individual |
+| [13](./13-servicios-basicos.mdx) | Servicios Básicos | Con | Fachada propia |
+| [14](./14-alcanzada-ice.mdx) | Productos Alcanzados por el ICE | Con | Individual |
+| [15](./15-entidad-financiera.mdx) | Entidades Financieras | Con | Fachada propia |
+| [16](./16-hoteles.mdx) | Hoteles | Con | Individual |
+| [17](./17-salud.mdx) | Hospitales / Clínicas | Con | Individual |
+| [18](./18-juegos-azar.mdx) | Juegos de Azar | Con | Individual |
+| [19](./19-iehd.mdx) | Hidrocarburos Alcanzada IEHD | Con | Individual |
+| [20](./20-exportacion-minera.mdx) | Exportación de Minerales | Sin | Individual |
+| [21](./21-venta-minerales.mdx) | Venta de Minerales | Con | Individual |
+| [22](./22-telecomunicaciones.mdx) | Telecomunicaciones | Con | Fachada propia |
+| [23](./23-prevalorada.mdx) | Prevalorada | Con | Individual |
+| [24](./24-nota-credito-debito.mdx) | Nota de Crédito-Débito (2 layouts) | Ajuste | DocumentoAjuste |
+| [28](./28-exportacion-servicios.mdx) | Exportación de Servicios | Sin | Individual |
+| [29](./29-conciliacion.mdx) | Nota de Conciliación | Ajuste | DocumentoAjuste |
+| [30](./30-boleto-aereo.mdx) | Boleto Aéreo | Sin | **Solo masiva** |
+| [31](./31-energia.mdx) | Suministro de Energía | Con | Individual |
+| [33](./33-tasa-cero-ley.mdx) | Tasa Cero IVA Ley 1613 | Sin | XML externo |
+| [34](./34-seguros.mdx) | Seguros | Con | Individual |
+| [35](./35-bonificaciones.mdx) | Compra Venta Bonificaciones | Con | Individual |
+| [36](./36-prevalorada-sin-credito.mdx) | Prevalorada Sin Crédito | Sin | Individual |
+| [37](./37-gnv.mdx) | Comercialización de GNV | Con | Individual |
+| [38](./38-no-alcanzada-iehd.mdx) | Hidrocarburos No Alcanzada IEHD | Con | Individual |
+| [39](./39-gn-glp.mdx) | Comercialización de GN y GLP | Con | Individual |
+| [40](./40-servicios-basicos-zf.mdx) | Servicios Básicos ZF | Sin | Fachada propia |
+| [41](./41-tasas.mdx) | Compra Venta Tasas | Con | Individual |
+| [42](./42-alquiler-zf.mdx) | Alquiler Zona Franca | Sin | Individual |
+| [43](./43-exportacion-hidrocarburos.mdx) | Exportación Hidrocarburos | Sin | Individual |
+| [44](./44-lubricantes.mdx) | Importación y Comercialización de Lubricantes | Con | Individual |
+| [45](./45-exportacion-precio-venta.mdx) | Exportación Precio Venta | Sin | Individual |
+| [46](./46-educativo-zf.mdx) | Educativo Zona Franca | Sin | Individual |
+| [47](./47-nota-descuentos.mdx) | Nota Descuentos | Ajuste | DocumentoAjuste |
+| [48](./48-nota-ice.mdx) | Nota ICE | Ajuste | DocumentoAjuste |
+| [49](./49-telecom-zf.mdx) | Telecomunicaciones ZF | Sin | Fachada propia |
+| [50](./50-salud-zf.mdx) | Hospitales ZF | Sin | Individual |
+| [51](./51-engarrafadoras.mdx) | Engarrafadoras | Con | Experimental |
+| [52](./52-mineral-bcb.mdx) | Venta de Minerales al BCB | Sin | Experimental |
+| [53](./53-lubricantes-iehd.mdx) | Lubricantes IEHD | Con | Experimental |
+| [54](./54-biodiesel.mdx) | Insumos para Biodiésel | Sin | Experimental |
+| [55](./55-combustible.mdx) | Comercialización de Combustible | Con | Experimental |
+
+<Callout intent="warning">
+  `Experimental` = cobertura técnica sin homologación: compila, pero el SIAT puede
+  rechazarlo. Solo PILOTO, como feedback de producto.
+</Callout>

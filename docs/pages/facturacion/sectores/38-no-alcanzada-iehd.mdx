@@ -1,0 +1,80 @@
+# 38 · Hidrocarburos No Alcanzada IEHD
+
+Hidrocarburos **no alcanzados** por el IEHD, con crédito fiscal. Igual
+identificación de partes que el [19 · IEHD](./19-iehd.mdx) pero **sin montos
+IEHD** en ningún lado.
+
+## Cabecera (`data`)
+
+| Campo | Tipo | Obligatorio | Qué significa |
+|---|---|---|---|
+| `ciudad` | string | Ver perfil | Ciudad de la operación |
+| `nombre_propietario` | string | Ver perfil | Propietario del producto |
+| `nombre_representante_legal` | string | Ver perfil | Representante legal |
+| `condicion_pago` | string | Ver perfil | Condición de pago pactada |
+| `periodo_entrega` | string | Ver perfil | Periodo de entrega |
+
+## Detalle (`items[].data`)
+
+Sin campos sectoriales (nada de `porcentaje_iehd`: eso es solo del 19).
+
+<Tabs>
+  <Tab title="SDK TypeScript" language="typescript">
+    ```typescript
+    const factura = await supay.invoices.emit({
+      point_of_sale_id: pos.id,
+      customer: {
+        document_type: "nit",
+        document_number: "3456789",
+        name: "Transporte SRL",
+      },
+      items: [
+        {
+          sku: "KEROSENE",
+          description: "Kerosene",
+          codigo_producto_sin: 5113100,
+          unidad_medida: 58,
+          quantity: 500,
+          price: 3.5,
+        },
+      ],
+      sector: "38",
+      data: {
+        ciudad: "Santa Cruz",
+        nombre_propietario: "Planta Sur",
+        condicion_pago: "Contado",
+      },
+    });
+    ```
+  </Tab>
+  <Tab title="REST API" language="curl">
+    ```bash
+    curl -s -X POST "$BASE/v1/invoices/emit" \
+      -H "X-API-Key: $KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "point_of_sale_id": "'$POS'",
+        "customer": {
+          "document_type": "nit",
+          "document_number": "3456789",
+          "name": "Transporte SRL"
+        },
+        "items": [
+          {
+            "sku": "KEROSENE",
+            "description": "Kerosene",
+            "codigo_producto_sin": 5113100,
+            "unidad_medida": 58,
+            "quantity": 500,
+            "price": 3.5
+          }
+        ],
+        "sector": "38",
+        "data": {
+          "ciudad": "Santa Cruz",
+          "condicion_pago": "Contado"
+        }
+      }' | jq '{id, status}'
+    ```
+  </Tab>
+</Tabs>
