@@ -26,7 +26,7 @@ con **XML externo** (archivo + hash + CUF propios).
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        point_of_sale_id: pos.id,
+        posId: pos.id,
         customer: { ...receptor },
         archivo: "<xml-firmado-base64>",
         hash_archivo: "<sha256>",
@@ -41,10 +41,10 @@ con **XML externo** (archivo + hash + CUF propios).
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "1234567",
+          "documentType": "nit",
+          "documentNumber": "1234567",
           "name": "Cliente"
         },
         "archivo": "<xml-firmado-base64>",

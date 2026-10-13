@@ -40,12 +40,12 @@ identifica la **mercadería** (NANDINA).
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
 
       // Comprador del exterior
       customer: {
-        document_type: "nit",
-        document_number: "80013826",
+        documentType: "nit",
+        documentNumber: "80013826",
         name: "Comprador Exterior SAC",
       },
 
@@ -54,8 +54,8 @@ identifica la **mercadería** (NANDINA).
         {
           sku: "CAFE-ORO",
           description: "Café oro en grano",
-          codigo_producto_sin: 5214100,
-          unidad_medida: 58,
+          codigoProductoSin: 5214100,
+          unidadMedida: 58,
           quantity: 100,
           price: 25,
           data: {
@@ -88,18 +88,18 @@ identifica la **mercadería** (NANDINA).
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "80013826",
+          "documentType": "nit",
+          "documentNumber": "80013826",
           "name": "Comprador Exterior SAC"
         },
         "items": [
           {
             "sku": "CAFE-ORO",
             "description": "Café oro en grano",
-            "codigo_producto_sin": 5214100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5214100,
+            "unidadMedida": 58,
             "quantity": 100,
             "price": 25,
             "data": {

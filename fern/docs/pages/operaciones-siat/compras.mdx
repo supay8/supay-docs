@@ -17,7 +17,7 @@ flujo inverso a emitir: aquí reportas lo que **compraste**.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const res = await supay.siat.sendPurchases({
-      pointOfSaleId: pos.id,
+      posId: pos.id,
       descripcion: "Compras octubre",
       tipoCompra: 1,
       archivo: "<lote-comprimido-base64>",
@@ -31,7 +31,7 @@ flujo inverso a emitir: aquí reportas lo que **compraste**.
   </Tab>
   <Tab title="REST API" language="curl">
     ```bash
-    curl -s -X POST "$BASE/v1/siat/compras/$POS" \
+    curl -s -X POST "$BASE/v1/siat/purchases/$POS" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{

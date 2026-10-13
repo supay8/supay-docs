@@ -1,0 +1,60 @@
+---
+title: SDKs de Supay
+subtitle: Clientes generados desde el OpenAPI. Reflejo 1:1 de la API.
+description: SDKs oficiales de Supay. TypeScript disponible, generados desde el contrato OpenAPI canónico.
+keywords: SDK, TypeScript, cliente, OpenAPI
+layout: page
+hide-toc: true
+---
+
+# SDKs de Supay
+
+Los SDKs de Supay se generan desde el mismo OpenAPI que documenta la API
+(`supay-v1.openapi.yml`): **son un reflejo 1:1** — mismos endpoints, mismos
+nombres (`x-fern-sdk-method-name`), mismos campos en camelCase. Si un ejemplo de
+la documentación y el SDK difieren, manda el SDK regenerado.
+
+## Estado actual
+
+| SDK | Estado | Instalación |
+|---|---|---|
+| **TypeScript** (`@supay/sdk`) | Disponible (generado local, aún no publicado en npm) | Ruta local — ver [Instalación y uso](./typescript.mdx) |
+| Python | En roadmap | — |
+| Go | En roadmap | — |
+| REST directo | Siempre disponible | `POST /v1/...` con `X-API-Key` |
+
+<CardGroup cols={2}>
+  <Card
+    title="Instalación y uso (TypeScript)"
+    icon="solid cube"
+    href="/sdk/typescript"
+  >
+    Instala, configura el cliente por tenant y emite tu primera factura
+    en 5 minutos.
+  </Card>
+  <Card
+    title="Quickstart sin SDK"
+    icon="solid bolt"
+    href="/docs/empezar/quickstart"
+  >
+    Prefieres REST puro: health → preview → emit con `curl` o tu cliente HTTP.
+  </Card>
+</CardGroup>
+
+## Cómo se versionan
+
+- El contrato canónico es `supay-v1.openapi.yml` en este repo.
+- Tras cada cambio del OpenAPI, regenera el SDK y compílalo antes de publicar.
+- El SDK nunca se edita a mano: todo cambio entra por el OpenAPI.
+
+```bash
+# Desde la raíz de supay-docs
+fern generate --local --group local --force
+(cd sdks/typescript && npm run build)
+```
+
+## Qué sigue
+
+Cuando se sumen nuevos lenguajes, cada uno tendrá su página en este tab
+con instalación, autenticación y ejemplos propios. La referencia de
+endpoints vive en el tab Docs; aquí vive **cómo consumirlos desde código**.

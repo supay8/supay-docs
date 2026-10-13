@@ -1,77 +1,52 @@
-# Supay · Facturación electrónica para Bolivia
+---
+title: "Qué es Supay"
+subtitle: La API de facturación electrónica para Bolivia. Tú vendes; Supay habla con el SIAT.
+description: Qué es Supay, qué problema resuelve frente al SOAP del SIAT, su arquitectura por tenant y sus capacidades y límites.
+keywords: supay, SIAT, facturación electrónica, arquitectura, tenant
+layout: overview
+availability: beta
+---
 
-Emite facturas válidas ante el SIAT desde tu propio sistema, por API o con el
-SDK TypeScript. Sin integrar SOAP a mano, sin gestionar CUIS/CUFD a mano.
+Facturar electrónicamente en Bolivia significa integrar el SOAP del SIAT:
+12 fachadas, 52 sectores con campos distintos, CUIS/CUFD que caducan, firma
+XAdES, CUF por factura y contingencia offline con paquetes oficiales.
+Supay convierte todo eso en **una API REST y un SDK**: tú emites con
+`POST /v1/invoices/emit` y Supay opera el SIAT por ti.
 
-<Callout intent="info">
-  Beta cerrada: solo ambiente **PILOTO** del SIAT (sin validez fiscal).
-  Pre-requisito único: la API corriendo (`GET /v1/health` → `{"status":"ok"}`).
-</Callout>
+## Arquitectura en una imagen
 
-## Por dónde empiezo
+```text
+Tu sistema ── X-API-Key ──▶ Supay ── SOAP ──▶ SIAT (PILOTO)
 
-<CardGroup cols={3}>
-  <Card
-    title="Emitir mi primera factura"
-    icon="solid bolt"
-    href="/empezar/quickstart"
-  >
-    5 minutos: health → preview → emit. El camino más corto a tu primer `ACCEPTED`.
-  </Card>
-  <Card
-    title="Operar un tenant"
-    icon="solid building"
-    href="/empezar/onboarding"
-  >
-    20 minutos: empresa → sucursal → POS → P12 → setup SIAT → catálogos.
-  </Card>
-  <Card
-    title="Explorar sectores"
-    icon="solid grid"
-    href="/sectores"
-  >
-    Los 52 sectores con sus campos y ejemplos: compra-venta, salud, minería y más.
-  </Card>
-</CardGroup>
+Tenant (empresa, NIT)
+ └─ Sucursal (matriz = 0, o N)
+     └─ Punto de venta (caja o terminal)
+         ├─ Certificado P12 (firma digital)
+         ├─ CUIS / CUFD (renovación automática)
+         └─ Factura (id, cuf, invoiceNumber, status)
+```
 
-## Qué resuelve
+Cada nivel pertenece al anterior y hereda su tenant: los datos nunca se
+mezclan entre empresas. Un ID de otro tenant responde `404`, nunca `403`.
+Detalle completo en [Modelo de datos](./modelo.mdx).
 
-| Sin Supay | Con Supay |
-|---|---|
-| Integrar SOAP del SIAT a mano (12 fachadas, 51 sectores) | Un `POST /v1/invoices/emit` + SDK |
-| Gestionar CUIS/CUFD, firma XAdES, CUF y catálogos | Automático (setup + renovación + sincronización) |
-| Contingencia offline manual | Emisión `OFFLINE` + paquetes oficiales |
+## Qué hace Supay por ti
 
-## Cómo funciona (flujo día 1)
+- **Setup SIAT automático**: CUIS + CUFD por POS, renovación y sincronización de catálogos.
+- **Emisión en una llamada**: `preview` para validar, `emit` para crear y emitir. XML y PDF descargables.
+- **52 sectores**: cada documento fiscal con sus campos y ejemplos. Ver [Sectores](../facturacion/sectores/index.mdx).
+- **Contingencia real**: emisión `OFFLINE` y conciliación por paquetes oficiales cuando vuelve la red.
+- **Post-emisión**: consulta de estado, [anulación](../facturacion/anulacion-venta.mdx) y lotes.
 
-<Steps toc={true}>
-  <Step title="Alta del tenant">
-    La empresa se registra (NIT + razón social) y recibe su `X-API-Key`.
-    Ver [Onboarding](../empezar/onboarding.mdx).
-  </Step>
-  <Step title="Puesta en marcha SIAT">
-    Sucursal → punto de venta → certificado P12 → setup (CUIS + CUFD) →
-    sincronización de catálogos.
-  </Step>
-  <Step title="Facturación">
-    `preview` (validar) → `emit` (crear y emitir) → `ACCEPTED`. XML y PDF
-    descargables. Ver [Emitir factura](../facturacion/emitir-factura.mdx).
-  </Step>
-  <Step title="Post-emisión">
-    Consulta de estado, [anulación](../facturacion/anulacion-venta.mdx),
-    [contingencia](../facturacion/contingencia.mdx) y
-    [paquetes](../facturacion/paquetes-masiva.mdx).
-  </Step>
-</Steps>
+## Qué no hace
 
-## Mapa del sitio
+- No es un sistema de ventas: no lleva inventario, clientes ni contabilidad. Se integra **dentro** de tu ERP o punto de venta.
+- No emite con validez fiscal hoy: opera solo en ambiente **PILOTO** (beta cerrada).
+- No reintenta por ti sin conciliar: cada `emit` crea otra factura. Guarda `id` + `cuf` y reconcilia con `get` / `getSiatStatus`.
 
-| Quiero... | Voy a... |
-|---|---|
-| Ver el modelo de datos | [Modelo de datos](./modelo.mdx) |
-| Entender vocabulario fiscal | [Glosario](./glosario.mdx) |
-| Autenticarme (API key / JWT) | [Autenticación](../empezar/autenticacion.mdx) |
-| Emitir, anular, contingencia, lotes | [Facturación](../facturacion/emitir-factura.mdx) |
-| CUIS/CUFD, catálogos, firma, compras | [Operaciones SIAT](../operaciones-siat/cuis-cufd.mdx) |
-| Ver el SDK como reflejo de la API | [SDK TypeScript](../referencia/sdk.mdx) |
-| Entender un error | [Errores](../referencia/errores.mdx) |
+## Sigue con
+
+- [Modelo de datos](./modelo.mdx): jerarquía y reglas del modelo.
+- [Glosario SIAT](./glosario.mdx): vocabulario fiscal boliviano.
+- [Onboarding del tenant](../empezar/onboarding.mdx): alta operativa en 20 minutos.
+- [SDK TypeScript](/sdk): el reflejo 1:1 de esta API en código.

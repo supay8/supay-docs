@@ -20,14 +20,14 @@ estas rutas sirven para forzarlos y verificar vigencia.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     // Setup idempotente: CUIS + CUFD + readiness (recomendado)
-    const setup = await supay.siat.setup({ point_of_sale_id: pos.id });
+    const setup = await supay.siat.setup({ posId: pos.id });
     // setup.readiness.ready === true
 
     // Granular: forzar CUIS y luego CUFD (requiere CUIS previo)
-    const cuis = await supay.siat.requestCuis({ pointOfSaleId: pos.id });
+    const cuis = await supay.siat.requestCuis({ posId: pos.id });
     // cuis.cuis, cuis.fecha_vigencia
 
-    const cufd = await supay.siat.requestCufd({ pointOfSaleId: pos.id });
+    const cufd = await supay.siat.requestCufd({ posId: pos.id });
     // cufd.data.cufd, cufd.data.fecha_vigencia, cufd.data.codigo_control
     ```
   </Tab>
@@ -38,7 +38,7 @@ estas rutas sirven para forzarlos y verificar vigencia.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d "{
-        \"point_of_sale_id\": \"$POS\"
+        \"posId\": \"$POS\"
       }" | jq '.readiness'
 
     # Granular

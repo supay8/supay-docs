@@ -1,3 +1,10 @@
+---
+title: Modelo de datos
+subtitle: Empresa, sucursal, punto de venta, certificado, CUIS/CUFD, cliente y factura. Una jerarquía, un tenant.
+description: Jerarquía de objetos de Supay y reglas del modelo. Todo pertenece a un tenant y nunca se mezcla entre empresas.
+keywords: modelo de datos, tenant, sucursal, punto de venta, CUIS, CUFD, factura
+---
+
 # Modelo de datos
 
 Jerarquía de objetos en Supay, de arriba hacia abajo. Cada nivel pertenece al
@@ -7,18 +14,18 @@ anterior y hereda su tenant: nunca se mezclan datos entre empresas.
 
 | Nivel | Qué es | Claves |
 |---|---|---|
-| **Tenant / Empresa** | Tu empresa (NIT + razón social). Dueña de una o más API keys | `nit`, `business_name`, `ambiente`, `modalidad` |
-| **Sucursal** | Casa matriz o sucursales (`codigo_sucursal`, `0` = matriz) | `company_id`, `name` |
-| **Punto de venta** | Caja o terminal que emite (`codigo_punto_venta` auto) | `branch_id`, `name`, `description` |
+| **Tenant / Empresa** | Tu empresa (NIT + razón social). Dueña de una o más API keys | `nit`, `businessName`, `ambiente`, `modalidad` |
+| **Sucursal** | Casa matriz o sucursales (`codigo_sucursal`, `0` = matriz) | `companyId`, `name` |
+| **Punto de venta** | Caja o terminal que emite (`codigo_punto_venta` auto) | `branchId`, `name`, `description` |
 | **Certificado P12** | Firma digital ante el SIAT (≤ 5 MB, alertas a 30/15/7 días) | `p12_file`, `p12_password` |
 | **CUIS / CUFD** | Códigos SIAT del POS (se renuevan automáticamente) | Vía `siat.setup` |
-| **Cliente** | Receptor (se crea desde el snapshot de cada factura) | `document_number` + `name` |
-| **Factura** | Documento fiscal (`id`, `cuf`, `invoice_number`, `status`) | `point_of_sale_id`, `customer`, `items` |
-| **Evento de contingencia** | Respaldo oficial cuando cae la red SIAT | `contingency_event_id` |
+| **Cliente** | Receptor (se crea desde el snapshot de cada factura) | `documentNumber` + `name` |
+| **Factura** | Documento fiscal (`id`, `cuf`, `invoiceNumber`, `status`) | `posId`, `customer`, `items` |
+| **Evento de contingencia** | Respaldo oficial cuando cae la red SIAT | `contingencyEventId` |
 
 ## Reglas del modelo
 
-- `company_id` se hereda: sucursal → POS → factura. Un ID de otro tenant responde
+- `companyId` se hereda: sucursal → POS → factura. Un ID de otro tenant responde
   `404` (enmascarado por seguridad, nunca `403`).
 - `codigo_punto_venta` se asigna solo (`MAX+1`); no lo inventes.
 - El cliente **no** se da de alta antes: viaja como snapshot en cada factura

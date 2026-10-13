@@ -10,20 +10,20 @@ paso que más olvidos causa. Verifica siempre con `readiness`.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     // Todo de una vez (recomendado tras el setup)
-    const sync = await supay.siat.syncCatalogs({ pointOfSaleId: pos.id });
+    const sync = await supay.siat.syncCatalogs({ posId: pos.id });
     // sync.operations[]: { operation, codigos, status, rows_saved }
     // sync.readiness: { ready, missing }
 
     // Una sola operación
     const solo = await supay.siat.syncCatalogs({
-      pointOfSaleId: pos.id,
+      posId: pos.id,
       operation: "tipoMoneda",
     });
 
     // Verificar qué falta
     const ready = await supay.catalogs.getReadiness({
       id: company.id,
-      point_of_sale_id: pos.id,
+      posId: pos.id,
     });
     // ready.ready === true, ready.missing === []
     ```
@@ -31,19 +31,19 @@ paso que más olvidos causa. Verifica siempre con `readiness`.
   <Tab title="REST API" language="curl">
     ```bash
     # Todo de una vez
-    curl -s -X POST "$BASE/v1/siat/sincronizar/$POS" \
+    curl -s -X POST "$BASE/v1/siat/sync/$POS" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{}' | jq '.operations, .readiness'
 
     # Una sola operación
-    curl -s -X POST "$BASE/v1/siat/sincronizar/$POS?operation=tipoMoneda" \
+    curl -s -X POST "$BASE/v1/siat/sync/$POS?operation=tipoMoneda" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{}'
 
     # Verificar
-    curl -s "$BASE/v1/companies/$CID/catalogs/readiness?point_of_sale_id=$POS" \
+    curl -s "$BASE/v1/companies/$CID/catalogs/readiness?posId=$POS" \
       -H "X-API-Key: $KEY" | jq '{ready, missing}'
     ```
   </Tab>
@@ -80,7 +80,7 @@ Valor desconocido → `400`. Sin el parámetro sincroniza todo.
 | Recurso | Uso |
 |---|---|
 | `GET /siat/catalogs` y `/siat/catalogs/{tipo}` | Lectura directa de lo sincronizado (revisar) |
-| `GET /companies/{id}/catalogs/productos-sin` | Buscar `codigo_producto_sin` para tus ítems |
+| `GET /companies/{id}/catalogs/productos-sin` | Buscar `codigoProductoSin` para tus ítems |
 | `GET /companies/{id}/catalogs/emision-bootstrap` | Todo lo de emisión de una vez (actividades, sectores, leyendas, monedas, pagos) |
 
 <Tabs>
@@ -96,7 +96,7 @@ Valor desconocido → `400`. Sin el parámetro sincroniza todo.
 
     const boot = await supay.catalogs.getEmisionBootstrap({
       id: company.id,
-      codigo_actividad: "620900",
+      codigoActividad: "620900",
     });
     ```
   </Tab>
@@ -108,7 +108,7 @@ Valor desconocido → `400`. Sin el parámetro sincroniza todo.
     curl -s "$BASE/v1/companies/$CID/catalogs/productos-sin?q=tornillo" \
       -H "X-API-Key: $KEY"
 
-    curl -s "$BASE/v1/companies/$CID/catalogs/emision-bootstrap?codigo_actividad=620900" \
+    curl -s "$BASE/v1/companies/$CID/catalogs/emision-bootstrap?codigoActividad=620900" \
       -H "X-API-Key: $KEY" | jq 'keys'
     ```
   </Tab>

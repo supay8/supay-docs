@@ -1,0 +1,124 @@
+---
+title: Instalación y uso (TypeScript)
+subtitle: Instala @supay/sdk, configura un cliente por tenant y emite.
+description: Guía completa del SDK TypeScript de Supay. Instalación, grupos de métodos, reglas y manejo de errores.
+keywords: SDK TypeScript, instalación, Supay, emit, quickstart SDK
+---
+
+# Instalación y uso (TypeScript)
+
+SDK `@supay/sdk`: cliente TypeScript generado desde `supay-v1.openapi.yml`.
+**Reflejo 1:1 de la API** — mismos endpoints, mismos nombres
+(`x-fern-sdk-method-name`), mismos campos en camelCase.
+
+<Callout intent="warn">
+  Aún no publicado en npm. Instalación temporal desde el repo hasta
+  la publicación.
+</Callout>
+
+## Instalación
+
+```bash
+# 1. Compilar el SDK desde supay-docs
+(cd sdks/typescript && npm run build)
+
+# 2a. En tu proyecto (ruta local)
+npm i /ruta/a/supay-docs/sdks/typescript
+
+# 2b. O con pnpm workspace
+# "@supay/sdk": "workspace:*"
+```
+
+Regenerar tras cambios del OpenAPI (desde la raíz de `supay-docs`):
+
+```bash
+fern generate --local --group local --force
+```
+
+## Uso básico
+
+```typescript
+import { Supay } from "@supay/sdk";
+
+// Un cliente por tenant (solo X-API-Key)
+const supay = new Supay({
+  apiKey: process.env.SUPAY_API_KEY!,
+  baseUrl: "http://localhost:8081",
+});
+
+await supay.system.healthCheck();
+```
+
+```typescript
+const invoice = await supay.invoices.emit({
+  posId: process.env.SUPAY_POS_ID!,
+  customer: {
+    documentType: "ci",
+    documentNumber: "1234567",
+    name: "Ada Lovelace",
+  },
+  items: [
+    {
+      sku: "PRO",
+      description: "Plan profesional",
+      codigoActividad: "101010",
+      codigoProductoSin: 5113100,
+      unidadMedida: 58,
+      quantity: 1,
+      price: 150,
+    },
+  ],
+});
+console.log(invoice.id, invoice.status, invoice.cuf);
+```
+
+## Grupos disponibles
+
+| Grupo | Para qué |
+|---|---|
+| `system` | `healthCheck` y estado de la API |
+| `auth` | Autenticación y bootstrap |
+| `branches` | Sucursales de la empresa |
+| `pos` | Puntos de venta |
+| `certificates` | Certificados P12 |
+| `apiKeys` | Emisión y gestión de API keys |
+| `siat` | Setup, CUIS/CUFD, sincronización |
+| `catalogs` | Catálogos SIAT sincronizados |
+| `invoices` | Preview, emit, estado, XML/PDF, anulación |
+| `supay.fetch` | Escape hatch para rutas no cubiertas |
+
+## Reglas que debes programar
+
+- **Nombres en camelCase en el wire** (`posId`, `codigoProductoSin`).
+- **Sin idempotencia**: cada `emit` inicia otra factura — guarda `id` + `cuf`
+  y reconcilia con `get` / `getSiatStatus`.
+- **Solo `X-API-Key`**: el JWT es del dashboard, no del SDK.
+- **Cliente no se da de alta antes**: viaja como snapshot en cada factura
+  (`customer.id` está prohibido).
+- **Estados**: `PENDING → SENDING → ACCEPTED | OBSERVED | REJECTED`,
+  más `OFFLINE` (contingencia), `SENT` (lotes) y `CANCELLED` (anulación).
+
+## Ejemplos por caso de uso
+
+En el tab Docs, cada guía trae su ejemplo con SDK:
+
+- [Quickstart](/docs/empezar/quickstart) · [Onboarding](/docs/empezar/onboarding)
+- [Emitir factura](/docs/facturacion/emitir-factura) · [Anulación](/docs/facturacion/anulacion-venta)
+- [Nota crédito-débito](/docs/sectores/documentos-de-ajuste/nota-credito-debito)
+- [Errores accionables](/docs/referencia/errores): programa contra `error.code`, nunca contra `message`.
+
+## Manejo de errores
+
+```typescript
+import { SupayError } from "@supay/sdk";
+
+try {
+  await supay.invoices.emit({ ...payload });
+} catch (err) {
+  if (err instanceof SupayError) {
+    console.error(err.code, err.message); // ej. VALIDATION_ERROR
+    // err.field indica dónde corregir; reintenta solo tras corregir.
+  }
+  throw err;
+}
+```

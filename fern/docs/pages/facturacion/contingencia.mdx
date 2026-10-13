@@ -2,7 +2,7 @@
 
 `emit` es síncrono: si el SIAT no responde por timeout/caída, la API **no falla**:
 devuelve `200` con `status: "OFFLINE"`, XML firmado local (`codigoEmision=2`) y
-`contingency_event_id`, vinculado a un evento significativo local.
+`contingencyEventId`, vinculado a un evento significativo local.
 
 **En esta página aprenderás:** qué pasa cuando cae la red SIAT, registrar el evento y reenviar por paquete · **Prerrequisitos:** saber [emitir](../facturacion/emitir-factura.mdx) · **Tiempo:** ~10 min.
 
@@ -32,12 +32,12 @@ Requiere CUIS activo + CUFD vigente o responde `409`.
     if (inv.status === "OFFLINE") {
       // Guarda el XML firmado local + el evento
       const xml = await supay.invoices.downloadXml({ id: inv.id });
-      // persistir xml + inv.contingency_event_id
+      // persistir xml + inv.contingencyEventId
     }
 
     // Registrar el evento significativo (usa defaults si omites campos)
     const ev = await supay.siat.registerSignificantEvent({
-      pointOfSaleId: pos.id,
+      posId: pos.id,
       codigo_motivo_evento: 1,
       descripcion: "Corte del servicio de internet",
     });
@@ -45,8 +45,8 @@ Requiere CUIS activo + CUFD vigente o responde `409`.
 
     // Al volver la red: enviar por paquete y conciliar
     await supay.siat.sendPackage({
-      pointOfSaleId: pos.id,
-      invoice_ids: [inv.id],
+      posId: pos.id,
+      invoiceIds: [inv.id],
     });
     // OFFLINE → SENT → ACCEPTED / OBSERVED / REJECTED
     ```
@@ -57,14 +57,14 @@ Requiere CUIS activo + CUFD vigente o responde `409`.
     curl -s -X POST "$BASE/v1/invoices/emit" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
-      -d "$PAYLOAD" | jq '{id, status, contingency_event_id}'
+      -d "$PAYLOAD" | jq '{id, status, contingencyEventId}'
 
     # 2. Guardar el XML firmado local
     curl -s "$BASE/v1/invoices/$ID/xml" \
       -H "X-API-Key: $KEY" -o offline.xml
 
     # 3. Registrar el evento significativo
-    curl -s -X POST "$BASE/v1/siat/evento-significativo/$POS" \
+    curl -s -X POST "$BASE/v1/siat/events/$POS" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
@@ -73,11 +73,11 @@ Requiere CUIS activo + CUFD vigente o responde `409`.
       }'
 
     # 4. Al volver la red: enviar por paquete
-    curl -s -X POST "$BASE/v1/siat/paquete/$POS" \
+    curl -s -X POST "$BASE/v1/siat/packages/$POS" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d "{
-        \"invoice_ids\": [\"$ID\"]
+        \"invoiceIds\": [\"$ID\"]
       }"
     ```
   </Tab>

@@ -5,9 +5,8 @@ info:
   description: |
     Contrato público estable de Supay (multi-tenant, SIAT Bolivia).
     Flujo beta día 1: bootstrap tenant -> sucursal -> punto de venta ->
-    setup (CUIS + catálogos + CUFD) -> preview -> emit -> get/xml/pdf ->
+    setup (CUIS + catálogos + CUFD) -> emit -> get/xml/pdf ->
     siat-status -> annul. Auth: `X-API-Key` por tenant.
-    `POST /internal/companies` usa `X-Backend-Token` (BACKEND_SECRET).
     Fuente de verdad para docs + SDK TypeScript `Supay`.
     Ver backend/docs/api-v1.md y docs/API_SPEC.md.
 servers:
@@ -17,7 +16,6 @@ security:
   - ApiKeyAuth: []
 tags:
   - name: system
-  - name: bootstrap
   - name: auth
   - name: branches
   - name: pos
@@ -42,32 +40,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
-  /v1/internal/companies:
-    post:
-      summary: Bootstrap tenant (crea empresa + API key)
-      operationId: bootstrapCompany
-      security:
-        - BackendToken: []
-      tags: [bootstrap]
-      x-fern-sdk-group-name: bootstrap
-      x-fern-sdk-method-name: createCompany
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BootstrapCompanyRequest"
-      responses:
-        "201":
-          description: Empresa creada con su X-API-Key.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BootstrapCompanyResponse"
-        "400":
-          $ref: "#/components/responses/ValidationError"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
   /v1/auth/signup:
     post:
       summary: Registrar usuario
@@ -118,6 +90,8 @@ paths:
     get:
       summary: Usuario autenticado
       operationId: getMe
+      security:
+        - BearerAuth: []
       tags: [auth]
       x-fern-sdk-group-name: auth
       x-fern-sdk-method-name: getMe
@@ -132,6 +106,8 @@ paths:
     get:
       summary: Empresas del usuario y su rol
       operationId: listMyCompanies
+      security:
+        - BearerAuth: []
       tags: [auth]
       x-fern-sdk-group-name: auth
       x-fern-sdk-method-name: listMyCompanies
@@ -145,6 +121,8 @@ paths:
     post:
       summary: Crear empresa (quedas owner)
       operationId: createMyCompany
+      security:
+        - BearerAuth: []
       tags: [auth]
       x-fern-sdk-group-name: auth
       x-fern-sdk-method-name: createMyCompany
@@ -153,15 +131,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BootstrapCompanyRequest"
+              $ref: "#/components/schemas/RegisterCompanyRequest"
       responses:
         "201":
-          description: Empresa creada (sin api_key; créala en /companies/{id}/api-keys).
+          description: Empresa creada (sin apiKey; créala en /companies/{id}/api-keys).
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Company"
-  /v1/branches/:
+  /v1/branches:
     post:
       summary: Crear sucursal
       operationId: createBranch
@@ -194,7 +172,7 @@ paths:
       x-fern-sdk-group-name: branches
       x-fern-sdk-method-name: list
       parameters:
-        - name: company_id
+        - name: companyId
           in: query
           required: false
           schema: { type: string }
@@ -258,12 +236,12 @@ paths:
         "204": { description: Eliminada. }
         "404":
           $ref: "#/components/responses/NotFound"
-  /v1/point-of-sales/:
+  /v1/pos:
     post:
       summary: Registrar punto de venta
       operationId: createPointOfSale
       tags: [pos]
-      x-fern-sdk-group-name: pointOfSales
+      x-fern-sdk-group-name: pos
       x-fern-sdk-method-name: create
       requestBody:
         required: true
@@ -273,7 +251,7 @@ paths:
               $ref: "#/components/schemas/CreatePosRequest"
       responses:
         "201":
-          description: POS creado (codigo_punto_venta auto si se omite).
+          description: POS creado (codigoPuntoVenta auto si se omite).
           content:
             application/json:
               schema:
@@ -284,10 +262,10 @@ paths:
       summary: Listar puntos de venta
       operationId: listPointOfSales
       tags: [pos]
-      x-fern-sdk-group-name: pointOfSales
+      x-fern-sdk-group-name: pos
       x-fern-sdk-method-name: list
       parameters:
-        - name: company_id
+        - name: companyId
           in: query
           required: false
           schema: { type: string }
@@ -298,12 +276,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PointOfSaleList"
-  /v1/point-of-sales/{id}:
+  /v1/pos/{id}:
     get:
       summary: Obtener punto de venta
       operationId: getPointOfSale
       tags: [pos]
-      x-fern-sdk-group-name: pointOfSales
+      x-fern-sdk-group-name: pos
       x-fern-sdk-method-name: get
       parameters:
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -320,7 +298,7 @@ paths:
       summary: Actualizar punto de venta
       operationId: updatePointOfSale
       tags: [pos]
-      x-fern-sdk-group-name: pointOfSales
+      x-fern-sdk-group-name: pos
       x-fern-sdk-method-name: update
       parameters:
         - { name: id, in: path, required: true, schema: { type: string } }
@@ -337,7 +315,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PointOfSale"
-  /v1/companies/{id}/certificates/:
+  /v1/companies/{id}/certificates:
     post:
       summary: Subir certificado P12
       operationId: uploadCertificate
@@ -355,7 +333,7 @@ paths:
               required: [p12_file]
               properties:
                 p12_file: { type: string, format: binary, description: Archivo .p12/.pfx (máx 5 MB). }
-                p12_password: { type: string }
+                p12Password: { type: string }
                 name: { type: string }
                 type: { type: string, default: P12 }
       responses:
@@ -398,10 +376,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Certificate"
-  /v1/companies/{id}/api-keys/:
+  /v1/companies/{id}/api-keys:
     post:
       summary: Crear API key (solo se muestra una vez)
       operationId: createApiKey
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
       tags: [apikeys]
       x-fern-sdk-group-name: apiKeys
       x-fern-sdk-method-name: create
@@ -423,6 +404,9 @@ paths:
     get:
       summary: Listar API keys (solo prefijos)
       operationId: listApiKeys
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
       tags: [apikeys]
       x-fern-sdk-group-name: apiKeys
       x-fern-sdk-method-name: list
@@ -457,7 +441,7 @@ paths:
                 $ref: "#/components/schemas/SetupResult"
         "400":
           $ref: "#/components/responses/ValidationError"
-  /v1/siat/cuis/{pointOfSaleId}:
+  /v1/siat/cuis/{posId}:
     post:
       summary: Solicitar CUIS (fuerza renovación)
       operationId: requestCuis
@@ -465,7 +449,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: requestCuis
       parameters:
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
       responses:
         "200":
           description: CUIS vigente.
@@ -475,7 +459,7 @@ paths:
                 $ref: "#/components/schemas/CuisResult"
         "503":
           $ref: "#/components/responses/SiatUnavailable"
-  /v1/siat/cufd/{pointOfSaleId}:
+  /v1/siat/cufd/{posId}:
     post:
       summary: Solicitar CUFD (requiere CUIS)
       operationId: requestCufd
@@ -483,7 +467,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: requestCufd
       parameters:
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
       responses:
         "200":
           description: CUFD vigente.
@@ -493,7 +477,7 @@ paths:
                 $ref: "#/components/schemas/CufdResult"
         "409":
           $ref: "#/components/responses/Conflict"
-  /v1/siat/sincronizar/{pointOfSaleId}:
+  /v1/siat/sync/{posId}:
     post:
       summary: Sincronizar catálogos SIAT
       operationId: syncCatalogs
@@ -501,7 +485,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: syncCatalogs
       parameters:
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
         - name: operation
           in: query
           required: false
@@ -520,7 +504,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SyncSummary"
-  /v1/siat/evento-significativo/{pointOfSaleId}:
+  /v1/siat/events/{posId}:
     post:
       summary: Registrar evento significativo (contingencia)
       operationId: registerSignificantEvent
@@ -528,7 +512,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: registerSignificantEvent
       parameters:
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
       requestBody:
         required: false
         content:
@@ -544,7 +528,7 @@ paths:
                 $ref: "#/components/schemas/SignificantEventResult"
         "409":
           $ref: "#/components/responses/Conflict"
-  /v1/siat/paquete/{pointOfSaleId}:
+  /v1/siat/packages/{posId}:
     post:
       summary: Enviar paquete offline (contingencia)
       operationId: sendPackage
@@ -552,7 +536,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: sendPackage
       parameters:
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
       requestBody:
         required: false
         content:
@@ -567,7 +551,7 @@ paths:
               schema: { type: object }
         "400":
           $ref: "#/components/responses/ValidationError"
-  /v1/siat/paquete/{batchId}/validate:
+  /v1/siat/packages/{batchId}/validate:
     post:
       summary: Validar lote antes de enviar
       operationId: validatePackage
@@ -582,7 +566,7 @@ paths:
           content:
             application/json:
               schema: { type: object }
-  /v1/siat/masiva/{companyId}/{pointOfSaleId}:
+  /v1/siat/bulk/{posId}:
     post:
       summary: Emisión masiva (única vía sector 30)
       operationId: sendBulk
@@ -590,8 +574,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: sendBulk
       parameters:
-        - { name: companyId, in: path, required: true, schema: { type: string } }
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
       requestBody:
         required: true
         content:
@@ -605,7 +588,7 @@ paths:
               schema: { type: object }
         "400":
           $ref: "#/components/responses/ValidationError"
-  /v1/siat/firma/{pointOfSaleId}:
+  /v1/siat/sign/{posId}:
     post:
       summary: Firmar un XML con el certificado del POS
       operationId: signInvoiceXml
@@ -613,7 +596,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: signXml
       parameters:
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
       requestBody:
         required: true
         content:
@@ -627,7 +610,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SignXmlResult"
-  /v1/siat/compras/{pointOfSaleId}:
+  /v1/siat/purchases/{posId}:
     post:
       summary: Enviar compras (recepción de compras SIAT)
       operationId: sendPurchases
@@ -635,7 +618,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: sendPurchases
       parameters:
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
       requestBody:
         required: true
         content:
@@ -648,7 +631,7 @@ paths:
           content:
             application/json:
               schema: { type: object }
-  /v1/siat/masiva/{batchId}/validate:
+  /v1/siat/bulk/{batchId}/validate:
     post:
       summary: Validar lote masivo antes de enviar
       operationId: validateBulk
@@ -663,7 +646,7 @@ paths:
           content:
             application/json:
               schema: { type: object }
-  /v1/siat/documento-ajuste/{pointOfSaleId}:
+  /v1/siat/adjustments/{posId}:
     post:
       summary: Documento de ajuste (deprecado, usar notas por invoices)
       operationId: sendAdjustmentDocument
@@ -672,7 +655,7 @@ paths:
       x-fern-sdk-group-name: siat
       x-fern-sdk-method-name: sendAdjustmentDocument
       parameters:
-        - { name: pointOfSaleId, in: path, required: true, schema: { type: string } }
+        - { name: posId, in: path, required: true, schema: { type: string } }
       requestBody:
         required: true
         content:
@@ -721,7 +704,7 @@ paths:
       x-fern-sdk-method-name: getReadiness
       parameters:
         - { name: id, in: path, required: true, schema: { type: string } }
-        - { name: point_of_sale_id, in: query, required: false, schema: { type: string } }
+        - { name: posId, in: query, required: false, schema: { type: string } }
       responses:
         "200":
           description: readiness.
@@ -738,7 +721,7 @@ paths:
       x-fern-sdk-method-name: listProductosSin
       parameters:
         - { name: id, in: path, required: true, schema: { type: string } }
-        - { name: codigo_actividad, in: query, required: false, schema: { type: string } }
+        - { name: codigoActividad, in: query, required: false, schema: { type: string } }
         - { name: q, in: query, required: false, schema: { type: string } }
         - { name: limit, in: query, required: false, schema: { type: integer, default: 50 } }
         - { name: offset, in: query, required: false, schema: { type: integer, default: 0 } }
@@ -757,64 +740,14 @@ paths:
       x-fern-sdk-method-name: getEmisionBootstrap
       parameters:
         - { name: id, in: path, required: true, schema: { type: string } }
-        - { name: codigo_actividad, in: query, required: false, schema: { type: string } }
+        - { name: codigoActividad, in: query, required: false, schema: { type: string } }
       responses:
         "200":
           description: Bootstrap.
           content:
             application/json:
               schema: { type: object }
-  /v1/invoices/preview:
-    post:
-      summary: Validar factura sin crear nada
-      operationId: previewInvoice
-      tags: [invoices]
-      x-fern-sdk-group-name: invoices
-      x-fern-sdk-method-name: preview
-      description: Valida contrato local y catálogos. No crea cliente ni factura, no contacta al SIAT.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MinimalInvoiceRequest"
-      responses:
-        "200":
-          description: Vista previa.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvoicePreview"
-        "400":
-          $ref: "#/components/responses/ValidationError"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "409":
-          $ref: "#/components/responses/Conflict"
   /v1/invoices:
-    post:
-      summary: Crear borrador
-      operationId: createInvoice
-      tags: [invoices]
-      x-fern-sdk-group-name: invoices
-      x-fern-sdk-method-name: create
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MinimalInvoiceRequest"
-      responses:
-        "201":
-          description: Borrador creado.
-          headers:
-            Location: { schema: { type: string }, description: "/v1/invoices/{id}" }
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        "400":
-          $ref: "#/components/responses/ValidationError"
     get:
       summary: Listar facturas por POS
       operationId: listInvoices
@@ -822,7 +755,7 @@ paths:
       x-fern-sdk-group-name: invoices
       x-fern-sdk-method-name: list
       parameters:
-        - { name: point_of_sale_id, in: query, required: true, schema: { type: string } }
+        - { name: posId, in: query, required: true, schema: { type: string } }
         - { name: status, in: query, required: false, schema: { type: string } }
         - { name: limit, in: query, required: false, schema: { type: integer } }
         - { name: offset, in: query, required: false, schema: { type: integer } }
@@ -842,7 +775,7 @@ paths:
       x-fern-sdk-method-name: emit
       description: |
         ACCEPTED/OBSERVED: respuesta SIAT. OFFLINE: timeout/caída, trae XML
-        firmado + contingency_event_id. REJECTED: corregir y crear una factura nueva. Para conciliación,
+        firmado + contingencyEventId. REJECTED: corregir y crear una factura nueva. Para conciliación,
         consulte la factura existente por ID y conserve su CUF. Sector 30 -> 400.
       requestBody:
         required: true
@@ -865,16 +798,16 @@ paths:
           $ref: "#/components/responses/SiatRejected"
         "503":
           $ref: "#/components/responses/SiatUnavailable"
-  /v1/invoices/sectores:
+  /v1/invoices/sectors:
     get:
       summary: Catálogo de sectores y campos data
-      operationId: listSectores
+      operationId: listSectors
       tags: [invoices]
       x-fern-sdk-group-name: invoices
-      x-fern-sdk-method-name: listSectores
+      x-fern-sdk-method-name: listSectors
       responses:
         "200":
-          description: 51 perfiles con soportado/emision_individual/emision_masiva.
+          description: 51 perfiles con soportado/emisionIndividual/emisionMasiva.
           content:
             application/json:
               schema:
@@ -892,7 +825,7 @@ paths:
           in: query
           required: false
           schema: { type: string }
-          description: xml,company,point_of_sale,cufd,archivo,all.
+          description: xml,company,pos,cufd,archivo,all.
       responses:
         "200":
           description: Factura del tenant.
@@ -902,24 +835,6 @@ paths:
                 $ref: "#/components/schemas/Invoice"
         "404":
           $ref: "#/components/responses/NotFound"
-  /v1/invoices/{id}/emit:
-    post:
-      summary: Emitir borrador existente
-      operationId: emitInvoiceById
-      tags: [invoices]
-      x-fern-sdk-group-name: invoices
-      x-fern-sdk-method-name: emitById
-      parameters:
-        - { name: id, in: path, required: true, schema: { type: string } }
-      responses:
-        "200":
-          description: Factura emitida u OFFLINE.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        "409":
-          $ref: "#/components/responses/Conflict"
   /v1/invoices/{id}/siat-status:
     get:
       summary: Estado SIAT de la factura
@@ -1022,10 +937,10 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-    BackendToken:
-      type: apiKey
-      in: header
-      name: X-Backend-Token
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   responses:
     ValidationError:
       description: 400 VALIDATION_ERROR.
@@ -1070,41 +985,19 @@ components:
       properties:
         status: { type: string, example: ok }
         message: { type: string, example: Supay API running }
-    BootstrapCompanyRequest:
-      type: object
-      additionalProperties: false
-      required: [nit, business_name]
-      properties:
-        nit: { type: string }
-        business_name: { type: string }
-        ambiente: { type: string, enum: [PILOTO, PRODUCCION], default: PILOTO }
-        modalidad: { type: integer, enum: [1, 2], default: 1 }
-        usuario_siat: { type: string, default: SUPAY }
-        municipio: { type: string }
-        direccion: { type: string }
-        telefono: { type: string }
-        codigo_actividad: { type: string }
-        pie_pagina: { type: string }
-        certificate_webhook_url: { type: string }
-        invoice_email_enabled: { type: boolean }
-    BootstrapCompanyResponse:
-      type: object
-      properties:
-        company: { type: object }
-        api_key: { type: string, description: "Enviar como X-API-Key. Solo se muestra una vez." }
     CreateBranchRequest:
       type: object
       additionalProperties: false
-      required: [company_id, name]
+      required: [companyId, name]
       properties:
-        company_id: { type: string, format: uuid }
-        codigo_sucursal: { type: integer, default: 0 }
+        companyId: { type: string, format: uuid }
+        codigoSucursal: { type: integer, default: 0 }
         name: { type: string }
         address: { type: string }
     UpdateBranchRequest:
       type: object
       properties:
-        codigo_sucursal: { type: integer }
+        codigoSucursal: { type: integer }
         name: { type: string }
         address: { type: string }
         active: { type: boolean }
@@ -1112,12 +1005,12 @@ components:
       type: object
       properties:
         id: { type: string }
-        company_id: { type: string }
-        codigo_sucursal: { type: integer }
+        companyId: { type: string }
+        codigoSucursal: { type: integer }
         name: { type: string }
         address: { type: string }
         active: { type: boolean }
-        created_at: { type: string }
+        createdAt: { type: string }
     BranchList:
       type: object
       properties:
@@ -1128,37 +1021,37 @@ components:
     CreatePosRequest:
       type: object
       additionalProperties: false
-      required: [branch_id, name, description]
+      required: [branchId, name, description]
       properties:
-        branch_id: { type: string, format: uuid }
+        branchId: { type: string, format: uuid }
         name: { type: string }
         description: { type: string }
-        tipo_punto_venta: { type: integer, default: 2 }
+        tipoPuntoVenta: { type: integer, default: 2 }
         cuis: { type: string, nullable: true }
-        is_active: { type: boolean, default: true }
+        isActive: { type: boolean, default: true }
     UpdatePosRequest:
       type: object
       properties:
         name: { type: string }
         description: { type: string }
-        branch_id: { type: string, format: uuid }
-        tipo_punto_venta: { type: integer }
+        branchId: { type: string, format: uuid }
+        tipoPuntoVenta: { type: integer }
         cuis: { type: string }
-        is_active: { type: boolean }
+        isActive: { type: boolean }
     PointOfSale:
       type: object
       properties:
         id: { type: string }
-        company_id: { type: string }
-        branch_id: { type: string }
-        codigo_sucursal: { type: integer }
-        codigo_punto_venta: { type: integer }
+        companyId: { type: string }
+        branchId: { type: string }
+        codigoSucursal: { type: integer }
+        codigoPuntoVenta: { type: integer }
         name: { type: string }
         description: { type: string }
-        tipo_punto_venta: { type: integer }
+        tipoPuntoVenta: { type: integer }
         cuis: { type: string, nullable: true }
-        is_active: { type: boolean }
-        created_at: { type: string }
+        isActive: { type: boolean }
+        createdAt: { type: string }
     PointOfSaleList:
       type: object
       properties:
@@ -1167,10 +1060,9 @@ components:
     SetupRequest:
       type: object
       additionalProperties: false
-      required: [company_id, point_of_sale_id]
+      required: [posId]
       properties:
-        company_id: { type: string, format: uuid }
-        point_of_sale_id: { type: string, format: uuid }
+        posId: { type: string, format: uuid }
     SetupResult:
       type: object
       properties:
@@ -1184,22 +1076,21 @@ components:
       properties:
         success: { type: boolean }
         cuis: { type: string }
-        fecha_vigencia: { type: string }
+        fechaVigencia: { type: string }
     CufdResult:
       type: object
       properties:
-        success: { type: boolean }
-        data:
+        company:
+          $ref: '#/components/schemas/Company'
+        pos:
+          $ref: '#/components/schemas/PointOfSale'
+        response:
           type: object
-          properties:
-            cufd: { type: string }
-            fecha_vigencia: { type: string }
-            codigo_control: { type: string }
     SyncSummary:
       type: object
       properties:
         company: { type: object }
-        point_of_sale: { type: object }
+        pos: { type: object }
         operations:
           type: array
           items:
@@ -1209,7 +1100,7 @@ components:
               transaccion: { type: boolean }
               codigos: { type: integer }
               status: { type: string, enum: [SUCCESS, FAILED, EMPTY] }
-              rows_saved: { type: integer }
+              rowsSaved: { type: integer }
         errors: { type: array, items: { type: object } }
     CatalogReadiness:
       type: object
@@ -1220,7 +1111,7 @@ components:
     AnnulRequest:
       type: object
       properties:
-        codigo_motivo: { type: integer }
+        codigoMotivo: { type: integer }
     SignXmlRequest:
       type: object
       additionalProperties: false
@@ -1230,8 +1121,12 @@ components:
     SignXmlResult:
       type: object
       properties:
-        success: { type: boolean }
-        xml: { type: string, description: XML firmado. }
+        company:
+          $ref: '#/components/schemas/Company'
+        pos:
+          $ref: '#/components/schemas/PointOfSale'
+        response:
+          type: object
     PurchasesRequest:
       type: object
       properties:
@@ -1262,9 +1157,9 @@ components:
       type: object
       properties:
         user: { $ref: "#/components/schemas/User" }
-        access_token: { type: string }
-        token_type: { type: string, example: Bearer }
-        expires_at: { type: string }
+        accessToken: { type: string }
+        tokenType: { type: string, example: Bearer }
+        expiresAt: { type: string }
     User:
       type: object
       properties:
@@ -1276,19 +1171,19 @@ components:
       properties:
         id: { type: string }
         nit: { type: string }
-        business_name: { type: string }
+        businessName: { type: string }
         ambiente: { type: string, enum: [PILOTO, PRODUCCION] }
         modalidad: { type: integer }
         municipio: { type: string }
         direccion: { type: string }
         telefono: { type: string }
-        codigo_actividad: { type: string }
-        pie_pagina: { type: string }
-        usuario_siat: { type: string }
-        certificate_webhook_url: { type: string }
-        invoice_email_enabled: { type: boolean }
-        created_at: { type: string }
-        updated_at: { type: string }
+        codigoActividad: { type: string }
+        piePagina: { type: string }
+        usuarioSiat: { type: string }
+        certificateWebhookUrl: { type: string }
+        invoiceEmailEnabled: { type: boolean }
+        createdAt: { type: string }
+        updatedAt: { type: string }
     CompanyList:
       type: object
       properties:
@@ -1301,11 +1196,11 @@ components:
     CreateApiKeyResponse:
       type: object
       properties:
-        api_key: { type: string, description: Solo se muestra una vez. Enviar como X-API-Key. }
-        key_prefix: { type: string }
+        apiKey: { type: string, description: Solo se muestra una vez. Enviar como X-API-Key. }
+        keyPrefix: { type: string }
         id: { type: string }
         name: { type: string }
-        created_at: { type: string }
+        createdAt: { type: string }
     ApiKeyList:
       type: object
       properties:
@@ -1315,24 +1210,24 @@ components:
             type: object
             properties:
               id: { type: string }
-              key_prefix: { type: string }
+              keyPrefix: { type: string }
               name: { type: string }
-              is_active: { type: boolean }
-              last_used_at: { type: string }
-              created_at: { type: string }
+              isActive: { type: boolean }
+              lastUsedAt: { type: string }
+              createdAt: { type: string }
     Certificate:
       type: object
       properties:
         id: { type: string }
-        company_id: { type: string }
+        companyId: { type: string }
         name: { type: string }
         type: { type: string }
         status: { type: string, enum: [ACTIVE, EXPIRED, REVOKED] }
-        not_before: { type: string }
-        not_after: { type: string }
-        p12_storage_ref: { type: string }
-        created_at: { type: string }
-        updated_at: { type: string }
+        notBefore: { type: string }
+        notAfter: { type: string }
+        p12StorageRef: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
     CertificateList:
       type: object
       properties:
@@ -1340,61 +1235,64 @@ components:
     SignificantEventRequest:
       type: object
       properties:
-        codigo_motivo_evento: { type: integer }
+        codigoMotivoEvento: { type: integer }
         descripcion: { type: string }
-        cufd_evento: { type: string }
-        fecha_hora_inicio_evento: { type: string }
-        fecha_hora_fin_evento: { type: string }
+        cufdEvento: { type: string }
+        fechaHoraInicioEvento: { type: string }
+        fechaHoraFinEvento: { type: string }
     SignificantEventResult:
       type: object
       properties:
-        success: { type: boolean }
-        codigo_recepcion: { type: string }
+        company:
+          $ref: '#/components/schemas/Company'
+        pos:
+          $ref: '#/components/schemas/PointOfSale'
+        response:
+          type: object
     PackageRequest:
       type: object
       properties:
-        invoice_ids:
+        invoiceIds:
           type: array
           items: { type: string, format: uuid }
           description: Ausente = auto (facturas OFFLINE pendientes).
     MinimalInvoiceRequest:
       type: object
       additionalProperties: false
-      required: [point_of_sale_id, customer, items]
+      required: [posId, customer]
       properties:
-        point_of_sale_id: { type: string, description: Punto de venta con CUIS/CUFD vigente. }
+        posId: { type: string, description: Punto de venta con CUIS/CUFD vigente. }
         customer: { $ref: "#/components/schemas/MinimalInvoiceCustomer" }
         items:
           type: array
-          minItems: 1
           items: { $ref: "#/components/schemas/MinimalInvoiceItem" }
-        invoice_type: { type: string, default: sale }
+        invoiceType: { type: string, default: sale }
         sector: { type: string, default: auto }
         data: { type: object, description: "{} para sector 1." }
         layout: { type: string, description: Solo sector 24. }
-        reference_invoice_id: { type: string, format: uuid, description: Solo ajustes. }
+        referenceInvoiceId: { type: string, format: uuid, description: Solo ajustes. }
         payment: { $ref: "#/components/schemas/MinimalInvoicePayment" }
         total: { type: number, description: Solo sectores sin detalle. }
     MinimalInvoiceCustomer:
       type: object
       additionalProperties: false
-      required: [document_number, name]
+      required: [documentNumber, name]
       properties:
-        document_type: { type: string, default: CI }
-        document_number: { type: string }
+        documentType: { type: string, default: CI }
+        documentNumber: { type: string }
         complement: { type: string }
         name: { type: string }
         email: { type: string }
     MinimalInvoiceItem:
       type: object
       additionalProperties: false
-      required: [sku, description, codigo_producto_sin, unidad_medida, quantity, price]
+      required: [sku, description, codigoProductoSin, unidadMedida, quantity, price]
       properties:
         sku: { type: string }
         description: { type: string }
-        codigo_actividad: { type: string }
-        codigo_producto_sin: { type: integer, format: int64, minimum: 1 }
-        unidad_medida: { type: integer, minimum: 1 }
+        codigoActividad: { type: string }
+        codigoProductoSin: { type: integer, format: int64, minimum: 1 }
+        unidadMedida: { type: integer, minimum: 1 }
         quantity: { type: number, exclusiveMinimum: 0 }
         price: { type: number, minimum: 0 }
         discount: { type: number, minimum: 0 }
@@ -1402,72 +1300,131 @@ components:
     MinimalInvoicePayment:
       type: object
       additionalProperties: false
-      required: [method_code, currency_code, exchange_rate]
+      required: [methodCode, currencyCode, exchangeRate]
       properties:
-        method_code: { type: integer, minimum: 1 }
-        currency_code: { type: integer, minimum: 1 }
-        exchange_rate: { type: number, exclusiveMinimum: 0 }
-    InvoicePreview:
-      type: object
-      required: [point_of_sale_id, customer, items, invoice_type, codigo_documento_sector, subtotal, total]
-      properties:
-        point_of_sale_id: { type: string }
-        customer: { $ref: "#/components/schemas/InvoicePreviewCustomer" }
-        items: { type: array, items: { $ref: "#/components/schemas/InvoicePreviewItem" } }
-        invoice_type: { type: string }
-        codigo_documento_sector: { type: integer }
-        codigo_metodo_pago: { type: integer }
-        codigo_moneda: { type: integer }
-        tipo_cambio: { type: number }
-        subtotal: { type: number }
-        total: { type: number }
-    InvoicePreviewCustomer:
-      type: object
-      required: [document_type, document_number, name]
-      properties:
-        document_type: { type: string }
-        document_number: { type: string }
-        name: { type: string }
-        email: { type: string }
-    InvoicePreviewItem:
-      type: object
-      required: [sku, quantity, unit_price, subtotal]
-      properties:
-        sku: { type: string }
-        description: { type: string }
-        quantity: { type: number }
-        unit_price: { type: number }
-        discount: { type: number }
-        subtotal: { type: number }
-        codigo_actividad: { type: string }
-        codigo_producto_sin: { type: integer, format: int64 }
-        unidad_medida: { type: integer }
-        codigo_documento_sector: { type: integer }
+        methodCode: { type: integer, minimum: 1 }
+        currencyCode: { type: integer, minimum: 1 }
+        exchangeRate: { type: number, exclusiveMinimum: 0 }
     Invoice:
       type: object
-      required: [id, company_id, point_of_sale_id, invoice_number, status, subtotal, total, customer, items]
+      required:
+      - id
+      - companyId
+      - customerId
+      - posId
+      - invoiceNumber
+      - status
+      - subtotal
+      - discount
+      - total
+      - codigoMetodoPago
+      - codigoMoneda
+      - tipoCambio
+      - codigoDocumentoSector
+      - codigoTipoFactura
+      - modalidad
+      - emissionType
+      - issueDate
+      - customer
+      - items
+      - createdAt
       properties:
-        id: { type: string, format: uuid }
-        company_id: { type: string }
-        customer_id: { type: string }
-        point_of_sale_id: { type: string }
-        contingency_event_id: { type: string, description: Presente cuando status=OFFLINE. }
-        invoice_number: { type: integer }
-        status: { $ref: "#/components/schemas/InvoiceStatus" }
-        cuf: { type: string }
-        subtotal: { type: number }
-        total: { type: number }
-        codigo_metodo_pago: { type: integer }
-        codigo_moneda: { type: integer }
-        tipo_cambio: { type: number }
-        codigo_documento_sector: { type: integer }
-        emission_type: { type: string }
-        issue_date: { type: string, format: date-time }
-        siat_reception_code: { type: string }
-        siat_mensajes: { type: array, items: { $ref: "#/components/schemas/SiatMensaje" } }
-        customer: { $ref: "#/components/schemas/InvoiceCustomer" }
-        items: { type: array, items: { $ref: "#/components/schemas/InvoiceItem" } }
-        created_at: { type: string, format: date-time }
+        id:
+          type: string
+        companyId:
+          type: string
+        customerId:
+          type: string
+        posId:
+          type: string
+        cufdId:
+          type: string
+        contingencyEventId:
+          type: string
+          nullable: true
+        ajustaFacturaId:
+          type: string
+          nullable: true
+        invoiceNumber:
+          type: integer
+        status:
+          $ref: '#/components/schemas/InvoiceStatus'
+        cuf:
+          type: string
+          nullable: true
+        subtotal:
+          type: number
+        discount:
+          type: number
+        total:
+          type: number
+        codigoMetodoPago:
+          type: integer
+        codigoMoneda:
+          type: integer
+        tipoCambio:
+          type: number
+        codigoDocumentoSector:
+          type: integer
+        codigoTipoFactura:
+          type: integer
+        layout:
+          type: string
+        modalidad:
+          type: integer
+        nombreEstudiante:
+          type: string
+          nullable: true
+        periodoFacturado:
+          type: string
+          nullable: true
+        sectorData:
+          type: object
+        emissionType:
+          type: string
+        issueDate:
+          type: string
+          format: date-time
+        motivoAnulacion:
+          type: integer
+          nullable: true
+        fechaAnulacion:
+          type: string
+          format: date-time
+          nullable: true
+        siatReceptionCode:
+          type: string
+          nullable: true
+        siatMensajes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiatMensaje'
+        customer:
+          $ref: '#/components/schemas/InvoiceCustomer'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        createdAt:
+          type: string
+          format: date-time
+        company:
+          $ref: '#/components/schemas/Company'
+        pos:
+          $ref: '#/components/schemas/PointOfSale'
+        cufdRecord:
+          type: object
+          nullable: true
+        xml:
+          type: string
+          nullable: true
+        xmlHash:
+          type: string
+          nullable: true
+        archivo:
+          type: string
+        hashArchivo:
+          type: string
     InvoiceList:
       type: object
       properties:
@@ -1480,23 +1437,59 @@ components:
       enum: [PENDING, SENDING, SENT, ACCEPTED, OBSERVED, OFFLINE, REJECTED, CANCELLED]
     InvoiceCustomer:
       type: object
-      required: [document_type, document_number, name]
+      required:
+      - id
+      - name
+      - documentType
+      - documentNumber
       properties:
-        id: { type: string }
-        name: { type: string }
-        document_type: { type: string }
-        document_number: { type: string }
+        id:
+          type: string
+        name:
+          type: string
+        documentType:
+          type: string
+        documentNumber:
+          type: string
+        complement:
+          type: string
+          nullable: true
     InvoiceItem:
       type: object
-      required: [code, quantity, unit_price, subtotal]
+      required:
+      - id
+      - code
+      - description
+      - quantity
+      - unitPrice
+      - discount
+      - subtotal
       properties:
-        id: { type: string }
-        code: { type: string }
-        description: { type: string }
-        quantity: { type: number }
-        unit_price: { type: number }
-        discount: { type: number }
-        subtotal: { type: number }
+        id:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        codigoActividad:
+          type: string
+          nullable: true
+        codigoProductoSin:
+          type: string
+          nullable: true
+        unitCode:
+          type: integer
+          nullable: true
+        quantity:
+          type: number
+        unitPrice:
+          type: number
+        discount:
+          type: number
+        subtotal:
+          type: number
+        sectorData:
+          type: object
     SiatMensaje:
       type: object
       properties:
@@ -1507,16 +1500,71 @@ components:
       items: { $ref: "#/components/schemas/SectorProfile" }
     SectorProfile:
       type: object
+      required:
+      - codigo
+      - nombre
+      - estado
+      - tipoDocumento
+      - operacion
+      - fachada
+      - soportado
+      - tieneBuilder
+      - emisionIndividual
+      - emisionMasiva
+      - requiereArchivo
+      - conDetalle
+      - detalleUnico
+      - montoSujetoIvaCero
+      - esAjuste
+      - camposDatosSector
       properties:
-        codigo: { type: integer }
-        nombre: { type: string }
-        estado: { type: string }
-        soportado: { type: boolean }
-        emision_individual: { type: boolean }
-        emision_masiva: { type: boolean }
-        habilitado: { type: boolean }
-        campos: { type: array, items: { type: object } }
-        campos_detalle: { type: array, items: { type: object } }
+        codigo:
+          type: integer
+        nombre:
+          type: string
+        estado:
+          type: string
+        tipoDocumento:
+          type: integer
+        operacion:
+          type: string
+        fachada:
+          type: string
+        layout:
+          type: string
+        modalidades:
+          type: array
+          items:
+            type: integer
+        soportado:
+          type: boolean
+        tieneBuilder:
+          type: boolean
+        emisionIndividual:
+          type: boolean
+        emisionMasiva:
+          type: boolean
+        requiereArchivo:
+          type: boolean
+        conDetalle:
+          type: boolean
+        detalleUnico:
+          type: boolean
+        montoSujetoIvaCero:
+          type: boolean
+        esAjuste:
+          type: boolean
+        habilitado:
+          type: boolean
+          nullable: true
+        camposDatosSector:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectorField'
+        camposDatosSectorDetalle:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectorField'
     ErrorEnvelope:
       type: object
       required: [error]
@@ -1533,10 +1581,63 @@ components:
         field: { type: string }
         sugerencias: { type: array, items: { type: string } }
         accion: { type: string }
-        invoice_id: { type: string }
+        invoiceId: { type: string }
         details: { type: array, items: { $ref: "#/components/schemas/ErrorDetail" } }
     ErrorDetail:
       type: object
       properties:
         code: { type: integer }
         message: { type: string }
+    SectorField:
+      type: object
+      required:
+      - json
+      - requerido
+      - tipo
+      properties:
+        json:
+          type: string
+        requerido:
+          type: boolean
+        tipo:
+          type: string
+        etiqueta:
+          type: string
+        ejemplo:
+          type: string
+
+    RegisterCompanyRequest:
+      type: object
+      required:
+      - nit
+      - businessName
+      properties:
+        nit:
+          type: string
+        businessName:
+          type: string
+        authOrganizationId:
+          type: string
+        ambiente:
+          type: string
+          enum:
+          - PILOTO
+          - PRODUCCION
+        modalidad:
+          type: integer
+        usuarioSiat:
+          type: string
+        municipio:
+          type: string
+        direccion:
+          type: string
+        telefono:
+          type: string
+        codigoActividad:
+          type: string
+        piePagina:
+          type: string
+        certificateWebhookUrl:
+          type: string
+        invoiceEmailEnabled:
+          type: boolean

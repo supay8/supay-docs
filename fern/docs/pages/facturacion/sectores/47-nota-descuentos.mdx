@@ -1,6 +1,6 @@
 # 47 · Nota Crédito Débito Descuentos
 
-Descuentos posteriores por DocumentoAjuste. Exige `reference_invoice_id` del
+Descuentos posteriores por DocumentoAjuste. Exige `referenceInvoiceId` del
 mismo tenant y cliente, con **detalle par** (original + devuelto). Ver también:
 [24 · Nota Crédito-Débito](./24-nota-credito-debito.mdx).
 
@@ -21,17 +21,17 @@ Detalle par: conserva importes originales y devueltos en grupos distintos.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const nota = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "CI",
-        document_number: "9971522",
+        documentType: "CI",
+        documentNumber: "9971522",
         name: "Ramiro",
       },
 
       // Descuento posterior sobre la factura original
-      invoice_type: "credit_note",
+      invoiceType: "credit_note",
       sector: "47",
-      reference_invoice_id: "b61d67ed-7962-4989-958f-8ccc01979d64",
+      referenceInvoiceId: "b61d67ed-7962-4989-958f-8ccc01979d64",
 
       // SKU de la factura ORIGINAL
       items: [
@@ -52,15 +52,15 @@ Detalle par: conserva importes originales y devueltos en grupos distintos.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "CI",
-          "document_number": "9971522",
+          "documentType": "CI",
+          "documentNumber": "9971522",
           "name": "Ramiro"
         },
-        "invoice_type": "credit_note",
+        "invoiceType": "credit_note",
         "sector": "47",
-        "reference_invoice_id": "b61d67ed-7962-4989-958f-8ccc01979d64",
+        "referenceInvoiceId": "b61d67ed-7962-4989-958f-8ccc01979d64",
         "items": [
           {
             "sku": "PROD-001",
@@ -78,5 +78,5 @@ Detalle par: conserva importes originales y devueltos en grupos distintos.
 
 | Situación | Respuesta |
 |---|---|
-| Sin `reference_invoice_id` | `400 VALIDATION_ERROR` |
+| Sin `referenceInvoiceId` | `400 VALIDATION_ERROR` |
 | Referencia de otro tenant | `404` |

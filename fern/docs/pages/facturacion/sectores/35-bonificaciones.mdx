@@ -16,18 +16,18 @@ Sin campos propios: usa `discount` por línea para la bonificación.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "nit",
-        document_number: "123456789",
+        documentType: "nit",
+        documentNumber: "123456789",
         name: "Empresa SAC",
       },
       items: [
         {
           sku: "PROD-10",
           description: "Producto con bonificación",
-          codigo_producto_sin: 5113100,
-          unidad_medida: 58,
+          codigoProductoSin: 5113100,
+          unidadMedida: 58,
           quantity: 10,
           price: 100,
 
@@ -45,18 +45,18 @@ Sin campos propios: usa `discount` por línea para la bonificación.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "123456789",
+          "documentType": "nit",
+          "documentNumber": "123456789",
           "name": "Empresa SAC"
         },
         "items": [
           {
             "sku": "PROD-10",
             "description": "Producto con bonificación",
-            "codigo_producto_sin": 5113100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5113100,
+            "unidadMedida": 58,
             "quantity": 10,
             "price": 100,
             "discount": 100

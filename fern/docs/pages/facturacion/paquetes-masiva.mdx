@@ -10,9 +10,9 @@ emisión individual nunca lo produce).
 
 | Campo | Tipo | Obligatorio | Descripción |
 |---|---|---|---|
-| `invoice_ids` | uuid[] | No | Ausente = auto (facturas `OFFLINE` pendientes). `null`, duplicados o string → `400` |
+| `invoiceIds` | uuid[] | No | Ausente = auto (facturas `OFFLINE` pendientes). `null`, duplicados o string → `400` |
 
-Validar antes de enviar: `POST /siat/paquete/{batchId}/validate {}`.
+Validar antes de enviar: `POST /siat/packages/{batchId}/validate {}`.
 
 ## Masiva
 
@@ -22,50 +22,50 @@ El 30 admite borrador sin `items` (con `total` + pasajero y cabecera).
 <Tabs>
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
-    // Paquete: sin invoice_ids toma las OFFLINE pendientes (auto)
+    // Paquete: sin invoiceIds toma las OFFLINE pendientes (auto)
     const pack = await supay.siat.sendPackage({
-      pointOfSaleId: pos.id,
-      invoice_ids: [inv.id],
+      posId: pos.id,
+      invoiceIds: [inv.id],
     });
 
     // Validar el lote antes de enviar
-    await supay.siat.validatePackage({ batchId: pack.batch_id });
+    await supay.siat.validatePackage({ batchId: pack.batchId });
 
     // Masiva: única vía del sector 30 (boleto aéreo)
     const bulk = await supay.siat.sendBulk({
       companyId: company.id,
-      pointOfSaleId: pos.id,
+      posId: pos.id,
       ...lote,
     });
 
     // Validar el lote masivo (batchId sale del envío)
-    await supay.siat.validateBulk({ batchId: bulk.batch_id });
+    await supay.siat.validateBulk({ batchId: bulk.batchId });
     ```
   </Tab>
   <Tab title="REST API" language="curl">
     ```bash
     # Paquete con facturas explícitas
-    curl -s -X POST "$BASE/v1/siat/paquete/$POS" \
+    curl -s -X POST "$BASE/v1/siat/packages/$POS" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d "{
-        \"invoice_ids\": [\"$ID1\", \"$ID2\"]
+        \"invoiceIds\": [\"$ID1\", \"$ID2\"]
       }"
 
     # Validar el lote
-    curl -s -X POST "$BASE/v1/siat/paquete/$BATCH/validate" \
+    curl -s -X POST "$BASE/v1/siat/packages/$BATCH/validate" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{}'
 
     # Masiva (sector 30 solo por aquí)
-    curl -s -X POST "$BASE/v1/siat/masiva/$CID/$POS" \
+    curl -s -X POST "$BASE/v1/siat/bulk/$CID/$POS" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d "$LOTE"
 
     # Validar el lote masivo
-    curl -s -X POST "$BASE/v1/siat/masiva/$BATCH/validate" \
+    curl -s -X POST "$BASE/v1/siat/bulk/$BATCH/validate" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{}'

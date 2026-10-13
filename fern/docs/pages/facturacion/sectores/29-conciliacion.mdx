@@ -28,15 +28,15 @@ Cabecera con los **totales originales vs conciliados**; cada línea con sus
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const conc = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "CI",
-        document_number: "9971522",
+        documentType: "CI",
+        documentNumber: "9971522",
         name: "Ramiro",
       },
-      invoice_type: "credit_note",
+      invoiceType: "credit_note",
       sector: "29",
-      reference_invoice_id: "<uuid-original>",
+      referenceInvoiceId: "<uuid-original>",
 
       // Cada línea conciliada con sus tres montos
       items: [
@@ -70,15 +70,15 @@ Cabecera con los **totales originales vs conciliados**; cada línea con sus
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "CI",
-          "document_number": "9971522",
+          "documentType": "CI",
+          "documentNumber": "9971522",
           "name": "Ramiro"
         },
-        "invoice_type": "credit_note",
+        "invoiceType": "credit_note",
         "sector": "29",
-        "reference_invoice_id": "<uuid-original>",
+        "referenceInvoiceId": "<uuid-original>",
         "items": [
           {
             "sku": "PROD-001",

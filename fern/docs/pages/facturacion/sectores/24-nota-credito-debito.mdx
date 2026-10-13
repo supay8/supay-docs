@@ -2,7 +2,7 @@
 
 Ajustes con crédito fiscal por DocumentoAjuste. **Dos layouts**: el clásico
 (`nota_credito_debito`) y el fiscal (`nota_fiscal_credito_debito`), elegidos con
-`layout`. Exige `reference_invoice_id` del mismo tenant y cliente. Ver también:
+`layout`. Exige `referenceInvoiceId` del mismo tenant y cliente. Ver también:
 [47 · Descuentos](./47-nota-descuentos.mdx) · [29 · Conciliación](./29-conciliacion.mdx).
 
 ## Cabecera (`data`)
@@ -22,18 +22,18 @@ Líneas estándar (sin campos sectoriales propios).
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const nota = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "CI",
-        document_number: "9971522",
+        documentType: "CI",
+        documentNumber: "9971522",
         name: "Ramiro",
       },
 
       // Ajuste con layout explícito
-      invoice_type: "credit_note",
+      invoiceType: "credit_note",
       sector: "24",
       layout: "nota_fiscal_credito_debito",
-      reference_invoice_id: "b61d67ed-7962-4989-958f-8ccc01979d64",
+      referenceInvoiceId: "b61d67ed-7962-4989-958f-8ccc01979d64",
 
       // SKU de la factura ORIGINAL
       items: [
@@ -54,16 +54,16 @@ Líneas estándar (sin campos sectoriales propios).
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "CI",
-          "document_number": "9971522",
+          "documentType": "CI",
+          "documentNumber": "9971522",
           "name": "Ramiro"
         },
-        "invoice_type": "credit_note",
+        "invoiceType": "credit_note",
         "sector": "24",
         "layout": "nota_fiscal_credito_debito",
-        "reference_invoice_id": "b61d67ed-7962-4989-958f-8ccc01979d64",
+        "referenceInvoiceId": "b61d67ed-7962-4989-958f-8ccc01979d64",
         "items": [
           {
             "sku": "PROD-001",
@@ -81,10 +81,10 @@ Líneas estándar (sin campos sectoriales propios).
 
 | Situación | Respuesta |
 |---|---|
-| Sin `reference_invoice_id` | `400 VALIDATION_ERROR` |
+| Sin `referenceInvoiceId` | `400 VALIDATION_ERROR` |
 | Sin `layout` (ambigüedad) | `400` — elige uno de los dos |
 
 <Callout intent="warning">
-  `POST /siat/documento-ajuste/{pos}` está **deprecado**: emite siempre las notas
+  `POST /siat/adjustments/{pos}` está **deprecado**: emite siempre las notas
   por invoices (esta página), nunca directo al SIAT.
 </Callout>

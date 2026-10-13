@@ -23,18 +23,18 @@ Turismo y hospedaje sin crédito fiscal. Igual estructura que
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "ci",
-        document_number: "7654321",
+        documentType: "ci",
+        documentNumber: "7654321",
         name: "Turista Ejemplo",
       },
       items: [
         {
           sku: "TOUR-UYUNI",
           description: "Tour Uyuni 3 días",
-          codigo_producto_sin: 5412100,
-          unidad_medida: 58,
+          codigoProductoSin: 5412100,
+          unidadMedida: 58,
           quantity: 2,
           price: 1200,
           data: {
@@ -59,18 +59,18 @@ Turismo y hospedaje sin crédito fiscal. Igual estructura que
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "ci",
-          "document_number": "7654321",
+          "documentType": "ci",
+          "documentNumber": "7654321",
           "name": "Turista Ejemplo"
         },
         "items": [
           {
             "sku": "TOUR-UYUNI",
             "description": "Tour Uyuni 3 días",
-            "codigo_producto_sin": 5412100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5412100,
+            "unidadMedida": 58,
             "quantity": 2,
             "price": 1200
           }

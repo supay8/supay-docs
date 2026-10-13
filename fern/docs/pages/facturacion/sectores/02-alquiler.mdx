@@ -18,18 +18,18 @@ Sin campos sectoriales: la línea describe qué se alquila
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "nit",
-        document_number: "2345678",
+        documentType: "nit",
+        documentNumber: "2345678",
         name: "Inquilino SRL",
       },
       items: [
         {
           sku: "ALQ-OF3",
           description: "Alquiler oficina piso 3, agosto 2026",
-          codigo_producto_sin: 5412100,
-          unidad_medida: 58,
+          codigoProductoSin: 5412100,
+          unidadMedida: 58,
           quantity: 1,
           price: 3500,
         },
@@ -49,18 +49,18 @@ Sin campos sectoriales: la línea describe qué se alquila
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "2345678",
+          "documentType": "nit",
+          "documentNumber": "2345678",
           "name": "Inquilino SRL"
         },
         "items": [
           {
             "sku": "ALQ-OF3",
             "description": "Alquiler oficina piso 3, agosto 2026",
-            "codigo_producto_sin": 5412100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5412100,
+            "unidadMedida": 58,
             "quantity": 1,
             "price": 3500
           }

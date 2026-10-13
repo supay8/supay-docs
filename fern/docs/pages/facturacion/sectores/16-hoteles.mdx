@@ -28,10 +28,10 @@ identifica **habitación y huésped por línea**. Versión sin crédito:
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "ci",
-        document_number: "7654321",
+        documentType: "ci",
+        documentNumber: "7654321",
         name: "Huésped Ejemplo",
       },
 
@@ -40,8 +40,8 @@ identifica **habitación y huésped por línea**. Versión sin crédito:
         {
           sku: "HAB-DOBLE",
           description: "Habitación doble, 3 noches",
-          codigo_producto_sin: 5412100,
-          unidad_medida: 58,
+          codigoProductoSin: 5412100,
+          unidadMedida: 58,
           quantity: 3,
           price: 400,
           data: {
@@ -72,18 +72,18 @@ identifica **habitación y huésped por línea**. Versión sin crédito:
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "ci",
-          "document_number": "7654321",
+          "documentType": "ci",
+          "documentNumber": "7654321",
           "name": "Huésped Ejemplo"
         },
         "items": [
           {
             "sku": "HAB-DOBLE",
             "description": "Habitación doble, 3 noches",
-            "codigo_producto_sin": 5412100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5412100,
+            "unidadMedida": 58,
             "quantity": 3,
             "price": 400,
             "data": {

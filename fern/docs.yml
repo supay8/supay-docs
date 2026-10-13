@@ -6,8 +6,14 @@ instances:
 title: Supay
 
 favicon: assets/supay.ico
-
+css: ./style.css
 default-language: typescript
+
+# La raíz del sitio sirve la landing de Home
+landing-page:
+  page: Bienvenido
+  path: ./docs/pages/home/index.mdx
+  slug: /
 
 # Logo institucional Supay ([imagen] Supay en el header vía right-text)
 logo:
@@ -17,210 +23,311 @@ logo:
 
 colors:
   accent-primary:
-    light: "#e11d48" # Rosa institucional Supay (rose-600)
-    dark: "#fb7185"  # Rose-400: contraste legible sobre fondo oscuro
+    light: "#e11d48" # Tu rosa institucional (rose-600). Vibrante, estilo Stripe.
+    dark: "#f43f5e"  # rose-500: Un tono ligeramente más saturado que el rose-400 para dar un efecto "glow" o neón sutil en dark mode (muy Vercel).
   background:
-    light: "#FFFFFF" # Fondo blanco estilo Vercel
-    dark: "#0a0a0a"  # Fondo negro profundo estilo Vercel
+    light: "#ffffff" # Blanco puro absoluto.
+    dark: "#000000"  # Negro puro. Vercel usa #000000 en lugar de grises oscuros para ese look infinito y profundo.
   border:
-    light: "#eaeaea" # Bordes sutiles claros
-    dark: "#222222"  # Bordes oscuros discretos
+    light: "#eaeaea" # El clásico gris ultra sutil de Vercel.
+    dark: "#333333"  # Un gris oscuro más "crujiente" que el #222 para separar secciones con limpieza sin requerir sombras.
   sidebar-background:
-    light: "#fafafa"
-    dark: "#0a0a0a"
+    light: "#fafafa" # Blanco roto sutil (Stripe) para dar jerarquía y profundidad sin usar sombras pesadas.
+    dark: "#0a0a0a"  # Un negro levísimamente elevado (zinc-950) para separarlo del fondo puro #000000.
   header-background:
-    light: "#ffffff"
-    dark: "#0a0a0a"
-
-# Navbar: secciones como tabs en el header + buscador visible en el header
+    light: "#ffffff" # Header limpio que se funde visualmente con el fondo.
+    dark: "#000000"  # Continuidad absoluta en modo oscuro.
+# Navbar: Tabs superiores, buscador centrado en la UX
 layout:
   tabs-placement: header
   searchbar-placement: header
+  content-alignment: center
+  breadcrumbs:
+    current-page: false
 
-# Estilo de tabs tipo píldora en el header
+# CTAs del header: Acción secundaria (SDK) y primaria (Empezar)
+navbar-links:
+  - type: minimal
+    text: SDK
+    href: /sdk
+  - type: filled
+    text: Empezar
+    href: /docs/empezar/quickstart
+
+# Diseño Flat/Minimalista
 theme:
-  tabs:
-    style: bubble
-    alignment: left
-    placement: header
+  sidebar: minimal
+  body: default
+  page-actions: toolbar
+  footer-nav: minimal
+  tabs: bubble
+
+# Tipografías propias (self-hosted, sin dependencias externas)
+typography:
+  headingsFont:
+    name: Inter
+    paths:
+      - path: ./fonts/Inter-Variable.woff2
+        weight: 400 700
+        style: normal
+  bodyFont:
+    name: Inter
+    paths:
+      - path: ./fonts/Inter-Variable.woff2
+        weight: 400 700
+        style: normal
+  codeFont:
+    name: JetBrains Mono
+    paths:
+      - path: ./fonts/JetBrains-Mono-Variable.woff2
+        weight: 400 500
+        style: normal
+
+# SEO / social previews
+metadata:
+  og:site_name: Supay Docs
+  og:title: Supay · Facturación electrónica para Bolivia
+  og:description: Emite facturas válidas ante el SIAT desde tu propio sistema, por API o con el SDK TypeScript. Sin integrar SOAP a mano.
+  og:url: https://docs.supay.dev
+  twitter:card: summary_large_image
+  twitter:title: Supay · Facturación electrónica para Bolivia
+  twitter:description: API + SDK TypeScript para facturación electrónica ante el SIAT de Bolivia.
+  canonical-host: docs.supay.dev
 
 # Buscador en español (motor incluido en Fern, nada que desplegar)
 settings:
   search-text: "Buscar en la documentación de Supay..."
+  dark-mode-code: true
+
+# Redirects de páginas movidas/eliminadas al crear los tabs
+redirects:
+  - source: /referencia/sdk-type-script
+    destination: /sdk
+
+# Tabs superiores: Home · Docs · SDK · Licencia
+tabs:
+  home:
+    display-name: Home
+    icon: house
+    slug: home
+  docs:
+    display-name: Docs
+    icon: book
+    slug: docs
+  sdk:
+    display-name: SDK
+    icon: cube
+    slug: sdk
+  licencia:
+    display-name: Licencia
+    icon: scale-balanced
+    slug: licencia
 
 navigation:
-  - section: Información general
-    path: ./docs/pages/general/que-es-supay.mdx
-    contents:
-      - page: Modelo de datos
-        path: ./docs/pages/general/modelo.mdx
-      - page: Glosario SIAT
-        path: ./docs/pages/general/glosario.mdx
-  - section: Empezar
-    contents:
-      - page: Quickstart (5 min)
-        path: ./docs/pages/empezar/quickstart.mdx
-      - page: Autenticación
-        path: ./docs/pages/empezar/autenticacion.mdx
-      - page: Onboarding del tenant
-        path: ./docs/pages/empezar/onboarding.mdx
-  - section: Facturación
-    contents:
-      - page: Emitir factura
-        path: ./docs/pages/facturacion/emitir-factura.mdx
-      - page: Anulación de venta
-        path: ./docs/pages/facturacion/anulacion-venta.mdx
-        slug: anulacion-venta
-      - page: Contingencia OFFLINE
-        path: ./docs/pages/facturacion/contingencia.mdx
-      - page: Paquetes y masiva
-        path: ./docs/pages/facturacion/paquetes-masiva.mdx
-  - section: Operaciones SIAT
-    contents:
-      - page: CUIS y CUFD
-        path: ./docs/pages/operaciones-siat/cuis-cufd.mdx
-      - page: Sincronización de catálogos
-        path: ./docs/pages/operaciones-siat/sincronizacion-catalogos.mdx
-      - page: Firmar XML
-        path: ./docs/pages/operaciones-siat/firma.mdx
-      - page: Enviar compras
-        path: ./docs/pages/operaciones-siat/compras.mdx
-  - section: Sectores
-    path: ./docs/pages/facturacion/sectores/index.mdx
-    contents:
-      - section: Compra y venta
+  - tab: home
+    layout:
+      - page: Bienvenido
+        path: ./docs/pages/home/index.mdx
+  - tab: docs
+    layout:
+      - section: Información general
+        path: ./docs/pages/general/que-es-supay.mdx
+        slug: general
         contents:
-          - page: 1 · Compra y Venta
-            path: ./docs/pages/facturacion/sectores/01-compra-venta.mdx
-          - page: 35 · Bonificaciones
-            path: ./docs/pages/facturacion/sectores/35-bonificaciones.mdx
-          - page: 41 · Tasas
-            path: ./docs/pages/facturacion/sectores/41-tasas.mdx
-      - section: Exportación
+          - page: Modelo de datos
+            path: ./docs/pages/general/modelo.mdx
+            slug: modelo
+          - page: Glosario SIAT
+            path: ./docs/pages/general/glosario.mdx
+            slug: glosario
+      - section: Empezar
         contents:
-          - page: 3 · Exportación
-            path: ./docs/pages/facturacion/sectores/03-exportacion.mdx
-          - page: 20 · Exportación Minera
-            path: ./docs/pages/facturacion/sectores/20-exportacion-minera.mdx
-          - page: 28 · Exportación Servicios
-            path: ./docs/pages/facturacion/sectores/28-exportacion-servicios.mdx
-          - page: 43 · Exportación Hidrocarburos
-            path: ./docs/pages/facturacion/sectores/43-exportacion-hidrocarburos.mdx
-          - page: 45 · Exportación Precio Venta
-            path: ./docs/pages/facturacion/sectores/45-exportacion-precio-venta.mdx
-      - section: Alquiler
+          - page: Quickstart (5 min)
+            path: ./docs/pages/empezar/quickstart.mdx
+            slug: quickstart
+          - page: Autenticación
+            path: ./docs/pages/empezar/autenticacion.mdx
+            slug: autenticacion
+          - page: Onboarding del tenant
+            path: ./docs/pages/empezar/onboarding.mdx
+            slug: onboarding
+      - section: Facturación
         contents:
-          - page: 2 · Alquiler
-            path: ./docs/pages/facturacion/sectores/02-alquiler.mdx
-          - page: 42 · Alquiler ZF
-            path: ./docs/pages/facturacion/sectores/42-alquiler-zf.mdx
-      - section: Hoteles y turismo
+          - page: Emitir factura
+            path: ./docs/pages/facturacion/emitir-factura.mdx
+            slug: emitir-factura
+          - page: Anulación de venta
+            path: ./docs/pages/facturacion/anulacion-venta.mdx
+            slug: anulacion-venta
+          - page: Contingencia OFFLINE
+            path: ./docs/pages/facturacion/contingencia.mdx
+            slug: contingencia
+          - page: Paquetes y masiva
+            path: ./docs/pages/facturacion/paquetes-masiva.mdx
+            slug: paquetes-masiva
+      - section: Operaciones SIAT
         contents:
-          - page: 6 · Turismo
-            path: ./docs/pages/facturacion/sectores/06-turismo.mdx
-          - page: 16 · Hoteles
-            path: ./docs/pages/facturacion/sectores/16-hoteles.mdx
-      - section: Hidrocarburos y energía
+          - page: CUIS y CUFD
+            path: ./docs/pages/operaciones-siat/cuis-cufd.mdx
+            slug: cuis-cufd
+          - page: Sincronización de catálogos
+            path: ./docs/pages/operaciones-siat/sincronizacion-catalogos.mdx
+          - page: Firmar XML
+            path: ./docs/pages/operaciones-siat/firma.mdx
+          - page: Enviar compras
+            path: ./docs/pages/operaciones-siat/compras.mdx
+      - section: Sectores
+        path: ./docs/pages/facturacion/sectores/index.mdx
         contents:
-          - page: 12 · Hidrocarburos
-            path: ./docs/pages/facturacion/sectores/12-hidrocarburos.mdx
-          - page: 19 · IEHD
-            path: ./docs/pages/facturacion/sectores/19-iehd.mdx
-          - page: 31 · Energía
-            path: ./docs/pages/facturacion/sectores/31-energia.mdx
-          - page: 37 · GNV
-            path: ./docs/pages/facturacion/sectores/37-gnv.mdx
-          - page: 38 · No Alcanzada IEHD
-            path: ./docs/pages/facturacion/sectores/38-no-alcanzada-iehd.mdx
-          - page: 39 · GN y GLP
-            path: ./docs/pages/facturacion/sectores/39-gn-glp.mdx
-          - page: 44 · Lubricantes
-            path: ./docs/pages/facturacion/sectores/44-lubricantes.mdx
-      - section: Minería
+          - section: Compra y venta
+            contents:
+              - page: 1 · Compra y Venta
+                path: ./docs/pages/facturacion/sectores/01-compra-venta.mdx
+              - page: 35 · Bonificaciones
+                path: ./docs/pages/facturacion/sectores/35-bonificaciones.mdx
+              - page: 41 · Tasas
+                path: ./docs/pages/facturacion/sectores/41-tasas.mdx
+          - section: Exportación
+            contents:
+              - page: 3 · Exportación
+                path: ./docs/pages/facturacion/sectores/03-exportacion.mdx
+              - page: 20 · Exportación Minera
+                path: ./docs/pages/facturacion/sectores/20-exportacion-minera.mdx
+              - page: 28 · Exportación Servicios
+                path: ./docs/pages/facturacion/sectores/28-exportacion-servicios.mdx
+              - page: 43 · Exportación Hidrocarburos
+                path: ./docs/pages/facturacion/sectores/43-exportacion-hidrocarburos.mdx
+              - page: 45 · Exportación Precio Venta
+                path: ./docs/pages/facturacion/sectores/45-exportacion-precio-venta.mdx
+          - section: Alquiler
+            contents:
+              - page: 2 · Alquiler
+                path: ./docs/pages/facturacion/sectores/02-alquiler.mdx
+              - page: 42 · Alquiler ZF
+                path: ./docs/pages/facturacion/sectores/42-alquiler-zf.mdx
+          - section: Hoteles y turismo
+            contents:
+              - page: 6 · Turismo
+                path: ./docs/pages/facturacion/sectores/06-turismo.mdx
+              - page: 16 · Hoteles
+                path: ./docs/pages/facturacion/sectores/16-hoteles.mdx
+          - section: Hidrocarburos y energía
+            contents:
+              - page: 12 · Hidrocarburos
+                path: ./docs/pages/facturacion/sectores/12-hidrocarburos.mdx
+              - page: 19 · IEHD
+                path: ./docs/pages/facturacion/sectores/19-iehd.mdx
+              - page: 31 · Energía
+                path: ./docs/pages/facturacion/sectores/31-energia.mdx
+              - page: 37 · GNV
+                path: ./docs/pages/facturacion/sectores/37-gnv.mdx
+              - page: 38 · No Alcanzada IEHD
+                path: ./docs/pages/facturacion/sectores/38-no-alcanzada-iehd.mdx
+              - page: 39 · GN y GLP
+                path: ./docs/pages/facturacion/sectores/39-gn-glp.mdx
+              - page: 44 · Lubricantes
+                path: ./docs/pages/facturacion/sectores/44-lubricantes.mdx
+          - section: Minería
+            contents:
+              - page: 21 · Venta de Minerales
+                path: ./docs/pages/facturacion/sectores/21-venta-minerales.mdx
+          - section: Servicios básicos
+            contents:
+              - page: 13 · Servicios Básicos
+                path: ./docs/pages/facturacion/sectores/13-servicios-basicos.mdx
+              - page: 40 · Servicios Básicos ZF
+                path: ./docs/pages/facturacion/sectores/40-servicios-basicos-zf.mdx
+          - section: Telecomunicaciones
+            contents:
+              - page: 22 · Telecomunicaciones
+                path: ./docs/pages/facturacion/sectores/22-telecomunicaciones.mdx
+              - page: 49 · Telecom ZF
+                path: ./docs/pages/facturacion/sectores/49-telecom-zf.mdx
+          - section: Financiero y seguros
+            contents:
+              - page: 15 · Entidad Financiera
+                path: ./docs/pages/facturacion/sectores/15-entidad-financiera.mdx
+              - page: 34 · Seguros
+                path: ./docs/pages/facturacion/sectores/34-seguros.mdx
+          - section: Salud y educación
+            contents:
+              - page: 11 · Educativo
+                path: ./docs/pages/facturacion/sectores/11-educativo.mdx
+              - page: 17 · Salud
+                path: ./docs/pages/facturacion/sectores/17-salud.mdx
+              - page: 46 · Educativo ZF
+                path: ./docs/pages/facturacion/sectores/46-educativo-zf.mdx
+              - page: 50 · Salud ZF
+                path: ./docs/pages/facturacion/sectores/50-salud-zf.mdx
+          - section: Moneda extranjera
+            contents:
+              - page: 9 · Moneda Extranjera
+                path: ./docs/pages/facturacion/sectores/09-moneda-extranjera.mdx
+          - section: Zona franca
+            contents:
+              - page: 5 · Zona Franca
+                path: ./docs/pages/facturacion/sectores/05-zona-franca.mdx
+          - section: Sectores especiales
+            contents:
+              - page: 4 · Libre Consignación
+                path: ./docs/pages/facturacion/sectores/04-libre-consignacion.mdx
+              - page: 7 · Seguridad Alimentaria
+                path: ./docs/pages/facturacion/sectores/07-seguridad-alimentaria.mdx
+              - page: 8 · Tasa Cero
+                path: ./docs/pages/facturacion/sectores/08-tasa-cero.mdx
+              - page: 10 · Dutty Free
+                path: ./docs/pages/facturacion/sectores/10-dutty-free.mdx
+              - page: 18 · Juegos de Azar
+                path: ./docs/pages/facturacion/sectores/18-juegos-azar.mdx
+              - page: 23 · Prevalorada
+                path: ./docs/pages/facturacion/sectores/23-prevalorada.mdx
+              - page: 30 · Boleto Aéreo
+                path: ./docs/pages/facturacion/sectores/30-boleto-aereo.mdx
+              - page: 33 · Tasa Cero Ley 1613
+                path: ./docs/pages/facturacion/sectores/33-tasa-cero-ley.mdx
+              - page: 36 · Prevalorada sin Crédito
+                path: ./docs/pages/facturacion/sectores/36-prevalorada-sin-credito.mdx
+          - section: Documentos de ajuste
+            contents:
+              - page: 24 · Nota Crédito-Débito
+                path: ./docs/pages/facturacion/sectores/24-nota-credito-debito.mdx
+              - page: 29 · Conciliación
+                path: ./docs/pages/facturacion/sectores/29-conciliacion.mdx
+              - page: 47 · Nota Descuentos
+                path: ./docs/pages/facturacion/sectores/47-nota-descuentos.mdx
+              - page: 48 · Nota ICE
+                path: ./docs/pages/facturacion/sectores/48-nota-ice.mdx
+          - section: Sectores experimentales
+            contents:
+              - page: 51 · Engarrafadoras
+                path: ./docs/pages/facturacion/sectores/51-engarrafadoras.mdx
+              - page: 52 · Mineral BCB
+                path: ./docs/pages/facturacion/sectores/52-mineral-bcb.mdx
+              - page: 53 · Lubricantes IEHD
+                path: ./docs/pages/facturacion/sectores/53-lubricantes-iehd.mdx
+              - page: 54 · Biodiésel
+                path: ./docs/pages/facturacion/sectores/54-biodiesel.mdx
+              - page: 55 · Combustible
+                path: ./docs/pages/facturacion/sectores/55-combustible.mdx
+      - section: Referencia
         contents:
-          - page: 21 · Venta de Minerales
-            path: ./docs/pages/facturacion/sectores/21-venta-minerales.mdx
-      - section: Servicios básicos
+          - page: Errores accionables
+            path: ./docs/pages/referencia/errores.mdx
+            slug: errores
+  - tab: sdk
+    layout:
+      - section: SDKs de Supay
+        skip-slug: true
+        path: ./docs/pages/sdks/index.mdx
         contents:
-          - page: 13 · Servicios Básicos
-            path: ./docs/pages/facturacion/sectores/13-servicios-basicos.mdx
-          - page: 40 · Servicios Básicos ZF
-            path: ./docs/pages/facturacion/sectores/40-servicios-basicos-zf.mdx
-      - section: Telecomunicaciones
+          - page: Instalación y uso (TypeScript)
+            path: ./docs/pages/sdks/typescript.mdx
+            slug: typescript
+  - tab: licencia
+    layout:
+      - section: Legal
+        skip-slug: true
         contents:
-          - page: 22 · Telecomunicaciones
-            path: ./docs/pages/facturacion/sectores/22-telecomunicaciones.mdx
-          - page: 49 · Telecom ZF
-            path: ./docs/pages/facturacion/sectores/49-telecom-zf.mdx
-      - section: Financiero y seguros
-        contents:
-          - page: 15 · Entidad Financiera
-            path: ./docs/pages/facturacion/sectores/15-entidad-financiera.mdx
-          - page: 34 · Seguros
-            path: ./docs/pages/facturacion/sectores/34-seguros.mdx
-      - section: Salud y educación
-        contents:
-          - page: 11 · Educativo
-            path: ./docs/pages/facturacion/sectores/11-educativo.mdx
-          - page: 17 · Salud
-            path: ./docs/pages/facturacion/sectores/17-salud.mdx
-          - page: 46 · Educativo ZF
-            path: ./docs/pages/facturacion/sectores/46-educativo-zf.mdx
-          - page: 50 · Salud ZF
-            path: ./docs/pages/facturacion/sectores/50-salud-zf.mdx
-      - section: Moneda extranjera
-        contents:
-          - page: 9 · Moneda Extranjera
-            path: ./docs/pages/facturacion/sectores/09-moneda-extranjera.mdx
-      - section: Zona franca
-        contents:
-          - page: 5 · Zona Franca
-            path: ./docs/pages/facturacion/sectores/05-zona-franca.mdx
-      - section: Sectores especiales
-        contents:
-          - page: 4 · Libre Consignación
-            path: ./docs/pages/facturacion/sectores/04-libre-consignacion.mdx
-          - page: 7 · Seguridad Alimentaria
-            path: ./docs/pages/facturacion/sectores/07-seguridad-alimentaria.mdx
-          - page: 8 · Tasa Cero
-            path: ./docs/pages/facturacion/sectores/08-tasa-cero.mdx
-          - page: 10 · Dutty Free
-            path: ./docs/pages/facturacion/sectores/10-dutty-free.mdx
-          - page: 18 · Juegos de Azar
-            path: ./docs/pages/facturacion/sectores/18-juegos-azar.mdx
-          - page: 23 · Prevalorada
-            path: ./docs/pages/facturacion/sectores/23-prevalorada.mdx
-          - page: 30 · Boleto Aéreo
-            path: ./docs/pages/facturacion/sectores/30-boleto-aereo.mdx
-          - page: 33 · Tasa Cero Ley 1613
-            path: ./docs/pages/facturacion/sectores/33-tasa-cero-ley.mdx
-          - page: 36 · Prevalorada sin Crédito
-            path: ./docs/pages/facturacion/sectores/36-prevalorada-sin-credito.mdx
-      - section: Documentos de ajuste
-        contents:
-          - page: 24 · Nota Crédito-Débito
-            path: ./docs/pages/facturacion/sectores/24-nota-credito-debito.mdx
-          - page: 29 · Conciliación
-            path: ./docs/pages/facturacion/sectores/29-conciliacion.mdx
-          - page: 47 · Nota Descuentos
-            path: ./docs/pages/facturacion/sectores/47-nota-descuentos.mdx
-          - page: 48 · Nota ICE
-            path: ./docs/pages/facturacion/sectores/48-nota-ice.mdx
-      - section: Sectores experimentales
-        contents:
-          - page: 51 · Engarrafadoras
-            path: ./docs/pages/facturacion/sectores/51-engarrafadoras.mdx
-          - page: 52 · Mineral BCB
-            path: ./docs/pages/facturacion/sectores/52-mineral-bcb.mdx
-          - page: 53 · Lubricantes IEHD
-            path: ./docs/pages/facturacion/sectores/53-lubricantes-iehd.mdx
-          - page: 54 · Biodiésel
-            path: ./docs/pages/facturacion/sectores/54-biodiesel.mdx
-          - page: 55 · Combustible
-            path: ./docs/pages/facturacion/sectores/55-combustible.mdx
-  - section: Referencia
-    contents:
-      - page: Errores accionables
-        path: ./docs/pages/referencia/errores.mdx
-      - page: SDK TypeScript
-        path: ./docs/pages/referencia/sdk.mdx
+          - page: SupayAPI License v1.0
+            path: ./docs/pages/legal/licencia.mdx
+            slug: licencia

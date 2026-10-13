@@ -1,0 +1,41 @@
+/* ==========================================================================
+   Scrollbars minimalistas estilo Vercel / Stripe
+   ========================================================================== */
+
+/* Ancho general para navegadores WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+/* El riel (fondo) se mantiene completamente transparente */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* La barra deslizante (thumb) con bordes redondeados y sutiles */
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.25);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+/* Al pasar el cursor sobre la barra, se hace un poco más visible */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.5);
+}
+
+/* Adaptación automática para el Modo Oscuro profundo (#000000) */
+@media (prefers-color-scheme: dark) {
+  * {
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+}

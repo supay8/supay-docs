@@ -2,7 +2,7 @@
 
 Ajustes sobre ICE por DocumentoAjuste. Como el
 [47 · Descuentos](./47-nota-descuentos.mdx) más los **datos ICE** (marca,
-alícuotas y montos por línea). Exige `reference_invoice_id`.
+alícuotas y montos por línea). Exige `referenceInvoiceId`.
 
 ## Cabecera (`data`)
 
@@ -28,15 +28,15 @@ alícuotas y montos por línea). Exige `reference_invoice_id`.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const nota = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "CI",
-        document_number: "9971522",
+        documentType: "CI",
+        documentNumber: "9971522",
         name: "Ramiro",
       },
-      invoice_type: "credit_note",
+      invoiceType: "credit_note",
       sector: "48",
-      reference_invoice_id: "b61d67ed-7962-4989-958f-8ccc01979d64",
+      referenceInvoiceId: "b61d67ed-7962-4989-958f-8ccc01979d64",
 
       // Línea con sus datos ICE
       items: [
@@ -60,15 +60,15 @@ alícuotas y montos por línea). Exige `reference_invoice_id`.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "CI",
-          "document_number": "9971522",
+          "documentType": "CI",
+          "documentNumber": "9971522",
           "name": "Ramiro"
         },
-        "invoice_type": "credit_note",
+        "invoiceType": "credit_note",
         "sector": "48",
-        "reference_invoice_id": "b61d67ed-7962-4989-958f-8ccc01979d64",
+        "referenceInvoiceId": "b61d67ed-7962-4989-958f-8ccc01979d64",
         "items": [
           {
             "sku": "CERVEZA",

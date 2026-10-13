@@ -2,7 +2,7 @@
 
 Colegios y universidades con crédito fiscal. La cabecera identifica al
 **estudiante** y al **periodo**; sin detalle sectorial. Usa
-`invoice_type: "education"`.
+`invoiceType: "education"`.
 
 ## Cabecera (`data`)
 
@@ -19,25 +19,25 @@ Sin campos sectoriales.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "ci",
-        document_number: "9988776",
+        documentType: "ci",
+        documentNumber: "9988776",
         name: "Padre de Familia",
       },
       items: [
         {
           sku: "PENSION-OCT",
           description: "Pensión escolar octubre",
-          codigo_producto_sin: 5412100,
-          unidad_medida: 58,
+          codigoProductoSin: 5412100,
+          unidadMedida: 58,
           quantity: 1,
           price: 900,
         },
       ],
 
       // Educación: tipo + sector 11 con estudiante y periodo
-      invoice_type: "education",
+      invoiceType: "education",
       sector: "11",
       data: {
         nombre_estudiante: "Juan Pérez",
@@ -52,23 +52,23 @@ Sin campos sectoriales.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "ci",
-          "document_number": "9988776",
+          "documentType": "ci",
+          "documentNumber": "9988776",
           "name": "Padre de Familia"
         },
         "items": [
           {
             "sku": "PENSION-OCT",
             "description": "Pensión escolar octubre",
-            "codigo_producto_sin": 5412100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5412100,
+            "unidadMedida": 58,
             "quantity": 1,
             "price": 900
           }
         ],
-        "invoice_type": "education",
+        "invoiceType": "education",
         "sector": "11",
         "data": {
           "nombre_estudiante": "Juan Pérez",

@@ -35,18 +35,18 @@ completa como la [21 · Venta de Minerales](./21-venta-minerales.mdx).
     ```typescript
     // Solo PILOTO + modalidad electrónica
     const f = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "nit",
-        document_number: "80013826",
+        documentType: "nit",
+        documentNumber: "80013826",
         name: "BCB",
       },
       items: [
         {
           sku: "ORO",
           description: "Oro en bruto",
-          codigo_producto_sin: 5214100,
-          unidad_medida: 58,
+          codigoProductoSin: 5214100,
+          unidadMedida: 58,
           quantity: 5,
           price: 15000,
           data: {
@@ -68,18 +68,18 @@ completa como la [21 · Venta de Minerales](./21-venta-minerales.mdx).
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "80013826",
+          "documentType": "nit",
+          "documentNumber": "80013826",
           "name": "BCB"
         },
         "items": [
           {
             "sku": "ORO",
             "description": "Oro en bruto",
-            "codigo_producto_sin": 5214100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5214100,
+            "unidadMedida": 58,
             "quantity": 5,
             "price": 15000,
             "data": {

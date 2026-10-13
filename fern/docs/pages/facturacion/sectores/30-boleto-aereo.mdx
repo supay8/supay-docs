@@ -6,7 +6,7 @@ sin `items` (con `total` + pasajero).
 
 <Callout intent="warning">
   `sector: "30"` en emisión individual → `400 "requiere emisión masiva"`. Es la
-  única vía: `POST /v1/siat/masiva/{companyId}/{pointOfSaleId}`.
+  única vía: `POST /v1/siat/bulk/{posId}`.
 </Callout>
 
 ## Cabecera (`data`)
@@ -31,10 +31,10 @@ Sin detalle: el boleto no tiene líneas.
     ```typescript
     // Borrador sin items: total + pasajero en cabecera
     const borrador = await supay.invoices.create({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "ci",
-        document_number: "1234567",
+        documentType: "ci",
+        documentNumber: "1234567",
         name: "Pasajero Ejemplo",
       },
       items: [],
@@ -50,7 +50,7 @@ Sin detalle: el boleto no tiene líneas.
     // Envío: SOLO por masiva
     const bulk = await supay.siat.sendBulk({
       companyId: company.id,
-      pointOfSaleId: pos.id,
+      posId: pos.id,
       ...lote,
     });
     ```
@@ -62,10 +62,10 @@ Sin detalle: el boleto no tiene líneas.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "ci",
-          "document_number": "1234567",
+          "documentType": "ci",
+          "documentNumber": "1234567",
           "name": "Pasajero Ejemplo"
         },
         "items": [],
@@ -78,7 +78,7 @@ Sin detalle: el boleto no tiene líneas.
       }'
 
     # 2. Envío SOLO por masiva
-    curl -s -X POST "$BASE/v1/siat/masiva/$CID/$POS" \
+    curl -s -X POST "$BASE/v1/siat/bulk/$CID/$POS" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d "$LOTE_BOLETO"

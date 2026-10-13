@@ -1,174 +1,29 @@
-# Quickstart (5 min)
+---
+title: Quickstart
+subtitle: Tu primer ACCEPTED en 5 minutos. Health, preview, emit.
+description: Emite tu primera factura con Supay en 5 minutos usando el SDK TypeScript o REST.
+keywords: quickstart, empezar, primera factura, emit, tutorial
+availability: beta
+---
 
-Emite tu primera factura en **PILOTO**. Pre-requisitos: API corriendo
-(`GET /v1/health` → `{"status":"ok"}`), una `X-API-Key` válida y un punto de venta
-con CUIS/CUFD vigente. Sin tenant todavía: [Onboarding](./onboarding.mdx).
+# Quickstart
 
-<Callout intent="warning">
-  Cada `POST` de creación inicia otra factura (no hay `Idempotency-Key`). Guarda
-  siempre `id` + `cuf` y concilia por ID. Nunca reintentes un `emit` a ciegas.
-</Callout>
+Una vez creada tu API key y configurado el POS, emitir requiere una llamada:
 
-<Steps toc={true}>
-  <Step title="Smoke test (sin auth)">
-    <Tabs>
-      <Tab title="SDK TypeScript" language="typescript">
-        ```typescript
-        import { Supay } from "@supay/sdk";
+```typescript
+import { Supay } from "@supay/sdk";
 
-        // Cliente con la key del tenant
-        const supay = new Supay({
-          apiKey: process.env.SUPAY_API_KEY!,
-          baseUrl: "http://localhost:8081",
-        });
+const supay = new Supay({ apiKey: process.env.SUPAY_API_KEY! });
+const invoice = await supay.invoices.emit({
+  posId: process.env.SUPAY_POS_ID!,
+  customer: { documentType: "ci", documentNumber: "1234567", name: "Ada Lovelace" },
+  items: [{ sku: "PRO", description: "Plan profesional", codigoActividad: "101010",
+    codigoProductoSin: 5113100, unidadMedida: 58, quantity: 1, price: 150 }],
+});
+console.log(invoice.id, invoice.status, invoice.cuf);
+```
 
-        // Sin auth: solo verifica que la API responde
-        await supay.system.healthCheck(); // { status: "ok" }
-        ```
-      </Tab>
-      <Tab title="REST API" language="curl">
-        ```bash
-        curl -s http://localhost:8081/v1/health
-        # {"status":"ok"}
-        ```
-      </Tab>
-    </Tabs>
-  </Step>
-  <Step title="Validar sin crear nada (no toca SIAT)">
-    <Tabs>
-      <Tab title="SDK TypeScript" language="typescript">
-        ```typescript
-        // Vista previa: valida el payload, no persiste nada
-        const preview = await supay.invoices.preview({
-          point_of_sale_id: "5226da47-74da-4b27-a26d-892c62fa6d26",
-
-          // Receptor: snapshot completo (customer.id está prohibido)
-          customer: {
-            document_type: "ci",
-            document_number: "1234567",
-            name: "Ada Lovelace",
-          },
-
-          // Líneas: sku + snapshot fiscal obligatorio por línea
-          items: [
-            {
-              sku: "PLAN-PRO",
-              description: "Plan profesional",
-              codigo_producto_sin: 5113100, // del catálogo sincronizado
-              unidad_medida: 58,
-              quantity: 1,
-              price: 150,
-            },
-          ],
-
-          // Operación: venta local, sector 1 (auto lo resuelve)
-          sector: "auto",
-        });
-
-        console.assert(preview.codigo_documento_sector === 1);
-        ```
-      </Tab>
-      <Tab title="REST API" language="curl">
-        ```bash
-        # Payload legible: un campo por línea
-        PAYLOAD=$(cat <<'JSON'
-        {
-          "point_of_sale_id": "5226da47-74da-4b27-a26d-892c62fa6d26",
-          "customer": {
-            "document_type": "ci",
-            "document_number": "1234567",
-            "name": "Ada Lovelace"
-          },
-          "items": [
-            {
-              "sku": "PLAN-PRO",
-              "description": "Plan profesional",
-              "codigo_producto_sin": 5113100,
-              "unidad_medida": 58,
-              "quantity": 1,
-              "price": 150
-            }
-          ],
-          "sector": "auto"
-        }
-        JSON
-        )
-
-        curl -s -X POST "$BASE/v1/invoices/preview" \
-          -H "X-API-Key: $KEY" \
-          -H "Content-Type: application/json" \
-          -d "$PAYLOAD"
-        ```
-      </Tab>
-    </Tabs>
-    <Callout intent="info">
-      `sku` solo no alcanza: `description`, `codigo_producto_sin` y `unidad_medida`
-      son obligatorios (snapshot fiscal). Tabla completa en
-      [Emitir factura](../facturacion/emitir-factura.mdx).
-    </Callout>
-  </Step>
-  <Step title="Crear + emitir (ruta estrella)">
-    <Tabs>
-      <Tab title="SDK TypeScript" language="typescript">
-        ```typescript
-        // Mismo payload del paso 2: crea y emite en un request
-        const invoice = await supay.invoices.emit(payload);
-
-        // invoice.status: ACCEPTED | OBSERVED | OFFLINE | REJECTED
-        // Guarda siempre: invoice.id + invoice.cuf
-        ```
-      </Tab>
-      <Tab title="REST API" language="curl">
-        ```bash
-        curl -s -X POST "$BASE/v1/invoices/emit" \
-          -H "X-API-Key: $KEY" \
-          -H "Content-Type: application/json" \
-          -d "$PAYLOAD" | tee emit.json
-        # Guarda .id + .cuf de emit.json
-        ```
-      </Tab>
-    </Tabs>
-  </Step>
-</Steps>
-
-## Qué hacer con cada estado
-
-| `status` | Significado | Acción |
-|---|---|---|
-| `ACCEPTED` | Aceptada por el SIAT | Guardar `id` + `cuf`. Descargar XML/PDF. |
-| `OBSERVED` | Aceptada con observaciones | Leer `siat_mensajes`, no re-emitir. |
-| `OFFLINE` | Timeout/caída SIAT, firmada local (`codigoEmision=2`) | Guardar XML + `contingency_event_id`. Ver [Contingencia](../facturacion/contingencia.mdx). |
-| `REJECTED` | Rechazada por el SIAT | Corregir y **crear una factura nueva** (no se reencola). |
-
-## Ciclo completo
-
-<Tabs>
-  <Tab title="SDK TypeScript" language="typescript">
-    ```typescript
-    // Leer y re-verificar contra el SIAT
-    const inv = await supay.invoices.get({ id });
-    const reverificado = await supay.invoices.getSiatStatus({ id });
-
-    // Artefactos fiscales
-    const xml = await supay.invoices.downloadXml({ id }); // XML firmado
-    const pdf = await supay.invoices.downloadPdf({ id }); // on-demand si hay CUF
-
-    // Anular con motivo del catálogo SIAT
-    await supay.invoices.annul({ id, codigo_motivo: 1 });
-    ```
-  </Tab>
-  <Tab title="REST API" language="curl">
-    ```bash
-    curl -s "$BASE/v1/invoices/$ID" -H "X-API-Key: $KEY"
-    curl -s "$BASE/v1/invoices/$ID/siat-status" -H "X-API-Key: $KEY"
-
-    curl -s "$BASE/v1/invoices/$ID/xml" -H "X-API-Key: $KEY" -o factura.xml
-    curl -s "$BASE/v1/invoices/$ID/pdf" -H "X-API-Key: $KEY" -o factura.pdf
-
-    curl -s -X POST "$BASE/v1/invoices/$ID/annul" \
-      -H "X-API-Key: $KEY" \
-      -H "Content-Type: application/json" \
-      -d '{"codigo_motivo": 1}'
-    ```
-  </Tab>
-</Tabs>
+[Configura la empresa y su POS](./onboarding.mdx) antes de emitir.
+[Consulta pagos, sectores y ajustes](../facturacion/emitir-factura.mdx).
+Cada emisión crea una factura nueva; conserva el ID para consultar estado,
+XML, PDF o anularla. `OFFLINE` se concilia por paquetes cuando vuelve la conexión.

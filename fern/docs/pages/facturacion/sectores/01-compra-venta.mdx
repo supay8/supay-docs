@@ -19,12 +19,12 @@ completa Supay.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
 
       // Receptor con crédito fiscal: usa NIT
       customer: {
-        document_type: "nit",
-        document_number: "123456789",
+        documentType: "nit",
+        documentNumber: "123456789",
         name: "Empresa SAC",
         email: "cobros@empresa.bo",
       },
@@ -34,8 +34,8 @@ completa Supay.
         {
           sku: "CEL-001",
           description: "Celular",
-          codigo_producto_sin: 5113100,
-          unidad_medida: 58,
+          codigoProductoSin: 5113100,
+          unidadMedida: 58,
           quantity: 1,
           price: 2500,
           data: {
@@ -47,8 +47,8 @@ completa Supay.
         {
           sku: "PLAN-PRO",
           description: "Plan profesional",
-          codigo_producto_sin: 5113100,
-          unidad_medida: 58,
+          codigoProductoSin: 5113100,
+          unidadMedida: 58,
           quantity: 2,
           price: 150,
         },
@@ -65,18 +65,18 @@ completa Supay.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "123456789",
+          "documentType": "nit",
+          "documentNumber": "123456789",
           "name": "Empresa SAC"
         },
         "items": [
           {
             "sku": "CEL-001",
             "description": "Celular",
-            "codigo_producto_sin": 5113100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5113100,
+            "unidadMedida": 58,
             "quantity": 1,
             "price": 2500,
             "data": {

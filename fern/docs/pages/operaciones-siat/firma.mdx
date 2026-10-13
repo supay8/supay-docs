@@ -13,7 +13,7 @@ cuyo XML firmas tú) y para diagnóstico.
     ```typescript
     // Firma con el P12 del POS y devuelve el XML firmado
     const firmado = await supay.siat.signXml({
-      pointOfSaleId: pos.id,
+      posId: pos.id,
       xml: "<xml-sin-firmar/>",
     });
     // firmado.xml
@@ -21,7 +21,7 @@ cuyo XML firmas tú) y para diagnóstico.
   </Tab>
   <Tab title="REST API" language="curl">
     ```bash
-    curl -s -X POST "$BASE/v1/siat/firma/$POS" \
+    curl -s -X POST "$BASE/v1/siat/sign/$POS" \
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{

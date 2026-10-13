@@ -22,18 +22,18 @@ Sin campos sectoriales.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "nit",
-        document_number: "3456789",
+        documentType: "nit",
+        documentNumber: "3456789",
         name: "Taller SRL",
       },
       items: [
         {
           sku: "LUB-20W50",
           description: "Lubricante 20W50",
-          codigo_producto_sin: 5113100,
-          unidad_medida: 58,
+          codigoProductoSin: 5113100,
+          unidadMedida: 58,
           quantity: 100,
           price: 95,
         },
@@ -53,18 +53,18 @@ Sin campos sectoriales.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "3456789",
+          "documentType": "nit",
+          "documentNumber": "3456789",
           "name": "Taller SRL"
         },
         "items": [
           {
             "sku": "LUB-20W50",
             "description": "Lubricante 20W50",
-            "codigo_producto_sin": 5113100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5113100,
+            "unidadMedida": 58,
             "quantity": 100,
             "price": 95
           }

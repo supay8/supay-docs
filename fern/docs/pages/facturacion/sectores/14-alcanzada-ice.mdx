@@ -26,18 +26,18 @@ con crédito fiscal. La cabecera lleva los **montos ICE**; el detalle lleva
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "nit",
-        document_number: "9012345",
+        documentType: "nit",
+        documentNumber: "9012345",
         name: "Distribuidora SA",
       },
       items: [
         {
           sku: "CERVEZA",
           description: "Cerveza en lata 350ml",
-          codigo_producto_sin: 5214100,
-          unidad_medida: 58,
+          codigoProductoSin: 5214100,
+          unidadMedida: 58,
           quantity: 48,
           price: 8,
           data: {
@@ -64,18 +64,18 @@ con crédito fiscal. La cabecera lleva los **montos ICE**; el detalle lleva
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "9012345",
+          "documentType": "nit",
+          "documentNumber": "9012345",
           "name": "Distribuidora SA"
         },
         "items": [
           {
             "sku": "CERVEZA",
             "description": "Cerveza en lata 350ml",
-            "codigo_producto_sin": 5214100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5214100,
+            "unidadMedida": 58,
             "quantity": 48,
             "price": 8,
             "data": {

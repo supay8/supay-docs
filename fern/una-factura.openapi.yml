@@ -33,49 +33,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
-  /v1/invoices/preview:
-    post:
-      summary: Validar factura sin crear nada
-      operationId: previewInvoice
-      tags:
-        - invoices
-      description: Valida contrato local y catálogos. No crea cliente ni factura, no contacta al SIAT.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MinimalInvoiceRequest"
-            example:
-              point_of_sale_id: 5226da47-74da-4b27-a26d-892c62fa6d26
-              customer:
-                document_type: ci
-                document_number: "1234567"
-                name: Ada Lovelace
-                email: ada@example.com
-              items:
-                - sku: PLAN-PRO
-                  description: Plan profesional
-                  codigo_actividad: "101010"
-                  codigo_producto_sin: 5113100
-                  unidad_medida: 58
-                  quantity: 1
-                  price: 150
-                  discount: 0
-              invoice_type: sale
-              sector: auto
-              data: {}
-      responses:
-        "200":
-          description: Vista previa con códigos SIAT inferidos y totales.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvoicePreview"
-        "400":
-          $ref: "#/components/responses/ValidationError"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
   /v1/invoices/emit:
     post:
       summary: Crear y emitir factura en el mismo request
@@ -85,7 +42,7 @@ paths:
       description: |
         Ruta estrella del SDK. Crea el borrador e intenta emitirlo al SIAT.
         `ACCEPTED`/`OBSERVED`: respuesta SIAT. `OFFLINE`: timeout/caída de red,
-        trae XML firmado y `contingency_event_id` para envío posterior por paquete.
+        trae XML firmado y `contingencyEventId` para envío posterior por paquete.
         Cada llamada crea una factura nueva. Para reintentos, use el ID de la factura existente y su CUF. Sector 30 → 400.
       requestBody:
         required: true
@@ -94,22 +51,22 @@ paths:
             schema:
               $ref: "#/components/schemas/MinimalInvoiceRequest"
             example:
-              point_of_sale_id: 5226da47-74da-4b27-a26d-892c62fa6d26
+              posId: 5226da47-74da-4b27-a26d-892c62fa6d26
               customer:
-                document_type: ci
-                document_number: "1234567"
+                documentType: ci
+                documentNumber: "1234567"
                 name: Ada Lovelace
                 email: ada@example.com
               items:
                 - sku: PLAN-PRO
                   description: Plan profesional
-                  codigo_actividad: "101010"
-                  codigo_producto_sin: 5113100
-                  unidad_medida: 58
+                  codigoActividad: "101010"
+                  codigoProductoSin: 5113100
+                  unidadMedida: 58
                   quantity: 1
                   price: 150
                   discount: 0
-              invoice_type: sale
+              invoiceType: sale
               sector: auto
               data: {}
       responses:
@@ -149,7 +106,7 @@ paths:
           required: false
           schema:
             type: string
-          description: xml,company,point_of_sale,cufd,archivo,all (coma-separados).
+          description: xml,company,pos,cufd,archivo,all (coma-separados).
       responses:
         "200":
           description: Factura del tenant autenticado.
@@ -245,11 +202,11 @@ components:
       type: object
       additionalProperties: false
       required:
-        - point_of_sale_id
+        - posId
         - customer
         - items
       properties:
-        point_of_sale_id:
+        posId:
           type: string
           format: uuid
           description: Punto de venta con CUIS/CUFD vigente.
@@ -257,10 +214,9 @@ components:
           $ref: "#/components/schemas/MinimalInvoiceCustomer"
         items:
           type: array
-          minItems: 1
           items:
             $ref: "#/components/schemas/MinimalInvoiceItem"
-        invoice_type:
+        invoiceType:
           type: string
           default: sale
           description: sale|venta|compraventa|compra_venta (default sale). Notas requieren sector de ajuste (fuera de alcance).
@@ -270,11 +226,11 @@ components:
           description: auto|sale|compraventa|1 para este flujo (auto resuelve a 1).
         data:
           type: object
-          description: Campos datos_sector del perfil ({} para sector 1).
+          description: Campos datosSector del perfil ({} para sector 1).
         layout:
           type: string
           description: Solo sector 24 (fuera de alcance).
-        reference_invoice_id:
+        referenceInvoiceId:
           type: string
           format: uuid
           description: Solo documentos de ajuste (fuera de alcance).
@@ -287,17 +243,17 @@ components:
       type: object
       additionalProperties: false
       required:
-        - document_number
+        - documentNumber
         - name
       properties:
         id:
           type: string
           description: NO permitido (400 si se envía); enviar snapshot completo.
-        document_type:
+        documentType:
           type: string
           default: CI
           description: ci|cédula|cex|extranjero|pasaporte|nit|otro (default CI).
-        document_number:
+        documentNumber:
           type: string
         complement:
           type: string
@@ -311,8 +267,8 @@ components:
       required:
         - sku
         - description
-        - codigo_producto_sin
-        - unidad_medida
+        - codigoProductoSin
+        - unidadMedida
         - quantity
         - price
       properties:
@@ -321,14 +277,14 @@ components:
           description: Código interno; se congela como snapshot fiscal (sin resolución por catálogo).
         description:
           type: string
-        codigo_actividad:
+        codigoActividad:
           type: string
           description: Opcional si la empresa tiene actividad principal (se hereda).
-        codigo_producto_sin:
+        codigoProductoSin:
           type: integer
           format: int64
           minimum: 1
-        unidad_medida:
+        unidadMedida:
           type: integer
           minimum: 1
         quantity:
@@ -348,200 +304,171 @@ components:
       type: object
       additionalProperties: false
       required:
-        - method_code
-        - currency_code
-        - exchange_rate
+        - methodCode
+        - currencyCode
+        - exchangeRate
       properties:
-        method_code:
+        methodCode:
           type: integer
           minimum: 1
-        currency_code:
+        currencyCode:
           type: integer
           minimum: 1
-        exchange_rate:
+        exchangeRate:
           type: number
           exclusiveMinimum: 0
-    InvoicePreview:
-      type: object
-      required:
-        - point_of_sale_id
-        - customer
-        - items
-        - invoice_type
-        - codigo_documento_sector
-        - subtotal
-        - total
-      properties:
-        point_of_sale_id:
-          type: string
-        customer:
-          $ref: "#/components/schemas/InvoicePreviewCustomer"
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/InvoicePreviewItem"
-        invoice_type:
-          type: string
-        codigo_documento_sector:
-          type: integer
-        codigo_metodo_pago:
-          type: integer
-        codigo_moneda:
-          type: integer
-        tipo_cambio:
-          type: number
-        subtotal:
-          type: number
-        total:
-          type: number
-        layout:
-          type: string
-        reference_invoice_id:
-          type: string
-        data:
-          type: object
-    InvoicePreviewCustomer:
-      type: object
-      required:
-        - document_type
-        - document_number
-        - name
-      properties:
-        id:
-          type: string
-        document_type:
-          type: string
-        document_number:
-          type: string
-        complement:
-          type: string
-        name:
-          type: string
-        email:
-          type: string
-    InvoicePreviewItem:
-      type: object
-      required:
-        - sku
-        - quantity
-        - unit_price
-        - subtotal
-      properties:
-        sku:
-          type: string
-        description:
-          type: string
-        quantity:
-          type: number
-        unit_price:
-          type: number
-        discount:
-          type: number
-        subtotal:
-          type: number
-        codigo_actividad:
-          type: string
-        codigo_producto_sin:
-          type: integer
-          format: int64
-        unidad_medida:
-          type: integer
-        codigo_documento_sector:
-          type: integer
     Invoice:
       type: object
       required:
-        - id
-        - company_id
-        - point_of_sale_id
-        - invoice_number
-        - status
-        - subtotal
-        - total
-        - customer
-        - items
+      - id
+      - companyId
+      - customerId
+      - posId
+      - invoiceNumber
+      - status
+      - subtotal
+      - discount
+      - total
+      - codigoMetodoPago
+      - codigoMoneda
+      - tipoCambio
+      - codigoDocumentoSector
+      - codigoTipoFactura
+      - modalidad
+      - emissionType
+      - issueDate
+      - customer
+      - items
+      - createdAt
       properties:
         id:
           type: string
-          format: uuid
-        company_id:
+        companyId:
           type: string
-        customer_id:
+        customerId:
           type: string
-        point_of_sale_id:
+        posId:
           type: string
-        contingency_event_id:
+        cufdId:
           type: string
-          description: Presente cuando status=OFFLINE.
-        invoice_number:
+        contingencyEventId:
+          type: string
+          nullable: true
+        ajustaFacturaId:
+          type: string
+          nullable: true
+        invoiceNumber:
           type: integer
         status:
-          $ref: "#/components/schemas/InvoiceStatus"
+          $ref: '#/components/schemas/InvoiceStatus'
         cuf:
           type: string
+          nullable: true
         subtotal:
           type: number
         discount:
           type: number
         total:
           type: number
-        codigo_metodo_pago:
+        codigoMetodoPago:
           type: integer
-        codigo_moneda:
+        codigoMoneda:
           type: integer
-        tipo_cambio:
+        tipoCambio:
           type: number
-        codigo_documento_sector:
+        codigoDocumentoSector:
           type: integer
-        codigo_tipo_factura:
+        codigoTipoFactura:
           type: integer
-        emission_type:
+        layout:
           type: string
-        issue_date:
+        modalidad:
+          type: integer
+        nombreEstudiante:
+          type: string
+          nullable: true
+        periodoFacturado:
+          type: string
+          nullable: true
+        sectorData:
+          type: object
+        emissionType:
+          type: string
+        issueDate:
           type: string
           format: date-time
-        siat_reception_code:
+        motivoAnulacion:
+          type: integer
+          nullable: true
+        fechaAnulacion:
           type: string
-        siat_mensajes:
+          format: date-time
+          nullable: true
+        siatReceptionCode:
+          type: string
+          nullable: true
+        siatMensajes:
           type: array
           items:
-            $ref: "#/components/schemas/SiatMensaje"
+            $ref: '#/components/schemas/SiatMensaje'
         customer:
-          $ref: "#/components/schemas/InvoiceCustomer"
+          $ref: '#/components/schemas/InvoiceCustomer'
         items:
           type: array
           items:
-            $ref: "#/components/schemas/InvoiceItem"
-        created_at:
+            $ref: '#/components/schemas/InvoiceItem'
+        createdAt:
           type: string
           format: date-time
+        company:
+          type: object
+        pos:
+          type: object
+        cufdRecord:
+          type: object
+          nullable: true
+        xml:
+          type: string
+          nullable: true
+        xmlHash:
+          type: string
+          nullable: true
+        archivo:
+          type: string
+        hashArchivo:
+          type: string
     InvoiceStatus:
       type: string
       enum: [PENDING, ACCEPTED, OBSERVED, OFFLINE, REJECTED, ANNULLED]
     InvoiceCustomer:
       type: object
       required:
-        - document_type
-        - document_number
-        - name
+      - id
+      - name
+      - documentType
+      - documentNumber
       properties:
         id:
           type: string
         name:
           type: string
-        document_type:
+        documentType:
           type: string
-        document_number:
+        documentNumber:
           type: string
         complement:
           type: string
+          nullable: true
     InvoiceItem:
       type: object
       required:
-        - code
-        - quantity
-        - unit_price
-        - subtotal
+      - id
+      - code
+      - description
+      - quantity
+      - unitPrice
+      - discount
+      - subtotal
       properties:
         id:
           type: string
@@ -549,14 +476,25 @@ components:
           type: string
         description:
           type: string
+        codigoActividad:
+          type: string
+          nullable: true
+        codigoProductoSin:
+          type: string
+          nullable: true
+        unitCode:
+          type: integer
+          nullable: true
         quantity:
           type: number
-        unit_price:
+        unitPrice:
           type: number
         discount:
           type: number
         subtotal:
           type: number
+        sectorData:
+          type: object
     SiatMensaje:
       type: object
       properties:
@@ -591,7 +529,7 @@ components:
             type: string
         accion:
           type: string
-        invoice_id:
+        invoiceId:
           type: string
         details:
           type: array

@@ -1,3 +1,10 @@
+---
+title: Errores accionables
+subtitle: Programa contra error.code, nunca contra message.
+description: Referencia de códigos de error de Supay con causa típica y acción correctiva para cada uno.
+keywords: errores, códigos de error, VALIDATION_ERROR, troubleshooting
+---
+
 # Errores accionables
 
 Programa contra `error.code`, nunca contra `message`:
@@ -18,7 +25,7 @@ Sin envelope: `401` del bootstrap interno (texto plano) y `404` del PDF sin arch
 
 | code | HTTP | Causa típica | Acción |
 |---|---|---|---|
-| `VALIDATION_ERROR` | 400 | Payload inválido; incluye `DisallowUnknownFields` (typo → `unknown field`). Frecuentes: `point_of_sale_id es obligatorio`, `customer.id no está permitido`, `items[0].description es obligatorio`, `payment requiere...`. Solo modo JWT: `falta el header X-Company-ID`. | Corregir (`field` indica dónde). |
+| `VALIDATION_ERROR` | 400 | Payload inválido; incluye `DisallowUnknownFields` (typo → `unknown field`). Frecuentes: `posId es obligatorio`, `customer.id no está permitido`, `items[0].description es obligatorio`, `payment requiere...`. Solo modo JWT: `falta el header X-Company-ID`. | Corregir (`field` indica dónde). |
 | `UNAUTHORIZED` | 401 | Falta `X-API-Key`, key inválida/inactiva, JWT expirado. | Re-emitir credencial. |
 | `FORBIDDEN` | 403 | JWT sin membresía, o empresa de la ruta ≠ credencial. | Revisar `X-Company-ID` / membresía. |
 | `NOT_FOUND` | 404 | ID inexistente **o de otra empresa** (enmascarado por seguridad). | Verificar IDs y tenant. |
@@ -62,4 +69,4 @@ Sin envelope: `401` del bootstrap interno (texto plano) y `404` del PDF sin arch
   </Tab>
 </Tabs>
 
-Siguiente: [Emitir factura](../facturacion/emitir-factura.mdx) · [SDK](./sdk.mdx).
+Siguiente: [Emitir factura](../facturacion/emitir-factura.mdx) · [SDK](/sdk).

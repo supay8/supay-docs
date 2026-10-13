@@ -26,18 +26,18 @@ Sin campos sectoriales.
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const f = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "nit",
-        document_number: "3456789",
+        documentType: "nit",
+        documentNumber: "3456789",
         name: "Transporte SRL",
       },
       items: [
         {
           sku: "GASOLINA-NS",
           description: "Gasolina sin subvención",
-          codigo_producto_sin: 5113100,
-          unidad_medida: 58,
+          codigoProductoSin: 5113100,
+          unidadMedida: 58,
           quantity: 300,
           price: 6.5,
         },
@@ -56,18 +56,18 @@ Sin campos sectoriales.
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "nit",
-          "document_number": "3456789",
+          "documentType": "nit",
+          "documentNumber": "3456789",
           "name": "Transporte SRL"
         },
         "items": [
           {
             "sku": "GASOLINA-NS",
             "description": "Gasolina sin subvención",
-            "codigo_producto_sin": 5113100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5113100,
+            "unidadMedida": 58,
             "quantity": 300,
             "price": 6.5
           }

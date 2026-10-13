@@ -22,18 +22,18 @@ Igual que el [17 · Salud](./17-salud.mdx) (modalidad + médico por línea) pero
   <Tab title="SDK TypeScript" language="typescript">
     ```typescript
     const factura = await supay.invoices.emit({
-      point_of_sale_id: pos.id,
+      posId: pos.id,
       customer: {
-        document_type: "ci",
-        document_number: "5544332",
+        documentType: "ci",
+        documentNumber: "5544332",
         name: "Paciente ZF",
       },
       items: [
         {
           sku: "CONS-GRAL",
           description: "Consulta general",
-          codigo_producto_sin: 5412100,
-          unidad_medida: 58,
+          codigoProductoSin: 5412100,
+          unidadMedida: 58,
           quantity: 1,
           price: 200,
           data: {
@@ -55,18 +55,18 @@ Igual que el [17 · Salud](./17-salud.mdx) (modalidad + médico por línea) pero
       -H "X-API-Key: $KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "point_of_sale_id": "'$POS'",
+        "posId": "'$POS'",
         "customer": {
-          "document_type": "ci",
-          "document_number": "5544332",
+          "documentType": "ci",
+          "documentNumber": "5544332",
           "name": "Paciente ZF"
         },
         "items": [
           {
             "sku": "CONS-GRAL",
             "description": "Consulta general",
-            "codigo_producto_sin": 5412100,
-            "unidad_medida": 58,
+            "codigoProductoSin": 5412100,
+            "unidadMedida": 58,
             "quantity": 1,
             "price": 200,
             "data": {
