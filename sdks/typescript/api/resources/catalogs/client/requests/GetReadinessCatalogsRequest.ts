@@ -8,5 +8,5 @@
  */
 export interface GetReadinessCatalogsRequest {
     id: string;
-    point_of_sale_id?: string;
+    posId?: string;
 }

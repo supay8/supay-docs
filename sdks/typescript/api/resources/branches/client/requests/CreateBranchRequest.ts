@@ -3,13 +3,13 @@
 /**
  * @example
  *     {
- *         company_id: "company_id",
+ *         companyId: "companyId",
  *         name: "name"
  *     }
  */
 export interface CreateBranchRequest {
-    company_id: string;
-    codigo_sucursal?: number;
+    companyId: string;
+    codigoSucursal?: number;
     name: string;
     address?: string;
 }

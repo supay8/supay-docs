@@ -2,15 +2,15 @@
 
 export interface Certificate {
     id?: string | undefined;
-    company_id?: string | undefined;
+    companyId?: string | undefined;
     name?: string | undefined;
     type?: string | undefined;
     status?: Certificate.Status | undefined;
-    not_before?: string | undefined;
-    not_after?: string | undefined;
-    p12_storage_ref?: string | undefined;
-    created_at?: string | undefined;
-    updated_at?: string | undefined;
+    notBefore?: string | undefined;
+    notAfter?: string | undefined;
+    p12StorageRef?: string | undefined;
+    createdAt?: string | undefined;
+    updatedAt?: string | undefined;
 }
 
 export namespace Certificate {

@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptions, normalizeClientOptions } from "../../../../BaseClient.js";
-import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
+import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import * as environments from "../../../../environments.js";
 import { handleNonStatusCodeError } from "../../../../errors/handleNonStatusCodeError.js";
@@ -18,7 +18,7 @@ export declare namespace SystemClient {
 export class SystemClient {
     protected readonly _options: NormalizedClientOptions<SystemClient.Options>;
 
-    constructor(options: SystemClient.Options) {
+    constructor(options: SystemClient.Options = {}) {
         this._options = normalizeClientOptions(options);
     }
 
@@ -38,11 +38,7 @@ export class SystemClient {
     private async __healthCheck(
         requestOptions?: SystemClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.HealthStatus>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
-            requestOptions?.headers,
-        );
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await core.fetcher({
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??

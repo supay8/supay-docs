@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "../../../../BaseClient.js";
-import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
+import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import { mergeAdditionalBodyParameters } from "../../../../core/requestBody.js";
 import * as environments from "../../../../environments.js";
@@ -19,107 +19,8 @@ export declare namespace InvoicesClient {
 export class InvoicesClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<InvoicesClient.Options>;
 
-    constructor(options: InvoicesClient.Options) {
+    constructor(options: InvoicesClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
-    }
-
-    /**
-     * Valida contrato local y catálogos. No crea cliente ni factura, no contacta al SIAT.
-     *
-     * @param {SupayApi.MinimalInvoiceRequest} request
-     * @param {InvoicesClient.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link SupayApi.BadRequestError}
-     * @throws {@link SupayApi.UnauthorizedError}
-     * @throws {@link SupayApi.ConflictError}
-     * @throws {@link errors.SupayError}
-     * @throws {@link errors.SupayTimeoutError}
-     *
-     * @example
-     *     await client.invoices.preview({
-     *         point_of_sale_id: "point_of_sale_id",
-     *         customer: {
-     *             document_number: "document_number",
-     *             name: "name"
-     *         },
-     *         items: [{
-     *                 sku: "sku",
-     *                 description: "description",
-     *                 codigo_producto_sin: 1000000,
-     *                 unidad_medida: 1,
-     *                 quantity: 1.1,
-     *                 price: 1.1
-     *             }]
-     *     })
-     */
-    public preview(
-        request: SupayApi.MinimalInvoiceRequest,
-        requestOptions?: InvoicesClient.RequestOptions,
-    ): core.HttpResponsePromise<SupayApi.InvoicePreview> {
-        return core.HttpResponsePromise.fromPromise(this.__preview(request, requestOptions));
-    }
-
-    private async __preview(
-        request: SupayApi.MinimalInvoiceRequest,
-        requestOptions?: InvoicesClient.RequestOptions,
-    ): Promise<core.WithRawResponse<SupayApi.InvoicePreview>> {
-        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            _authRequest.headers,
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.SupayEnvironment.Default,
-                "v1/invoices/preview",
-            ),
-            method: "POST",
-            headers: _headers,
-            contentType: "application/json",
-            queryString: core.url.queryBuilder().mergeAdditional(requestOptions?.queryParams).build(),
-            requestType: "json",
-            body: mergeAdditionalBodyParameters(request, requestOptions?.additionalBodyParameters),
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-            fetchFn: this._options?.fetch,
-            logging: this._options.logging,
-        });
-        if (_response.ok) {
-            return { data: _response.body as SupayApi.InvoicePreview, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 400:
-                    throw new SupayApi.BadRequestError(
-                        _response.error.body as SupayApi.ErrorEnvelope,
-                        _response.rawResponse,
-                    );
-                case 401:
-                    throw new SupayApi.UnauthorizedError(
-                        _response.error.body as SupayApi.ErrorEnvelope,
-                        _response.rawResponse,
-                    );
-                case 409:
-                    throw new SupayApi.ConflictError(
-                        _response.error.body as SupayApi.ErrorEnvelope,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SupayError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/invoices/preview");
     }
 
     /**
@@ -131,7 +32,7 @@ export class InvoicesClient {
      *
      * @example
      *     await client.invoices.list({
-     *         point_of_sale_id: "point_of_sale_id"
+     *         posId: "posId"
      *     })
      */
     public list(
@@ -145,9 +46,9 @@ export class InvoicesClient {
         request: SupayApi.ListInvoicesRequest,
         requestOptions?: InvoicesClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.InvoiceList>> {
-        const { point_of_sale_id: pointOfSaleId, status, limit, offset } = request;
+        const { posId, status, limit, offset } = request;
         const _queryParams: Record<string, unknown> = {
-            point_of_sale_id: pointOfSaleId,
+            posId,
             status,
             limit,
             offset,
@@ -156,7 +57,6 @@ export class InvoicesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -195,93 +95,8 @@ export class InvoicesClient {
     }
 
     /**
-     * @param {SupayApi.MinimalInvoiceRequest} request
-     * @param {InvoicesClient.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link SupayApi.BadRequestError}
-     * @throws {@link errors.SupayError}
-     * @throws {@link errors.SupayTimeoutError}
-     *
-     * @example
-     *     await client.invoices.create({
-     *         point_of_sale_id: "point_of_sale_id",
-     *         customer: {
-     *             document_number: "document_number",
-     *             name: "name"
-     *         },
-     *         items: [{
-     *                 sku: "sku",
-     *                 description: "description",
-     *                 codigo_producto_sin: 1000000,
-     *                 unidad_medida: 1,
-     *                 quantity: 1.1,
-     *                 price: 1.1
-     *             }]
-     *     })
-     */
-    public create(
-        request: SupayApi.MinimalInvoiceRequest,
-        requestOptions?: InvoicesClient.RequestOptions,
-    ): core.HttpResponsePromise<SupayApi.Invoice> {
-        return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
-    }
-
-    private async __create(
-        request: SupayApi.MinimalInvoiceRequest,
-        requestOptions?: InvoicesClient.RequestOptions,
-    ): Promise<core.WithRawResponse<SupayApi.Invoice>> {
-        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            _authRequest.headers,
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.SupayEnvironment.Default,
-                "v1/invoices",
-            ),
-            method: "POST",
-            headers: _headers,
-            contentType: "application/json",
-            queryString: core.url.queryBuilder().mergeAdditional(requestOptions?.queryParams).build(),
-            requestType: "json",
-            body: mergeAdditionalBodyParameters(request, requestOptions?.additionalBodyParameters),
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-            fetchFn: this._options?.fetch,
-            logging: this._options.logging,
-        });
-        if (_response.ok) {
-            return { data: _response.body as SupayApi.Invoice, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 400:
-                    throw new SupayApi.BadRequestError(
-                        _response.error.body as SupayApi.ErrorEnvelope,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SupayError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/invoices");
-    }
-
-    /**
      * ACCEPTED/OBSERVED: respuesta SIAT. OFFLINE: timeout/caída, trae XML
-     * firmado + contingency_event_id. REJECTED: corregir y crear una factura nueva. Para conciliación,
+     * firmado + contingencyEventId. REJECTED: corregir y crear una factura nueva. Para conciliación,
      * consulte la factura existente por ID y conserve su CUF. Sector 30 -> 400.
      *
      * @param {SupayApi.MinimalInvoiceRequest} request
@@ -295,19 +110,11 @@ export class InvoicesClient {
      *
      * @example
      *     await client.invoices.emit({
-     *         point_of_sale_id: "point_of_sale_id",
+     *         posId: "posId",
      *         customer: {
-     *             document_number: "document_number",
+     *             documentNumber: "documentNumber",
      *             name: "name"
-     *         },
-     *         items: [{
-     *                 sku: "sku",
-     *                 description: "description",
-     *                 codigo_producto_sin: 1000000,
-     *                 unidad_medida: 1,
-     *                 quantity: 1.1,
-     *                 price: 1.1
-     *             }]
+     *         }
      *     })
      */
     public emit(
@@ -325,7 +132,6 @@ export class InvoicesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -387,20 +193,19 @@ export class InvoicesClient {
      * @throws {@link errors.SupayTimeoutError}
      *
      * @example
-     *     await client.invoices.listSectores()
+     *     await client.invoices.listSectors()
      */
-    public listSectores(requestOptions?: InvoicesClient.RequestOptions): core.HttpResponsePromise<SupayApi.SectorList> {
-        return core.HttpResponsePromise.fromPromise(this.__listSectores(requestOptions));
+    public listSectors(requestOptions?: InvoicesClient.RequestOptions): core.HttpResponsePromise<SupayApi.SectorList> {
+        return core.HttpResponsePromise.fromPromise(this.__listSectors(requestOptions));
     }
 
-    private async __listSectores(
+    private async __listSectors(
         requestOptions?: InvoicesClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.SectorList>> {
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -408,7 +213,7 @@ export class InvoicesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                "v1/invoices/sectores",
+                "v1/invoices/sectors",
             ),
             method: "GET",
             headers: _headers,
@@ -431,7 +236,7 @@ export class InvoicesClient {
             });
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/invoices/sectores");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/invoices/sectors");
     }
 
     /**
@@ -466,7 +271,6 @@ export class InvoicesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -513,77 +317,6 @@ export class InvoicesClient {
     }
 
     /**
-     * @param {SupayApi.EmitByIdInvoicesRequest} request
-     * @param {InvoicesClient.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link SupayApi.ConflictError}
-     * @throws {@link errors.SupayError}
-     * @throws {@link errors.SupayTimeoutError}
-     *
-     * @example
-     *     await client.invoices.emitById({
-     *         id: "id"
-     *     })
-     */
-    public emitById(
-        request: SupayApi.EmitByIdInvoicesRequest,
-        requestOptions?: InvoicesClient.RequestOptions,
-    ): core.HttpResponsePromise<SupayApi.Invoice> {
-        return core.HttpResponsePromise.fromPromise(this.__emitById(request, requestOptions));
-    }
-
-    private async __emitById(
-        request: SupayApi.EmitByIdInvoicesRequest,
-        requestOptions?: InvoicesClient.RequestOptions,
-    ): Promise<core.WithRawResponse<SupayApi.Invoice>> {
-        const { id } = request;
-        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            _authRequest.headers,
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    (await core.Supplier.get(this._options.environment)) ??
-                    environments.SupayEnvironment.Default,
-                `v1/invoices/${core.url.encodePathParam(id)}/emit`,
-            ),
-            method: "POST",
-            headers: _headers,
-            queryString: core.url.queryBuilder().mergeAdditional(requestOptions?.queryParams).build(),
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-            fetchFn: this._options?.fetch,
-            logging: this._options.logging,
-        });
-        if (_response.ok) {
-            return { data: _response.body as SupayApi.Invoice, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 409:
-                    throw new SupayApi.ConflictError(
-                        _response.error.body as SupayApi.ErrorEnvelope,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SupayError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/invoices/{id}/emit");
-    }
-
-    /**
      * @param {SupayApi.GetSiatStatusInvoicesRequest} request
      * @param {InvoicesClient.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -612,7 +345,6 @@ export class InvoicesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -682,7 +414,6 @@ export class InvoicesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -747,7 +478,6 @@ export class InvoicesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -816,7 +546,6 @@ export class InvoicesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -884,7 +613,6 @@ export class InvoicesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher<core.BinaryResponse>({

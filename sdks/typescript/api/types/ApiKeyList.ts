@@ -10,11 +10,11 @@ export namespace ApiKeyList {
     export namespace Items {
         export interface Item {
             id?: string | undefined;
-            key_prefix?: string | undefined;
+            keyPrefix?: string | undefined;
             name?: string | undefined;
-            is_active?: boolean | undefined;
-            last_used_at?: string | undefined;
-            created_at?: string | undefined;
+            isActive?: boolean | undefined;
+            lastUsedAt?: string | undefined;
+            createdAt?: string | undefined;
         }
     }
 }

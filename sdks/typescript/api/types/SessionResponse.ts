@@ -4,7 +4,7 @@ import type * as SupayApi from "../index.js";
 
 export interface SessionResponse {
     user?: SupayApi.User | undefined;
-    access_token?: string | undefined;
-    token_type?: string | undefined;
-    expires_at?: string | undefined;
+    accessToken?: string | undefined;
+    tokenType?: string | undefined;
+    expiresAt?: string | undefined;
 }

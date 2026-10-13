@@ -2,7 +2,7 @@
 
 export interface SyncSummary {
     company?: Record<string, unknown> | undefined;
-    point_of_sale?: Record<string, unknown> | undefined;
+    pos?: Record<string, unknown> | undefined;
     operations?: SyncSummary.Operations.Item[] | undefined;
     errors?: Record<string, unknown>[] | undefined;
 }
@@ -16,7 +16,7 @@ export namespace SyncSummary {
             transaccion?: boolean | undefined;
             codigos?: number | undefined;
             status?: Item.Status | undefined;
-            rows_saved?: number | undefined;
+            rowsSaved?: number | undefined;
         }
 
         export namespace Item {

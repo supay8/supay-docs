@@ -3,5 +3,5 @@
 export interface CuisResult {
     success?: boolean | undefined;
     cuis?: string | undefined;
-    fecha_vigencia?: string | undefined;
+    fechaVigencia?: string | undefined;
 }

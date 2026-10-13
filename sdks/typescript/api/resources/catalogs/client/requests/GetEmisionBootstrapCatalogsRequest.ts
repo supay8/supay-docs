@@ -8,5 +8,5 @@
  */
 export interface GetEmisionBootstrapCatalogsRequest {
     id: string;
-    codigo_actividad?: string;
+    codigoActividad?: string;
 }

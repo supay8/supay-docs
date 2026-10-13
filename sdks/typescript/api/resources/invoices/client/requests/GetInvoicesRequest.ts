@@ -8,6 +8,6 @@
  */
 export interface GetInvoicesRequest {
     id: string;
-    /** xml,company,point_of_sale,cufd,archivo,all. */
+    /** xml,company,pos,cufd,archivo,all. */
     include?: string;
 }

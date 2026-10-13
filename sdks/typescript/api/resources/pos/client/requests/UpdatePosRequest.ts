@@ -10,8 +10,8 @@ export interface UpdatePosRequest {
     id: string;
     name?: string;
     description?: string;
-    branch_id?: string;
-    tipo_punto_venta?: number;
+    branchId?: string;
+    tipoPuntoVenta?: number;
     cuis?: string;
-    is_active?: boolean;
+    isActive?: boolean;
 }

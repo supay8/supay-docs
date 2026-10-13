@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "../../../../BaseClient.js";
-import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
+import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import * as environments from "../../../../environments.js";
 import { handleNonStatusCodeError } from "../../../../errors/handleNonStatusCodeError.js";
@@ -18,7 +18,7 @@ export declare namespace CatalogsClient {
 export class CatalogsClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<CatalogsClient.Options>;
 
-    constructor(options: CatalogsClient.Options) {
+    constructor(options: CatalogsClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
@@ -45,15 +45,14 @@ export class CatalogsClient {
         request: SupayApi.GetReadinessCatalogsRequest,
         requestOptions?: CatalogsClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.CatalogReadiness>> {
-        const { id, point_of_sale_id: pointOfSaleId } = request;
+        const { id, posId } = request;
         const _queryParams: Record<string, unknown> = {
-            point_of_sale_id: pointOfSaleId,
+            posId,
         };
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -119,9 +118,9 @@ export class CatalogsClient {
         request: SupayApi.ListProductosSinCatalogsRequest,
         requestOptions?: CatalogsClient.RequestOptions,
     ): Promise<core.WithRawResponse<Record<string, unknown>>> {
-        const { id, codigo_actividad: codigoActividad, q, limit, offset } = request;
+        const { id, codigoActividad, q, limit, offset } = request;
         const _queryParams: Record<string, unknown> = {
-            codigo_actividad: codigoActividad,
+            codigoActividad,
             q,
             limit,
             offset,
@@ -130,7 +129,6 @@ export class CatalogsClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -196,15 +194,14 @@ export class CatalogsClient {
         request: SupayApi.GetEmisionBootstrapCatalogsRequest,
         requestOptions?: CatalogsClient.RequestOptions,
     ): Promise<core.WithRawResponse<Record<string, unknown>>> {
-        const { id, codigo_actividad: codigoActividad } = request;
+        const { id, codigoActividad } = request;
         const _queryParams: Record<string, unknown> = {
-            codigo_actividad: codigoActividad,
+            codigoActividad,
         };
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({

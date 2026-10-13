@@ -3,11 +3,9 @@
 /**
  * @example
  *     {
- *         company_id: "company_id",
- *         point_of_sale_id: "point_of_sale_id"
+ *         posId: "posId"
  *     }
  */
 export interface SetupRequest {
-    company_id: string;
-    point_of_sale_id: string;
+    posId: string;
 }

@@ -3,11 +3,11 @@
 /**
  * @example
  *     {
- *         pointOfSaleId: "pointOfSaleId"
+ *         posId: "posId"
  *     }
  */
 export interface PurchasesRequest {
-    pointOfSaleId: string;
+    posId: string;
     descripcion?: string;
     tipoCompra?: number;
     /** Archivo comprimido del lote de compras. */

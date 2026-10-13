@@ -8,5 +8,5 @@
  */
 export interface AnnulRequest {
     id: string;
-    codigo_motivo?: number;
+    codigoMotivo?: number;
 }

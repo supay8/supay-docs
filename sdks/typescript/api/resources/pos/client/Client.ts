@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "../../../../BaseClient.js";
-import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
+import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import { mergeAdditionalBodyParameters } from "../../../../core/requestBody.js";
 import * as environments from "../../../../environments.js";
@@ -10,49 +10,48 @@ import { handleNonStatusCodeError } from "../../../../errors/handleNonStatusCode
 import * as errors from "../../../../errors/index.js";
 import * as SupayApi from "../../../index.js";
 
-export declare namespace PointOfSalesClient {
+export declare namespace PosClient {
     export type Options = BaseClientOptions;
 
     export interface RequestOptions extends BaseRequestOptions {}
 }
 
-export class PointOfSalesClient {
-    protected readonly _options: NormalizedClientOptionsWithAuth<PointOfSalesClient.Options>;
+export class PosClient {
+    protected readonly _options: NormalizedClientOptionsWithAuth<PosClient.Options>;
 
-    constructor(options: PointOfSalesClient.Options) {
+    constructor(options: PosClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
     /**
-     * @param {SupayApi.ListPointOfSalesRequest} request
-     * @param {PointOfSalesClient.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {SupayApi.ListPosRequest} request
+     * @param {PosClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link errors.SupayError}
      * @throws {@link errors.SupayTimeoutError}
      *
      * @example
-     *     await client.pointOfSales.list()
+     *     await client.pos.list()
      */
     public list(
-        request: SupayApi.ListPointOfSalesRequest = {},
-        requestOptions?: PointOfSalesClient.RequestOptions,
+        request: SupayApi.ListPosRequest = {},
+        requestOptions?: PosClient.RequestOptions,
     ): core.HttpResponsePromise<SupayApi.PointOfSaleList> {
         return core.HttpResponsePromise.fromPromise(this.__list(request, requestOptions));
     }
 
     private async __list(
-        request: SupayApi.ListPointOfSalesRequest = {},
-        requestOptions?: PointOfSalesClient.RequestOptions,
+        request: SupayApi.ListPosRequest = {},
+        requestOptions?: PosClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.PointOfSaleList>> {
-        const { company_id: companyId } = request;
+        const { companyId } = request;
         const _queryParams: Record<string, unknown> = {
-            company_id: companyId,
+            companyId,
         };
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -60,7 +59,7 @@ export class PointOfSalesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                "v1/point-of-sales/",
+                "v1/pos",
             ),
             method: "GET",
             headers: _headers,
@@ -87,40 +86,39 @@ export class PointOfSalesClient {
             });
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/point-of-sales/");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/pos");
     }
 
     /**
      * @param {SupayApi.CreatePosRequest} request
-     * @param {PointOfSalesClient.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {PosClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link SupayApi.BadRequestError}
      * @throws {@link errors.SupayError}
      * @throws {@link errors.SupayTimeoutError}
      *
      * @example
-     *     await client.pointOfSales.create({
-     *         branch_id: "branch_id",
+     *     await client.pos.create({
+     *         branchId: "branchId",
      *         name: "name",
      *         description: "description"
      *     })
      */
     public create(
         request: SupayApi.CreatePosRequest,
-        requestOptions?: PointOfSalesClient.RequestOptions,
+        requestOptions?: PosClient.RequestOptions,
     ): core.HttpResponsePromise<SupayApi.PointOfSale> {
         return core.HttpResponsePromise.fromPromise(this.__create(request, requestOptions));
     }
 
     private async __create(
         request: SupayApi.CreatePosRequest,
-        requestOptions?: PointOfSalesClient.RequestOptions,
+        requestOptions?: PosClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.PointOfSale>> {
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -128,7 +126,7 @@ export class PointOfSalesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                "v1/point-of-sales/",
+                "v1/pos",
             ),
             method: "POST",
             headers: _headers,
@@ -162,39 +160,38 @@ export class PointOfSalesClient {
             }
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/point-of-sales/");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/pos");
     }
 
     /**
-     * @param {SupayApi.GetPointOfSalesRequest} request
-     * @param {PointOfSalesClient.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {SupayApi.GetPosRequest} request
+     * @param {PosClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link SupayApi.NotFoundError}
      * @throws {@link errors.SupayError}
      * @throws {@link errors.SupayTimeoutError}
      *
      * @example
-     *     await client.pointOfSales.get({
+     *     await client.pos.get({
      *         id: "id"
      *     })
      */
     public get(
-        request: SupayApi.GetPointOfSalesRequest,
-        requestOptions?: PointOfSalesClient.RequestOptions,
+        request: SupayApi.GetPosRequest,
+        requestOptions?: PosClient.RequestOptions,
     ): core.HttpResponsePromise<SupayApi.PointOfSale> {
         return core.HttpResponsePromise.fromPromise(this.__get(request, requestOptions));
     }
 
     private async __get(
-        request: SupayApi.GetPointOfSalesRequest,
-        requestOptions?: PointOfSalesClient.RequestOptions,
+        request: SupayApi.GetPosRequest,
+        requestOptions?: PosClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.PointOfSale>> {
         const { id } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -202,7 +199,7 @@ export class PointOfSalesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/point-of-sales/${core.url.encodePathParam(id)}`,
+                `v1/pos/${core.url.encodePathParam(id)}`,
             ),
             method: "GET",
             headers: _headers,
@@ -233,38 +230,37 @@ export class PointOfSalesClient {
             }
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/point-of-sales/{id}");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/pos/{id}");
     }
 
     /**
      * @param {SupayApi.UpdatePosRequest} request
-     * @param {PointOfSalesClient.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {PosClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link errors.SupayError}
      * @throws {@link errors.SupayTimeoutError}
      *
      * @example
-     *     await client.pointOfSales.update({
+     *     await client.pos.update({
      *         id: "id"
      *     })
      */
     public update(
         request: SupayApi.UpdatePosRequest,
-        requestOptions?: PointOfSalesClient.RequestOptions,
+        requestOptions?: PosClient.RequestOptions,
     ): core.HttpResponsePromise<SupayApi.PointOfSale> {
         return core.HttpResponsePromise.fromPromise(this.__update(request, requestOptions));
     }
 
     private async __update(
         request: SupayApi.UpdatePosRequest,
-        requestOptions?: PointOfSalesClient.RequestOptions,
+        requestOptions?: PosClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.PointOfSale>> {
         const { id, ..._body } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -272,7 +268,7 @@ export class PointOfSalesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/point-of-sales/${core.url.encodePathParam(id)}`,
+                `v1/pos/${core.url.encodePathParam(id)}`,
             ),
             method: "PATCH",
             headers: _headers,
@@ -298,6 +294,6 @@ export class PointOfSalesClient {
             });
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "PATCH", "/v1/point-of-sales/{id}");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "PATCH", "/v1/pos/{id}");
     }
 }

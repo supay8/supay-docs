@@ -8,7 +8,7 @@ export interface ErrorBody {
     field?: string | undefined;
     sugerencias?: string[] | undefined;
     accion?: string | undefined;
-    invoice_id?: string | undefined;
+    invoiceId?: string | undefined;
     details?: SupayApi.ErrorDetail[] | undefined;
 }
 

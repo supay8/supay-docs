@@ -2,8 +2,10 @@
 
 /**
  * @example
- *     {}
+ *     {
+ *         id: "id"
+ *     }
  */
-export interface ListPointOfSalesRequest {
-    company_id?: string;
+export interface GetPosRequest {
+    id: string;
 }

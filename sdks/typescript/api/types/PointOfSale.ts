@@ -2,14 +2,14 @@
 
 export interface PointOfSale {
     id?: string | undefined;
-    company_id?: string | undefined;
-    branch_id?: string | undefined;
-    codigo_sucursal?: number | undefined;
-    codigo_punto_venta?: number | undefined;
+    companyId?: string | undefined;
+    branchId?: string | undefined;
+    codigoSucursal?: number | undefined;
+    codigoPuntoVenta?: number | undefined;
     name?: string | undefined;
     description?: string | undefined;
-    tipo_punto_venta?: number | undefined;
+    tipoPuntoVenta?: number | undefined;
     cuis?: (string | null) | undefined;
-    is_active?: boolean | undefined;
-    created_at?: string | undefined;
+    isActive?: boolean | undefined;
+    createdAt?: string | undefined;
 }

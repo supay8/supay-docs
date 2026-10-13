@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "../../../../BaseClient.js";
-import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
+import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import { mergeAdditionalBodyParameters } from "../../../../core/requestBody.js";
 import * as environments from "../../../../environments.js";
@@ -19,7 +19,7 @@ export declare namespace ApiKeysClient {
 export class ApiKeysClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<ApiKeysClient.Options>;
 
-    constructor(options: ApiKeysClient.Options) {
+    constructor(options: ApiKeysClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
@@ -51,7 +51,6 @@ export class ApiKeysClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -59,7 +58,7 @@ export class ApiKeysClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/companies/${core.url.encodePathParam(id)}/api-keys/`,
+                `v1/companies/${core.url.encodePathParam(id)}/api-keys`,
             ),
             method: "GET",
             headers: _headers,
@@ -82,7 +81,7 @@ export class ApiKeysClient {
             });
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/companies/{id}/api-keys/");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/companies/{id}/api-keys");
     }
 
     /**
@@ -113,7 +112,6 @@ export class ApiKeysClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -121,7 +119,7 @@ export class ApiKeysClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/companies/${core.url.encodePathParam(id)}/api-keys/`,
+                `v1/companies/${core.url.encodePathParam(id)}/api-keys`,
             ),
             method: "POST",
             headers: _headers,
@@ -147,6 +145,6 @@ export class ApiKeysClient {
             });
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/companies/{id}/api-keys/");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/companies/{id}/api-keys");
     }
 }

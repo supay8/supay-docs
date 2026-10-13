@@ -2,10 +2,10 @@
 
 export interface Branch {
     id?: string | undefined;
-    company_id?: string | undefined;
-    codigo_sucursal?: number | undefined;
+    companyId?: string | undefined;
+    codigoSucursal?: number | undefined;
     name?: string | undefined;
     address?: string | undefined;
     active?: boolean | undefined;
-    created_at?: string | undefined;
+    createdAt?: string | undefined;
 }

@@ -3,11 +3,11 @@
 /**
  * @example
  *     {
- *         pointOfSaleId: "pointOfSaleId"
+ *         posId: "posId"
  *     }
  */
 export interface SyncCatalogsSiatRequest {
-    pointOfSaleId: string;
+    posId: string;
     /** Si se omite sincroniza todo; si no solo esa operación. */
     operation?: string;
 }

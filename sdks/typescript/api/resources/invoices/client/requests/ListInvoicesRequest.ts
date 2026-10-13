@@ -3,11 +3,11 @@
 /**
  * @example
  *     {
- *         point_of_sale_id: "point_of_sale_id"
+ *         posId: "posId"
  *     }
  */
 export interface ListInvoicesRequest {
-    point_of_sale_id: string;
+    posId: string;
     status?: string;
     limit?: number;
     offset?: number;

@@ -3,14 +3,14 @@
 /**
  * @example
  *     {
- *         pointOfSaleId: "pointOfSaleId"
+ *         posId: "posId"
  *     }
  */
 export interface SignificantEventRequest {
-    pointOfSaleId: string;
-    codigo_motivo_evento?: number;
+    posId: string;
+    codigoMotivoEvento?: number;
     descripcion?: string;
-    cufd_evento?: string;
-    fecha_hora_inicio_evento?: string;
-    fecha_hora_fin_evento?: string;
+    cufdEvento?: string;
+    fechaHoraInicioEvento?: string;
+    fechaHoraFinEvento?: string;
 }

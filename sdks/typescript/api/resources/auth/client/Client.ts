@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "../../../../BaseClient.js";
-import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
+import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import { mergeAdditionalBodyParameters } from "../../../../core/requestBody.js";
 import * as environments from "../../../../environments.js";
@@ -19,7 +19,7 @@ export declare namespace AuthClient {
 export class AuthClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<AuthClient.Options>;
 
-    constructor(options: AuthClient.Options) {
+    constructor(options: AuthClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
@@ -49,11 +49,7 @@ export class AuthClient {
         request: SupayApi.SignupRequest,
         requestOptions?: AuthClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.SessionResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
-            requestOptions?.headers,
-        );
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await core.fetcher({
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -121,11 +117,7 @@ export class AuthClient {
         request: SupayApi.LoginRequest,
         requestOptions?: AuthClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.SessionResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
-            requestOptions?.headers,
-        );
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await core.fetcher({
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -186,7 +178,6 @@ export class AuthClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -240,7 +231,6 @@ export class AuthClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -275,7 +265,7 @@ export class AuthClient {
     }
 
     /**
-     * @param {SupayApi.BootstrapCompanyRequest} request
+     * @param {SupayApi.RegisterCompanyRequest} request
      * @param {AuthClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link errors.SupayError}
@@ -284,25 +274,24 @@ export class AuthClient {
      * @example
      *     await client.auth.createMyCompany({
      *         nit: "nit",
-     *         business_name: "business_name"
+     *         businessName: "businessName"
      *     })
      */
     public createMyCompany(
-        request: SupayApi.BootstrapCompanyRequest,
+        request: SupayApi.RegisterCompanyRequest,
         requestOptions?: AuthClient.RequestOptions,
     ): core.HttpResponsePromise<SupayApi.Company> {
         return core.HttpResponsePromise.fromPromise(this.__createMyCompany(request, requestOptions));
     }
 
     private async __createMyCompany(
-        request: SupayApi.BootstrapCompanyRequest,
+        request: SupayApi.RegisterCompanyRequest,
         requestOptions?: AuthClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.Company>> {
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({

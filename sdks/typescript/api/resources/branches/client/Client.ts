@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "../../../../BaseClient.js";
-import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
+import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import { mergeAdditionalBodyParameters } from "../../../../core/requestBody.js";
 import * as environments from "../../../../environments.js";
@@ -19,7 +19,7 @@ export declare namespace BranchesClient {
 export class BranchesClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<BranchesClient.Options>;
 
-    constructor(options: BranchesClient.Options) {
+    constructor(options: BranchesClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
@@ -45,15 +45,14 @@ export class BranchesClient {
         request: SupayApi.ListBranchesRequest = {},
         requestOptions?: BranchesClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.BranchList>> {
-        const { company_id: companyId } = request;
+        const { companyId } = request;
         const _queryParams: Record<string, unknown> = {
-            company_id: companyId,
+            companyId,
         };
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -61,7 +60,7 @@ export class BranchesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                "v1/branches/",
+                "v1/branches",
             ),
             method: "GET",
             headers: _headers,
@@ -96,7 +95,7 @@ export class BranchesClient {
             }
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/branches/");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/v1/branches");
     }
 
     /**
@@ -111,7 +110,7 @@ export class BranchesClient {
      *
      * @example
      *     await client.branches.create({
-     *         company_id: "company_id",
+     *         companyId: "companyId",
      *         name: "name"
      *     })
      */
@@ -130,7 +129,6 @@ export class BranchesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -138,7 +136,7 @@ export class BranchesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                "v1/branches/",
+                "v1/branches",
             ),
             method: "POST",
             headers: _headers,
@@ -182,7 +180,7 @@ export class BranchesClient {
             }
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/branches/");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/branches");
     }
 
     /**
@@ -214,7 +212,6 @@ export class BranchesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -284,7 +281,6 @@ export class BranchesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -350,7 +346,6 @@ export class BranchesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({

@@ -3,11 +3,11 @@
 /**
  * @example
  *     {
- *         pointOfSaleId: "pointOfSaleId"
+ *         posId: "posId"
  *     }
  */
 export interface PackageRequest {
-    pointOfSaleId: string;
+    posId: string;
     /** Ausente = auto (facturas OFFLINE pendientes). */
-    invoice_ids?: string[];
+    invoiceIds?: string[];
 }

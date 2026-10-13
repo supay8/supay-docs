@@ -3,9 +3,9 @@
 export interface MinimalInvoiceItem {
     sku: string;
     description: string;
-    codigo_actividad?: string | undefined;
-    codigo_producto_sin: number;
-    unidad_medida: number;
+    codigoActividad?: string | undefined;
+    codigoProductoSin: number;
+    unidadMedida: number;
     quantity: number;
     price: number;
     discount?: number | undefined;

@@ -15,8 +15,6 @@ export type BaseClientOptions = {
     environment?: core.Supplier<environments.SupayEnvironment | string>;
     /** Specify a custom URL to connect the client to. */
     baseUrl?: core.Supplier<string>;
-    /** Override the X-Backend-Token header */
-    backendToken: core.Supplier<string>;
     /** Additional headers to include in requests. */
     headers?: Record<string, string | core.Supplier<string | null | undefined> | null | undefined>;
     /** The default maximum time to wait for a response in seconds. */
@@ -40,8 +38,6 @@ export interface BaseRequestOptions {
     maxRetries?: number;
     /** A hook to abort the request. */
     abortSignal?: AbortSignal;
-    /** Override the X-Backend-Token header */
-    backendToken?: string;
     /** Additional query string parameters to include in the request. */
     queryParams?: Record<string, unknown>;
     /** A dictionary containing additional parameters to spread into the request's body. */
@@ -70,7 +66,6 @@ export function normalizeClientOptions<T extends BaseClientOptions = BaseClientO
             "X-Fern-Language": "JavaScript",
             "X-Fern-Runtime": core.RUNTIME.type,
             "X-Fern-Runtime-Version": core.RUNTIME.version,
-            "X-Backend-Token": options?.backendToken,
         },
         options?.headers,
     );

@@ -3,19 +3,19 @@
 export interface Company {
     id?: string | undefined;
     nit?: string | undefined;
-    business_name?: string | undefined;
+    businessName?: string | undefined;
     ambiente?: Company.Ambiente | undefined;
     modalidad?: number | undefined;
     municipio?: string | undefined;
     direccion?: string | undefined;
     telefono?: string | undefined;
-    codigo_actividad?: string | undefined;
-    pie_pagina?: string | undefined;
-    usuario_siat?: string | undefined;
-    certificate_webhook_url?: string | undefined;
-    invoice_email_enabled?: boolean | undefined;
-    created_at?: string | undefined;
-    updated_at?: string | undefined;
+    codigoActividad?: string | undefined;
+    piePagina?: string | undefined;
+    usuarioSiat?: string | undefined;
+    certificateWebhookUrl?: string | undefined;
+    invoiceEmailEnabled?: boolean | undefined;
+    createdAt?: string | undefined;
+    updatedAt?: string | undefined;
 }
 
 export namespace Company {

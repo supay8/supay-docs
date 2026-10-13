@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "../../../../BaseClient.js";
-import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
+import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import { mergeAdditionalBodyParameters } from "../../../../core/requestBody.js";
 import * as environments from "../../../../environments.js";
@@ -19,7 +19,7 @@ export declare namespace SiatClient {
 export class SiatClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<SiatClient.Options>;
 
-    constructor(options: SiatClient.Options) {
+    constructor(options: SiatClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
@@ -33,8 +33,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.setup({
-     *         company_id: "company_id",
-     *         point_of_sale_id: "point_of_sale_id"
+     *         posId: "posId"
      *     })
      */
     public setup(
@@ -52,7 +51,6 @@ export class SiatClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -107,7 +105,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.requestCuis({
-     *         pointOfSaleId: "pointOfSaleId"
+     *         posId: "posId"
      *     })
      */
     public requestCuis(
@@ -121,12 +119,11 @@ export class SiatClient {
         request: SupayApi.RequestCuisSiatRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.CuisResult>> {
-        const { pointOfSaleId } = request;
+        const { posId } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -134,7 +131,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/cuis/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/cuis/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -165,12 +162,7 @@ export class SiatClient {
             }
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/cuis/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/cuis/{posId}");
     }
 
     /**
@@ -183,7 +175,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.requestCufd({
-     *         pointOfSaleId: "pointOfSaleId"
+     *         posId: "posId"
      *     })
      */
     public requestCufd(
@@ -197,12 +189,11 @@ export class SiatClient {
         request: SupayApi.RequestCufdSiatRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.CufdResult>> {
-        const { pointOfSaleId } = request;
+        const { posId } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -210,7 +201,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/cufd/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/cufd/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -241,12 +232,7 @@ export class SiatClient {
             }
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/cufd/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/cufd/{posId}");
     }
 
     /**
@@ -259,7 +245,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.syncCatalogs({
-     *         pointOfSaleId: "pointOfSaleId"
+     *         posId: "posId"
      *     })
      */
     public syncCatalogs(
@@ -273,7 +259,7 @@ export class SiatClient {
         request: SupayApi.SyncCatalogsSiatRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.SyncSummary>> {
-        const { pointOfSaleId, operation } = request;
+        const { posId, operation } = request;
         const _queryParams: Record<string, unknown> = {
             operation,
         };
@@ -281,7 +267,6 @@ export class SiatClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -289,7 +274,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/sincronizar/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/sync/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -324,12 +309,7 @@ export class SiatClient {
             }
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/sincronizar/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/sync/{posId}");
     }
 
     /**
@@ -342,7 +322,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.registerSignificantEvent({
-     *         pointOfSaleId: "pointOfSaleId"
+     *         posId: "posId"
      *     })
      */
     public registerSignificantEvent(
@@ -356,12 +336,11 @@ export class SiatClient {
         request: SupayApi.SignificantEventRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.SignificantEventResult>> {
-        const { pointOfSaleId, ..._body } = request;
+        const { posId, ..._body } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -369,7 +348,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/evento-significativo/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/events/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -403,12 +382,7 @@ export class SiatClient {
             }
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/evento-significativo/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/events/{posId}");
     }
 
     /**
@@ -421,7 +395,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.sendPackage({
-     *         pointOfSaleId: "pointOfSaleId"
+     *         posId: "posId"
      *     })
      */
     public sendPackage(
@@ -435,12 +409,11 @@ export class SiatClient {
         request: SupayApi.PackageRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<Record<string, unknown>>> {
-        const { pointOfSaleId, ..._body } = request;
+        const { posId, ..._body } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -448,7 +421,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/paquete/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/packages/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -482,12 +455,7 @@ export class SiatClient {
             }
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/paquete/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/packages/{posId}");
     }
 
     /**
@@ -518,7 +486,6 @@ export class SiatClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -526,7 +493,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/paquete/${core.url.encodePathParam(batchId)}/validate`,
+                `v1/siat/packages/${core.url.encodePathParam(batchId)}/validate`,
             ),
             method: "POST",
             headers: _headers,
@@ -553,7 +520,7 @@ export class SiatClient {
             _response.error,
             _response.rawResponse,
             "POST",
-            "/v1/siat/paquete/{batchId}/validate",
+            "/v1/siat/packages/{batchId}/validate",
         );
     }
 
@@ -567,8 +534,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.sendBulk({
-     *         companyId: "companyId",
-     *         pointOfSaleId: "pointOfSaleId",
+     *         posId: "posId",
      *         body: {
      *             "key": "value"
      *         }
@@ -585,12 +551,11 @@ export class SiatClient {
         request: SupayApi.SendBulkSiatRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<Record<string, unknown>>> {
-        const { companyId, pointOfSaleId, body: _body } = request;
+        const { posId, body: _body } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -598,7 +563,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/masiva/${core.url.encodePathParam(companyId)}/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/bulk/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -632,12 +597,7 @@ export class SiatClient {
             }
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/masiva/{companyId}/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/bulk/{posId}");
     }
 
     /**
@@ -649,7 +609,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.signXml({
-     *         pointOfSaleId: "pointOfSaleId",
+     *         posId: "posId",
      *         xml: "xml"
      *     })
      */
@@ -664,12 +624,11 @@ export class SiatClient {
         request: SupayApi.SignXmlRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<SupayApi.SignXmlResult>> {
-        const { pointOfSaleId, ..._body } = request;
+        const { posId, ..._body } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -677,7 +636,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/firma/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/sign/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -703,12 +662,7 @@ export class SiatClient {
             });
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/firma/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/sign/{posId}");
     }
 
     /**
@@ -720,7 +674,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.sendPurchases({
-     *         pointOfSaleId: "pointOfSaleId"
+     *         posId: "posId"
      *     })
      */
     public sendPurchases(
@@ -734,12 +688,11 @@ export class SiatClient {
         request: SupayApi.PurchasesRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<Record<string, unknown>>> {
-        const { pointOfSaleId, ..._body } = request;
+        const { posId, ..._body } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -747,7 +700,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/compras/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/purchases/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -773,12 +726,7 @@ export class SiatClient {
             });
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/compras/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/purchases/{posId}");
     }
 
     /**
@@ -809,7 +757,6 @@ export class SiatClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -817,7 +764,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/masiva/${core.url.encodePathParam(batchId)}/validate`,
+                `v1/siat/bulk/${core.url.encodePathParam(batchId)}/validate`,
             ),
             method: "POST",
             headers: _headers,
@@ -844,7 +791,7 @@ export class SiatClient {
             _response.error,
             _response.rawResponse,
             "POST",
-            "/v1/siat/masiva/{batchId}/validate",
+            "/v1/siat/bulk/{batchId}/validate",
         );
     }
 
@@ -859,7 +806,7 @@ export class SiatClient {
      *
      * @example
      *     await client.siat.sendAdjustmentDocument({
-     *         pointOfSaleId: "pointOfSaleId",
+     *         posId: "posId",
      *         body: {
      *             "key": "value"
      *         }
@@ -876,12 +823,11 @@ export class SiatClient {
         request: SupayApi.SendAdjustmentDocumentSiatRequest,
         requestOptions?: SiatClient.RequestOptions,
     ): Promise<core.WithRawResponse<Record<string, unknown>>> {
-        const { pointOfSaleId, body: _body } = request;
+        const { posId, body: _body } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -889,7 +835,7 @@ export class SiatClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/siat/documento-ajuste/${core.url.encodePathParam(pointOfSaleId)}`,
+                `v1/siat/adjustments/${core.url.encodePathParam(posId)}`,
             ),
             method: "POST",
             headers: _headers,
@@ -915,12 +861,7 @@ export class SiatClient {
             });
         }
 
-        return handleNonStatusCodeError(
-            _response.error,
-            _response.rawResponse,
-            "POST",
-            "/v1/siat/documento-ajuste/{pointOfSaleId}",
-        );
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/v1/siat/adjustments/{posId}");
     }
 
     /**
@@ -943,7 +884,6 @@ export class SiatClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -1005,7 +945,6 @@ export class SiatClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({

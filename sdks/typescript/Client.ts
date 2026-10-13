@@ -2,12 +2,11 @@
 
 import { ApiKeysClient } from "./api/resources/apiKeys/client/Client.js";
 import { AuthClient } from "./api/resources/auth/client/Client.js";
-import { BootstrapClient } from "./api/resources/bootstrap/client/Client.js";
 import { BranchesClient } from "./api/resources/branches/client/Client.js";
 import { CatalogsClient } from "./api/resources/catalogs/client/Client.js";
 import { CertificatesClient } from "./api/resources/certificates/client/Client.js";
 import { InvoicesClient } from "./api/resources/invoices/client/Client.js";
-import { PointOfSalesClient } from "./api/resources/pointOfSales/client/Client.js";
+import { PosClient } from "./api/resources/pos/client/Client.js";
 import { SiatClient } from "./api/resources/siat/client/Client.js";
 import { SystemClient } from "./api/resources/system/client/Client.js";
 import type { BaseClientOptions, BaseRequestOptions } from "./BaseClient.js";
@@ -23,26 +22,21 @@ export declare namespace Supay {
 export class Supay {
     protected readonly _options: NormalizedClientOptionsWithAuth<Supay.Options>;
     protected _system: SystemClient | undefined;
-    protected _bootstrap: BootstrapClient | undefined;
     protected _auth: AuthClient | undefined;
     protected _branches: BranchesClient | undefined;
-    protected _pointOfSales: PointOfSalesClient | undefined;
+    protected _pos: PosClient | undefined;
     protected _certificates: CertificatesClient | undefined;
     protected _apiKeys: ApiKeysClient | undefined;
     protected _siat: SiatClient | undefined;
     protected _catalogs: CatalogsClient | undefined;
     protected _invoices: InvoicesClient | undefined;
 
-    constructor(options: Supay.Options) {
+    constructor(options: Supay.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
     public get system(): SystemClient {
         return (this._system ??= new SystemClient(this._options));
-    }
-
-    public get bootstrap(): BootstrapClient {
-        return (this._bootstrap ??= new BootstrapClient(this._options));
     }
 
     public get auth(): AuthClient {
@@ -53,8 +47,8 @@ export class Supay {
         return (this._branches ??= new BranchesClient(this._options));
     }
 
-    public get pointOfSales(): PointOfSalesClient {
-        return (this._pointOfSales ??= new PointOfSalesClient(this._options));
+    public get pos(): PosClient {
+        return (this._pos ??= new PosClient(this._options));
     }
 
     public get certificates(): CertificatesClient {

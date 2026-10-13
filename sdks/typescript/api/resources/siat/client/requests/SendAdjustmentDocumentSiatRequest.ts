@@ -3,13 +3,13 @@
 /**
  * @example
  *     {
- *         pointOfSaleId: "pointOfSaleId",
+ *         posId: "posId",
  *         body: {
  *             "key": "value"
  *         }
  *     }
  */
 export interface SendAdjustmentDocumentSiatRequest {
-    pointOfSaleId: string;
+    posId: string;
     body: Record<string, unknown>;
 }

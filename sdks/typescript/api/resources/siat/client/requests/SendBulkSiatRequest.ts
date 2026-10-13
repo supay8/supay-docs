@@ -3,15 +3,13 @@
 /**
  * @example
  *     {
- *         companyId: "companyId",
- *         pointOfSaleId: "pointOfSaleId",
+ *         posId: "posId",
  *         body: {
  *             "key": "value"
  *         }
  *     }
  */
 export interface SendBulkSiatRequest {
-    companyId: string;
-    pointOfSaleId: string;
+    posId: string;
     body: Record<string, unknown>;
 }

@@ -5,5 +5,5 @@
  *     {}
  */
 export interface ListBranchesRequest {
-    company_id?: string;
+    companyId?: string;
 }

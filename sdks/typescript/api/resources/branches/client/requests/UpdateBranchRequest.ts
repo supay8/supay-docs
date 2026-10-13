@@ -8,7 +8,7 @@
  */
 export interface UpdateBranchRequest {
     id: string;
-    codigo_sucursal?: number;
+    codigoSucursal?: number;
     name?: string;
     address?: string;
     active?: boolean;

@@ -2,9 +2,9 @@
 
 export interface CreateApiKeyResponse {
     /** Solo se muestra una vez. Enviar como X-API-Key. */
-    api_key?: string | undefined;
-    key_prefix?: string | undefined;
+    apiKey?: string | undefined;
+    keyPrefix?: string | undefined;
     id?: string | undefined;
     name?: string | undefined;
-    created_at?: string | undefined;
+    createdAt?: string | undefined;
 }

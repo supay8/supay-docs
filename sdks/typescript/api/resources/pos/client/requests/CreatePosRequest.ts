@@ -3,16 +3,16 @@
 /**
  * @example
  *     {
- *         branch_id: "branch_id",
+ *         branchId: "branchId",
  *         name: "name",
  *         description: "description"
  *     }
  */
 export interface CreatePosRequest {
-    branch_id: string;
+    branchId: string;
     name: string;
     description: string;
-    tipo_punto_venta?: number;
+    tipoPuntoVenta?: number;
     cuis?: string | null;
-    is_active?: boolean;
+    isActive?: boolean;
 }

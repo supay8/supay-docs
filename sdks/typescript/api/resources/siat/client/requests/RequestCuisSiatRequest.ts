@@ -3,9 +3,9 @@
 /**
  * @example
  *     {
- *         pointOfSaleId: "pointOfSaleId"
+ *         posId: "posId"
  *     }
  */
 export interface RequestCuisSiatRequest {
-    pointOfSaleId: string;
+    posId: string;
 }

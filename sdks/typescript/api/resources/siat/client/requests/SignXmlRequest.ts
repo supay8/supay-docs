@@ -3,12 +3,12 @@
 /**
  * @example
  *     {
- *         pointOfSaleId: "pointOfSaleId",
+ *         posId: "posId",
  *         xml: "xml"
  *     }
  */
 export interface SignXmlRequest {
-    pointOfSaleId: string;
+    posId: string;
     /** XML sin firmar. */
     xml: string;
 }

@@ -18,7 +18,7 @@ export declare namespace CertificatesClient {
 export class CertificatesClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<CertificatesClient.Options>;
 
-    constructor(options: CertificatesClient.Options) {
+    constructor(options: CertificatesClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
@@ -50,7 +50,6 @@ export class CertificatesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -58,7 +57,7 @@ export class CertificatesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/companies/${core.url.encodePathParam(id)}/certificates/`,
+                `v1/companies/${core.url.encodePathParam(id)}/certificates`,
             ),
             method: "GET",
             headers: _headers,
@@ -85,7 +84,7 @@ export class CertificatesClient {
             _response.error,
             _response.rawResponse,
             "GET",
-            "/v1/companies/{id}/certificates/",
+            "/v1/companies/{id}/certificates",
         );
     }
 
@@ -117,8 +116,8 @@ export class CertificatesClient {
     ): Promise<core.WithRawResponse<SupayApi.Certificate>> {
         const _body = await core.newFormData();
         await _body.appendFile("p12_file", request.p12_file);
-        if (request.p12_password != null) {
-            _body.append("p12_password", request.p12_password);
+        if (request.p12Password != null) {
+            _body.append("p12Password", request.p12Password);
         }
 
         if (request.name != null) {
@@ -134,10 +133,7 @@ export class CertificatesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({
-                "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken,
-                ..._maybeEncodedRequest.headers,
-            }),
+            mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -145,7 +141,7 @@ export class CertificatesClient {
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.SupayEnvironment.Default,
-                `v1/companies/${core.url.encodePathParam(request.id)}/certificates/`,
+                `v1/companies/${core.url.encodePathParam(request.id)}/certificates`,
             ),
             method: "POST",
             headers: _headers,
@@ -183,7 +179,7 @@ export class CertificatesClient {
             _response.error,
             _response.rawResponse,
             "POST",
-            "/v1/companies/{id}/certificates/",
+            "/v1/companies/{id}/certificates",
         );
     }
 
@@ -215,7 +211,6 @@ export class CertificatesClient {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ "X-Backend-Token": requestOptions?.backendToken ?? this._options?.backendToken }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({

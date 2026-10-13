@@ -8,7 +8,7 @@
  */
 export interface ListProductosSinCatalogsRequest {
     id: string;
-    codigo_actividad?: string;
+    codigoActividad?: string;
     q?: string;
     limit?: number;
     offset?: number;

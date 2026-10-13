@@ -13,7 +13,7 @@ export interface UploadCertificatesRequest {
     id: string;
     /** Archivo .p12/.pfx (máx 5 MB). */
     p12_file: core.file.Uploadable;
-    p12_password?: string;
+    p12Password?: string;
     name?: string;
     type?: string;
 }
